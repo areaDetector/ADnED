@@ -1,0 +1,16 @@
+
+#####################################################################
+#
+# areaDetector nED client template file. This is the top level
+# template file that may include other files or override default
+# areaDetector records.
+#
+# Matt Pearson
+# Sept 14
+#
+# Macros:
+# P,R - base PV name
+#
+#
+#
+#####################################################################
