@@ -60,7 +60,7 @@ class ADnED : public ADDriver {
   virtual void report(FILE *fp, int details);
 
   void eventTask(void);
-  //void frameTask(void);
+  void frameTask(void);
 
  private:
 
@@ -77,7 +77,9 @@ class ADnED : public ADDriver {
 
   epicsEventId startEvent_;
   epicsEventId stopEvent_;
-
+  epicsEventId startFrame_;
+  epicsEventId stopFrame_;
+  
   //Values used for pasynUser->reason, and indexes into the parameter library.
   int ADnEDFirstParam;
   #define ADNED_FIRST_DRIVER_COMMAND ADnEDFirstParam

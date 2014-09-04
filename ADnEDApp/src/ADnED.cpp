@@ -33,7 +33,7 @@ using std::endl;
 
 //C Function prototypes to tie in with EPICS
 static void ADnEDEventTaskC(void *drvPvt);
-//static void ADnEDFrameTaskC(void *drvPvt);
+static void ADnEDFrameTaskC(void *drvPvt);
 
 
 /**
@@ -71,7 +71,17 @@ ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t ma
   }
   stopEvent_ = epicsEventMustCreate(epicsEventEmpty);
   if (!stopEvent_) {
-    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s epicsEventCreate failure for start event.\n", functionName);
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s epicsEventCreate failure for stop event.\n", functionName);
+    return;
+  }
+  startFrame_ = epicsEventMustCreate(epicsEventEmpty);
+  if (!startFrame_) {
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s epicsEventCreate failure for start frame.\n", functionName);
+    return;
+  }
+  stopFrame_ = epicsEventMustCreate(epicsEventEmpty);
+  if (!stopFrame_) {
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s epicsEventCreate failure for stop frame.\n", functionName);
     return;
   }
 
@@ -96,15 +106,15 @@ ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t ma
   }
 
    //Create the thread that copies the frames for areaDetector plugins 
-  //status = (epicsThreadCreate("ADnEDFrameTask",
-  //                          epicsThreadPriorityMedium,
-  //                          epicsThreadGetStackSize(epicsThreadStackMedium),
-  //                          (EPICSTHREADFUNC)ADnEDFrameTaskC,
-  //                          this) == NULL);
-  //if (status) {
-  //asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s epicsThreadCreate failure for ADnEDFrameTask.\n", functionName);
-  //return;
-  //}
+  status = (epicsThreadCreate("ADnEDFrameTask",
+                            epicsThreadPriorityMedium,
+                            epicsThreadGetStackSize(epicsThreadStackMedium),
+                            (EPICSTHREADFUNC)ADnEDFrameTaskC,
+                            this) == NULL);
+  if (status) {
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s epicsThreadCreate failure for ADnEDFrameTask.\n", functionName);
+    return;
+  }
 
   bool paramStatus = true;
   //Initialise any paramLib parameters that need passing up to device support
@@ -289,8 +299,7 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
 
 
 /**
- * Data readout task.
- * Calculate statistics and post waveforms.
+ * Event readout task.
  */
 void ADnED::eventTask(void)
 {
@@ -303,8 +312,8 @@ void ADnED::eventTask(void)
  
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Started Event Thread.\n", functionName);
 
-  cout << "Data readout thread PID: " << getpid() << endl;
-  cout << "Data readout thread TID syscall(SYS_gettid): " << syscall(SYS_gettid) << endl;
+  cout << "Event readout thread PID: " << getpid() << endl;
+  cout << "Event readout thread TID syscall(SYS_gettid): " << syscall(SYS_gettid) << endl;
 
   while (1) {
 
@@ -322,10 +331,13 @@ void ADnED::eventTask(void)
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Start Event.\n", functionName);
       acquire = 1;
       lock();
-      setIntegerParam(NDArrayCounter, 0);
-      setIntegerParam(NDArrayCounter, 0);
+      //
+      // Reset event counter params here (driver specific records.)
+      //
       setIntegerParam(ADStatus, ADStatusAcquire);
       setStringParam(ADStatusMessage, "Acquiring Events");
+      // Start frame thread
+      epicsEventSignal(this->startFrame_);
       callParamCallbacks();
       unlock();
     }
@@ -347,6 +359,7 @@ void ADnED::eventTask(void)
       if (!acquire) {
 	lock();
 	setIntegerParam(ADStatus, ADStatusIdle);
+	epicsEventSignal(this->stopFrame_);
 	unlock();
       }
       
@@ -367,6 +380,86 @@ static void ADnEDEventTaskC(void *drvPvt)
   
   pPvt->eventTask();
 }
+
+
+/**
+ * Frame readout task.
+ */
+void ADnED::frameTask(void)
+{
+  epicsEventWaitStatus eventStatus;
+  epicsFloat64 timeout = 0.001;
+  int acquire = 0;
+  int status = 0;
+  epicsTimeStamp nowTime;
+  const char* functionName = "ADnED::frameTask";
+ 
+  asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Started Frame Thread.\n", functionName);
+
+  cout << "Frame readout thread PID: " << getpid() << endl;
+  cout << "Frame readout thread TID syscall(SYS_gettid): " << syscall(SYS_gettid) << endl;
+
+  while (1) {
+
+    //Wait for a stop event, with a short timeout, to catch any that were done during last read.
+    eventStatus = epicsEventWaitWithTimeout(stopFrame_, timeout);          
+    if (eventStatus == epicsEventWaitOK) {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Stop Frame Event Before Start Frame Event.\n", functionName);
+    }
+    
+    //setIntegerParam(ADnEDFrameAcquire, 0);
+    callParamCallbacks();
+
+    eventStatus = epicsEventWait(startFrame_);          
+    if (eventStatus == epicsEventWaitOK) {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Start Frame Event.\n", functionName);
+      acquire = 1;
+      lock();
+      setIntegerParam(NDArrayCounter, 0);
+      //setIntegerParam(ADnEDFrameStatus, ADStatusAcquire);
+      //setStringParam(ADnEDFrameStatusMessage, "Acquiring Frames");
+      callParamCallbacks();
+      unlock();
+    }
+
+    while (acquire) {
+
+      //Wait for a stop event, with a short timeout.
+      //eventStatus = epicsEventWaitWithTimeout(stopEvent_, timeout);      
+      eventStatus = epicsEventWaitWithTimeout(stopFrame_, 1);      
+      if (eventStatus == epicsEventWaitOK) {
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Stop Frame Event.\n", functionName);
+        acquire = 0;
+      }
+
+      if (acquire) {
+	cout << "Reading Frames!" << endl;
+      }
+      
+      if (!acquire) {
+	lock();
+	//setIntegerParam(ADnEDFrameStatus, ADStatusIdle);
+	unlock();
+      }
+      
+    } // End of while(acquire)
+
+
+  } // End of while(1)
+
+  asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Exiting ADnEDFrameTask main loop.\n", functionName);
+
+}
+
+
+//Global C utility functions to tie in with EPICS
+static void ADnEDFrameTaskC(void *drvPvt)
+{
+  ADnED *pPvt = (ADnED *)drvPvt;
+  
+  pPvt->frameTask();
+}
+
 
 
 
