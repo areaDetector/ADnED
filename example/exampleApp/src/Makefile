@@ -19,6 +19,7 @@ example_DBD += NDPluginSupport.dbd
 example_DBD += ADnEDSupport.dbd
 example_DBD += asSupport.dbd
 example_DBD += devIocStats.dbd
+example_DBD += busySupport.dbd
 
 # example_registerRecordDeviceDriver.cpp derives from example.dbd
 example_SRCS += example_registerRecordDeviceDriver.cpp
@@ -35,6 +36,7 @@ include $(AREADETECTOR)/ADApp/commonDriverMakefile
 example_LIBS += ADnEDSupport
 example_LIBS += autosave
 example_LIBS += devIocStats
+example_LIBS += busy
 
 # Finally link to the EPICS Base libraries
 example_LIBS += $(EPICS_BASE_IOC_LIBS)

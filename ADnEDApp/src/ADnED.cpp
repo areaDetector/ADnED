@@ -109,6 +109,8 @@ ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t ma
   bool paramStatus = true;
   //Initialise any paramLib parameters that need passing up to device support
   paramStatus = ((setIntegerParam(ADnEDResetParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setStringParam (ADManufacturer, "SNS") == asynSuccess) && paramStatus);
+  paramStatus = ((setStringParam (ADModel, "nED") == asynSuccess) && paramStatus);
 
   callParamCallbacks();
 
@@ -159,9 +161,28 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
   asynStatus status = asynSuccess;
   int function = pasynUser->reason;
   int addr = 0;
+  int adStatus = 0;
   const char *functionName = "ADnED::writeInt32";
   
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Entry.\n", functionName);
+
+  getIntegerParam(ADStatus, &adStatus);
+
+  if (function == ADnEDResetParam) {
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Reset.\n", functionName);
+    
+  } else if (function == ADAcquire) {
+    if (value) {
+      if (adStatus != ADStatusAcquire) {
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Start Reading Events.\n", functionName);
+	epicsEventSignal(this->startEvent_);
+      }
+    } else {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Stop Reading Events.\n", functionName);
+      epicsEventSignal(this->stopEvent_);
+    }
+  }
+
 
   if (status != asynSuccess) {
     callParamCallbacks(addr);

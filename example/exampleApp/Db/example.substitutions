@@ -1,4 +1,10 @@
 
+file ADnED.template
+{
+pattern {P, R, PORT, ADDR, TIMEOUT}
+	{BL99:Det:, ADnED:, NED, 0, 5}
+}
+
 
 file ioc_sns.db
 {

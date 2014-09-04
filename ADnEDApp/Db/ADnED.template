@@ -10,7 +10,31 @@
 #
 # Macros:
 # P,R - base PV name
-#
-#
+# PORT - Asyn port name
+# ADDR - Asyn address (set to zero)
+# TIMEOUT - Asyn timeout
 #
 #####################################################################
+
+
+include "ADBase.template" 
+
+# /// 
+# /// Reset the device.
+# ///
+record(bo, "$(P)$(R)Reset")
+{
+    field(DTYP,"asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_RESET")
+    field(ZNAM,"Done")  
+    field(ONAM,"Reset")
+}
+
+
+# ///
+# /// Disable this ADBase record scanning.
+# ///
+record(ai, "$(P)$(R)PoolUsedMem")
+{
+   field(SCAN, "Passive")
+}
