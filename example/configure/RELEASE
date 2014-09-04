@@ -27,6 +27,13 @@ TEMPLATE_TOP=$(EPICS_BASE)/templates/makeBaseApp/top
 ASYN=		$(SUPPORT)/asyn
 AREADETECTOR=	$(SUPPORT)/areaDetector
 ADNED=		$(SUPPORT)/ADnED
+ADUTIL=         $(SUPPORT)/ADUtil
+GENERICIO=      $(SUPPORT)/genericIO
+DEVIOCSTATS=    $(SUPPORT)/devIocStats
+AUTOSAVE=       $(SUPPORT)/autosave
+BUSY=           $(SUPPORT)/busy
+CALC=           $(SUPPORT)/calc
+SSCAN=          $(SUPPORT)/sscan
 
 # EPICS_BASE usually appears last so other apps can override stuff:
 #EPICS_BASE=/home/controls/epics/R3.14.12.2/base

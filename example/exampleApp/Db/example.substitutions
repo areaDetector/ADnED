@@ -1,0 +1,8 @@
+
+
+file ioc_sns.db
+{
+pattern {IOCNAME}
+        {BL99:CS:Det:ADnED}
+}
+

@@ -14,9 +14,11 @@ DBD += example.dbd
 # example.dbd will be made up from these files:
 example_DBD += base.dbd
 example_DBD += asyn.dbd
-#example_DBD += dbSubExample.dbd
-#example_DBD += exampleHello.dbd
-#example_DBD += initTrace.dbd
+example_DBD += ADSupport.dbd
+example_DBD += NDPluginSupport.dbd
+example_DBD += ADnEDSupport.dbd
+example_DBD += asSupport.dbd
+example_DBD += devIocStats.dbd
 
 # example_registerRecordDeviceDriver.cpp derives from example.dbd
 example_SRCS += example_registerRecordDeviceDriver.cpp
@@ -29,7 +31,10 @@ example_SRCS_vxWorks += -nil-
 #example_OBJS_vxWorks += $(EPICS_BASE_BIN)/vxComLibrary
 
 # Link in the code from the support library
-example_LIBS += asyn
+include $(AREADETECTOR)/ADApp/commonDriverMakefile
+example_LIBS += ADnEDSupport
+example_LIBS += autosave
+example_LIBS += devIocStats
 
 # Finally link to the EPICS Base libraries
 example_LIBS += $(EPICS_BASE_IOC_LIBS)

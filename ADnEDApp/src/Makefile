@@ -14,7 +14,7 @@ LIBRARY_IOC += ADnEDSupport
 DBD += ADnEDSupport.dbd
 
 # Compile and add the code to the support library
-#ADnEDSupport_SRCS += ADnED.cpp
+ADnEDSupport_SRCS += ADnED.cpp
 
 ADnEDSupport_LIBS += $(EPICS_BASE_IOC_LIBS)
 
