@@ -34,6 +34,10 @@ example_SRCS_vxWorks += -nil-
 # Link in the code from the support library
 include $(AREADETECTOR)/ADApp/commonDriverMakefile
 example_LIBS += ADnEDSupport
+example_LIBS += pvDatabase
+example_LIBS += pvAccess
+example_LIBS += pvData
+example_LIBS += Com
 example_LIBS += autosave
 example_LIBS += devIocStats
 example_LIBS += busy

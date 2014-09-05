@@ -15,6 +15,7 @@ DBD += ADnEDSupport.dbd
 
 # Compile and add the code to the support library
 ADnEDSupport_SRCS += ADnED.cpp
+ADnEDSupport_SRCS += nEDChannel.cpp
 
 ADnEDSupport_LIBS += $(EPICS_BASE_IOC_LIBS)
 

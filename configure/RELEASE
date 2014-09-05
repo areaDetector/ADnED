@@ -22,13 +22,15 @@
 -include $(TOP)/../../setup_release
 SUPPORT=$(EPICS_SUPPORT)
 
+BASEV4=		/home/controls/epics/basev4/master
+
 TEMPLATE_TOP=$(EPICS_BASE)/templates/makeBaseApp/top
 
 ASYN=		$(SUPPORT)/asyn
 AREADETECTOR=	$(SUPPORT)/areaDetector
 
-# EPICS_BASE usually appears last so other apps can override stuff:
-#EPICS_BASE=/home/controls/epics/R3.14.12.2/base
+include $(BASEV4)/RELEASE.local
+
 
 # Set RULES here if you want to take build rules from somewhere
 # other than EPICS_BASE:

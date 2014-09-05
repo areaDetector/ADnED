@@ -24,9 +24,15 @@
 
 //ADnED
 #include "ADnED.h"
+#include "nEDChannel.h"
 
 using std::cout;
 using std::endl;
+
+using namespace std::tr1;
+using namespace epics::pvData;
+using namespace epics::pvAccess;
+using namespace nEDChannel;
 
 //Definitions of static class data members
 //const epicsInt32 Xspress3::ctrlDisable_ = 0;
@@ -315,6 +321,9 @@ void ADnED::eventTask(void)
   cout << "Event readout thread PID: " << getpid() << endl;
   cout << "Event readout thread TID syscall(SYS_gettid): " << syscall(SYS_gettid) << endl;
 
+  
+  
+
   while (1) {
 
     //Wait for a stop event, with a short timeout, to catch any that were done during last read.
@@ -322,7 +331,7 @@ void ADnED::eventTask(void)
     if (eventStatus == epicsEventWaitOK) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Stop Event Before Start Event.\n", functionName);
     }
-    
+
     setIntegerParam(ADAcquire, 0);
     callParamCallbacks();
 
@@ -339,6 +348,45 @@ void ADnED::eventTask(void)
       // Start frame thread
       epicsEventSignal(this->startFrame_);
       callParamCallbacks();
+
+      const char *pv_name = "neutrons";
+      double pv_timeout = 2.0;
+      const char *pv_request = "record[queueSize=100]field()";
+      short pv_priority = ChannelProvider::PRIORITY_DEFAULT;
+      
+      //Connect channel here
+      try {
+	
+	cout << "Starting ClientFactory::start() " << endl;
+	ClientFactory::start();
+	ChannelProvider::shared_pointer channelProvider = getChannelProviderRegistry()->getProvider("pva");
+	if (!channelProvider) {
+	  asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: No Channel Provider.\n", functionName);
+	}
+	
+	cout << "Creating channel requester " << endl;
+	std::string hello("Hello");
+	shared_ptr<nEDChannelRequester> channelRequester(new nEDChannelRequester(hello));
+	shared_ptr<Channel> channel(channelProvider->createChannel(pv_name, channelRequester, pv_priority));
+	channelRequester->waitUntilConnected(timeout);
+	
+	//shared_ptr<PVStructure> pvRequest = CreateRequest::create()->createRequest(pv_request);
+	//shared_ptr<MyMonitorRequester> monitorRequester(new MyMonitorRequester(quiet));
+	
+	//shared_ptr<Monitor> monitor = channel->createMonitor(monitorRequester, pvRequest);
+	
+	// Wait forever..
+	//monitorRequester->waitUntilDone();
+      }
+      catch (std::exception &e)  {
+	//asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+	//	  "%s: ERROR: Exception When Connecting To V4 PV %s. Exception: \n", 
+	//	  functionName, pv_name, e.what());
+	//PRINT_EXCEPTION2(e, stderr);
+        //cout << SHOW_EXCEPTION(e);
+      }
+      
+
       unlock();
     }
 
@@ -365,8 +413,10 @@ void ADnED::eventTask(void)
       
     } // End of while(acquire)
 
+    ClientFactory::stop();
 
   } // End of while(1)
+
 
   asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Exiting ADnEDEventTask main loop.\n", functionName);
 

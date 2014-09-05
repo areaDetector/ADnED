@@ -19,7 +19,7 @@ dbLoadRecords "db/example.db"
 
 ADnEDConfig("NED", "neutrons", -1, -1, 1)
 
-asynSetTraceMask("NED",0,0x11)
+#asynSetTraceMask("NED",0,0x11)
 
 #####################################################
 
