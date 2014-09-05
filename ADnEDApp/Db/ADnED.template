@@ -30,6 +30,17 @@ record(bo, "$(P)$(R)Reset")
     field(ONAM,"Reset")
 }
 
+# /// 
+# /// Events debug (prints to stdout).
+# ///
+record(bo, "$(P)$(R)EventDebug")
+{
+    field(DTYP,"asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_EVENT_DEBUG")
+    field(ZNAM,"Off")  
+    field(ONAM,"On")
+}
+
 
 # ///
 # /// Disable this ADBase record scanning.

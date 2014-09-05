@@ -16,6 +16,7 @@
 #include <drvSup.h>
 #include <registryFunction.h>
 
+#include "ADnED.h"
 #include "nEDChannel.h"
 
 namespace nEDChannel {
@@ -72,10 +73,12 @@ namespace nEDChannel {
 
   //MonitorRequester
   
-  nEDMonitorRequester::nEDMonitorRequester(std::string &requester_name) : MonitorRequester(), m_requesterName(requester_name)
+  nEDMonitorRequester::nEDMonitorRequester(std::string &requester_name, ADnED *nED) : 
+    MonitorRequester(), m_requesterName(requester_name), m_updates(0), m_lastPulseId(0), p_nED(nED)
   {
     cout << "nEDMonitorRequester constructor." << endl;
     cout << "m_requesterName: " << m_requesterName << endl;
+    cout << "p_nED: " << std::hex << p_nED << std::dec << endl;
   }
 
   nEDMonitorRequester::~nEDMonitorRequester() 
@@ -98,7 +101,7 @@ namespace nEDChannel {
             cout << "No 'pulse.value' ULong" << endl;
             return;
         }
-        value_offset = value->getFieldOffset();
+        m_valueOffset = value->getFieldOffset();
         // pvStructure is disposed; keep value_offset to read data from monitor's pvStructure
 
         monitor->start();
@@ -110,61 +113,17 @@ namespace nEDChannel {
     shared_ptr<MonitorElement> update;
     while ((update = monitor->poll()))
       {
-        // TODO Simulate slow client -> overruns on client side
-        // epicsThreadSleep(0.1);
+	++m_updates;
 
-        ++updates;
-        //checkUpdate(update->pvStructurePtr);
-        // update->changedBitSet indicates which elements have changed.
-        // update->overrunBitSet indicates which elements have changed more than once,
-        // i.e. we missed one (or more !) updates.
-        //if (! update->overrunBitSet->isEmpty())
-        //    ++overruns;
-        //if (quiet)
-        //{
-	//epicsTime now(epicsTime::getCurrent());
-	//  if (now >= next_run)
-	//  {
-	      //double received_perc = 100.0 * updates / (updates + missing_pulses);
-	      //cout << updates << " updates, "
-	      //     << overruns << " overruns, "
-	      //     << missing_pulses << " missing pulses, "
-	      //     << "received " << fixed << setprecision(1) << received_perc << "%"
-	      //     << endl;
-	      //overruns = 0;
-	      //missing_pulses = 0;
-	      //updates = 0;
-
-	//    next_run = now + 10.0;
-	//  }
-	    //}
-	    //else
-	    //{
-	cout << "Monitor:\n";
-
-            //cout << "Changed: " << *update->changedBitSet.get() << endl;
-            //cout << "Overrun: " << *update->overrunBitSet.get() << endl;
-	    
-	cout << "Updates: " << updates << endl;
-
-            //update->pvStructurePtr->dumpValue(cout);
-            //cout << endl;
+	p_nED->eventHandler(update->pvStructurePtr);
 
 	monitor->release(update);
-
-	//This doesn't stop anything
-	//if (updates==10) {
-	//cout << "Stopping monitor" << endl;
-	//monitor->stop();
-	//break;
-	//}
-
       }
   }
 
   boolean nEDMonitorRequester::waitUntilDone()
   {
-    return done_event.wait();
+    return m_doneEvent.wait();
   }
 
   void nEDMonitorRequester::unlisten(MonitorPtr const & monitor)

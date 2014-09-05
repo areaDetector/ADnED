@@ -98,6 +98,7 @@ ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t ma
   //createParam adds the parameters to all param lists automatically (using maxAddr).
   createParam(ADnEDFirstParamString,         asynParamInt32,       &ADnEDFirstParam);
   createParam(ADnEDResetParamString,         asynParamInt32,       &ADnEDResetParam);
+  createParam(ADnEDEventDebugParamString,    asynParamInt32,       &ADnEDEventDebugParam);
   createParam(ADnEDLastParamString,          asynParamInt32,       &ADnEDLastParam);
 
   //Initialize non static, non const, data members
@@ -128,8 +129,9 @@ ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t ma
   bool paramStatus = true;
   //Initialise any paramLib parameters that need passing up to device support
   paramStatus = ((setIntegerParam(ADnEDResetParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDEventDebugParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setStringParam (ADManufacturer, "SNS") == asynSuccess) && paramStatus);
-  paramStatus = ((setStringParam (ADModel, "nED") == asynSuccess) && paramStatus);
+  paramStatus = ((setStringParam (ADModel, "nED areaDetector") == asynSuccess) && paramStatus);
 
   callParamCallbacks();
 
@@ -193,10 +195,13 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
   } else if (function == ADAcquire) {
     if (value) {
       if (adStatus != ADStatusAcquire) {
+	cout << "Start acqusition." << endl;
+	events_ = 0;
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Start Reading Events.\n", functionName);
 	epicsEventSignal(this->startEvent_);
       }
     } else {
+      	cout << "Stop acqusition." << endl;
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Stop Reading Events.\n", functionName);
       epicsEventSignal(this->stopEvent_);
     }
@@ -304,7 +309,38 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
     return status;
 }
 
+/**
+ * Event handler callback for monitor
+ */
+void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct)
+{
+  
+  int eventDebug = 0;
+  const char* functionName = "ADnED::eventHandler";
+  asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Event Handler.\n", functionName);
 
+  lock();
+  getIntegerParam(ADnEDEventDebugParam, &eventDebug);
+  ++events_;
+  unlock();
+
+  shared_ptr<PVULong> value = pv_struct->getULongField("pulse.value");
+  if (!value) {
+    cout << "No pulse.value!" << endl;
+    return;
+  }
+
+  //Extract data here 
+  lock();
+  //Fill arrays here
+  unlock();
+ 
+  if (eventDebug != 0) {
+    cout << "Events: " << events_ << endl;
+    cout << "PulseID: " << std::hex << value->get() << ", " << std::dec << value->get() << endl;
+  }
+  
+}
 
 
 /**
@@ -323,7 +359,7 @@ void ADnED::eventTask(void)
 
   cout << "Event readout thread PID: " << getpid() << endl;
   cout << "Event readout thread TID syscall(SYS_gettid): " << syscall(SYS_gettid) << endl;
-
+  cout << "Event readout thread this pointed addr: " << std::hex << this << std::dec << endl;
   
   
 
@@ -382,7 +418,7 @@ void ADnED::eventTask(void)
       
       std::string monitorStr("ADnED Monitor");
       shared_ptr<PVStructure> pvRequest = CreateRequest::create()->createRequest(pv_request);
-      shared_ptr<nEDMonitorRequester> monitorRequester(new nEDMonitorRequester(monitorStr));
+      shared_ptr<nEDMonitorRequester> monitorRequester(new nEDMonitorRequester(monitorStr, this));
       
       shared_ptr<Monitor> monitor = channel->createMonitor(monitorRequester, pvRequest);
       

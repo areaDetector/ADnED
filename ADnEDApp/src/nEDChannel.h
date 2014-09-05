@@ -19,6 +19,8 @@
 #include <pv/pvAccess.h>
 #include <pv/monitor.h>
 
+class ADnED;
+
 namespace nEDChannel {
 
   using namespace std::tr1;
@@ -54,7 +56,7 @@ namespace nEDChannel {
     
   public:
     
-    nEDMonitorRequester(std::string &requester_name);
+    nEDMonitorRequester(std::string &requester_name, ADnED *nED);
     virtual ~nEDMonitorRequester();
     
     void monitorConnect(Status const & status, MonitorPtr const & monitor, StructureConstPtr const & structure);
@@ -68,16 +70,17 @@ namespace nEDChannel {
 
  private:
     
-    epicsTime next_run;
-    bool quiet;
-    Event done_event;
-    size_t value_offset;
-    uint64 updates;
-    uint64 overruns;
-    uint64 last_pulse_id;
-    uint64 missing_pulses;
-
     std::string m_requesterName;
+    uint64 m_updates;
+    uint64 m_lastPulseId;
+    ADnED *p_nED;
+
+    epicsTime m_nextRun;
+    Event m_doneEvent;
+    size_t m_valueOffset;
+    uint64 m_overruns;
+    uint64 m_missingPulses;
+    
 
     void checkUpdate(shared_ptr<PVStructure> const &structure);
 

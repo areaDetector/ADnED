@@ -22,6 +22,7 @@
 #include <unistd.h>
 
 #include <epicsTime.h>
+#include <epicsTypes.h>
 #include <epicsThread.h>
 #include <epicsEvent.h>
 #include <epicsMutex.h>
@@ -33,6 +34,7 @@
 #include <asynOctetSyncIO.h>
 
 #include "ADDriver.h"
+#include "nEDChannel.h"
 
 /* These are the drvInfo strings that are used to identify the parameters.
  * They are used by asyn clients, including standard asyn device support */
@@ -40,6 +42,7 @@
 #define ADnEDFirstParamString              "ADNED_FIRST"
 #define ADnEDLastParamString               "ADNED_LAST"
 #define ADnEDResetParamString              "ADNED_RESET"
+#define ADnEDEventDebugParamString         "ADNED_EVENT_DEBUG"
 
 #define NED_MAX_STRING_SIZE 256
 
@@ -47,6 +50,11 @@ extern "C" {
   int ADnEDConfig(const char *portName, const char *pvname, int maxBuffers, size_t maxMemory, int debug);
 }
 
+namespace epics {
+  namespace pvData {
+    class PVStructure;
+  }
+}
 
 class ADnED : public ADDriver {
 
@@ -63,6 +71,7 @@ class ADnED : public ADDriver {
 
   void eventTask(void);
   void frameTask(void);
+  void eventHandler(std::tr1::shared_ptr<epics::pvData::PVStructure> const &pv_struct);
 
  private:
 
@@ -73,6 +82,7 @@ class ADnED : public ADDriver {
 
   //Put private dynamic here
   epicsUInt32 acquiring_; 
+  uint64_t events_; 
   char pvname_[NED_MAX_STRING_SIZE];
 
   //Constructor parameters.
@@ -87,6 +97,7 @@ class ADnED : public ADDriver {
   int ADnEDFirstParam;
   #define ADNED_FIRST_DRIVER_COMMAND ADnEDFirstParam
   int ADnEDResetParam;
+  int ADnEDEventDebugParam;
   int ADnEDLastParam;
   #define ADNED_LAST_DRIVER_COMMAND ADnEDLastParam
 
