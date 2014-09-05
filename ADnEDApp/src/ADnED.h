@@ -83,6 +83,7 @@ class ADnED : public ADDriver {
   //Put private dynamic here
   epicsUInt32 acquiring_; 
   uint64_t events_; 
+  //epicsUInt64 events_; // why does this not work?
   char pvname_[NED_MAX_STRING_SIZE];
 
   //Constructor parameters.
