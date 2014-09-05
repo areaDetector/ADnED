@@ -356,37 +356,37 @@ void ADnED::eventTask(void)
       
       //Connect channel here
       try {
-	
 	cout << "Starting ClientFactory::start() " << endl;
 	ClientFactory::start();
-	ChannelProvider::shared_pointer channelProvider = getChannelProviderRegistry()->getProvider("pva");
-	if (!channelProvider) {
-	  asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: No Channel Provider.\n", functionName);
-	}
-	
-	cout << "Creating channel requester " << endl;
-	std::string hello("Hello");
-	shared_ptr<nEDChannelRequester> channelRequester(new nEDChannelRequester(hello));
-	shared_ptr<Channel> channel(channelProvider->createChannel(pv_name, channelRequester, pv_priority));
-	channelRequester->waitUntilConnected(timeout);
-	
-	//shared_ptr<PVStructure> pvRequest = CreateRequest::create()->createRequest(pv_request);
-	//shared_ptr<MyMonitorRequester> monitorRequester(new MyMonitorRequester(quiet));
-	
-	//shared_ptr<Monitor> monitor = channel->createMonitor(monitorRequester, pvRequest);
-	
-	// Wait forever..
-	//monitorRequester->waitUntilDone();
+      } catch (std::exception &e)  {
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		  "%s: ERROR: Exception for ClientFactory::start(). Exception: %s\n", 
+		  functionName, e.what());
+	PRINT_EXCEPTION2(e, stderr);
+        cout << SHOW_EXCEPTION(e);
       }
-      catch (std::exception &e)  {
-	//asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-	//	  "%s: ERROR: Exception When Connecting To V4 PV %s. Exception: \n", 
-	//	  functionName, pv_name, e.what());
-	//PRINT_EXCEPTION2(e, stderr);
-        //cout << SHOW_EXCEPTION(e);
+	
+      ChannelProvider::shared_pointer channelProvider = getChannelProviderRegistry()->getProvider("pva");
+      if (!channelProvider) {
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: No Channel Provider.\n", functionName);
       }
+	
+      std::string channelStr("ADnED Channel");
+      shared_ptr<nEDChannelRequester> channelRequester(new nEDChannelRequester(channelStr));
+      shared_ptr<Channel> channel(channelProvider->createChannel(pv_name, channelRequester, pv_priority));
+      channelRequester->waitUntilConnected(timeout);
       
-
+      epicsThreadSleep(1);
+      
+      std::string monitorStr("ADnED Monitor");
+      shared_ptr<PVStructure> pvRequest = CreateRequest::create()->createRequest(pv_request);
+      shared_ptr<nEDMonitorRequester> monitorRequester(new nEDMonitorRequester(monitorStr));
+      
+      shared_ptr<Monitor> monitor = channel->createMonitor(monitorRequester, pvRequest);
+      
+      // Wait forever..
+      monitorRequester->waitUntilDone();
+   
       unlock();
     }
 

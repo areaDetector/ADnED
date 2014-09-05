@@ -25,6 +25,8 @@ namespace nEDChannel {
   using namespace epics::pvData;
   using namespace epics::pvAccess;
 
+  //Channel connect/disconnect class
+
   class nEDChannelRequester : public virtual ChannelRequester {
 
   public:
@@ -44,7 +46,43 @@ namespace nEDChannel {
     Event m_connectEvent;
     
   };
-  
+ 
+  //Channel monitor class
+
+  class nEDMonitorRequester : public virtual MonitorRequester
+  {
+    
+  public:
+    
+    nEDMonitorRequester(std::string &requester_name);
+    virtual ~nEDMonitorRequester();
+    
+    void monitorConnect(Status const & status, MonitorPtr const & monitor, StructureConstPtr const & structure);
+    void monitorEvent(MonitorPtr const & monitor);
+    void unlisten(MonitorPtr const & monitor);
+    boolean waitUntilDone();
+
+    std::string getRequesterName();
+    void message(std::string const & message, MessageType messageType);
+
+ private:
+    epicsTime next_run;
+    bool quiet;
+    Event done_event;
+    size_t value_offset;
+    uint64 updates;
+    uint64 overruns;
+    uint64 last_pulse_id;
+    uint64 missing_pulses;
+
+    std::string m_requesterName;
+
+    void checkUpdate(shared_ptr<PVStructure> const &structure);
+
+  };
+
+
+ 
 }
 
 #endif //NEDCHANNEL_H
