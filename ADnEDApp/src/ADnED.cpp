@@ -35,7 +35,7 @@ using namespace epics::pvAccess;
 using namespace nEDChannel;
 
 //Definitions of static class data members
-//const epicsInt32 Xspress3::ctrlDisable_ = 0;
+//const epicsInt32 ADnED::NED_MAX_STRING_SIZE_ = 256;
 
 //C Function prototypes to tie in with EPICS
 static void ADnEDEventTaskC(void *drvPvt);
@@ -67,6 +67,9 @@ ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t ma
 {
   int status = asynSuccess;
   const char *functionName = "ADnED::ADnED";
+ 
+  strncpy(pvname_, const_cast<char*>(pvname), NED_MAX_STRING_SIZE-1);
+  cout << "pvname_: " <<  pvname_ << endl;
 
   //Create the epicsEvent for signaling the threads.
   //This will cause it to do a poll immediately, rather than wait for the poll time period.
@@ -349,7 +352,6 @@ void ADnED::eventTask(void)
       epicsEventSignal(this->startFrame_);
       callParamCallbacks();
 
-      const char *pv_name = "neutrons";
       double pv_timeout = 2.0;
       const char *pv_request = "record[queueSize=100]field()";
       short pv_priority = ChannelProvider::PRIORITY_DEFAULT;
@@ -373,10 +375,10 @@ void ADnED::eventTask(void)
 	
       std::string channelStr("ADnED Channel");
       shared_ptr<nEDChannelRequester> channelRequester(new nEDChannelRequester(channelStr));
-      shared_ptr<Channel> channel(channelProvider->createChannel(pv_name, channelRequester, pv_priority));
+      shared_ptr<Channel> channel(channelProvider->createChannel(pvname_, channelRequester, pv_priority));
       channelRequester->waitUntilConnected(timeout);
       
-      epicsThreadSleep(1);
+      //epicsThreadSleep(1);
       
       std::string monitorStr("ADnED Monitor");
       shared_ptr<PVStructure> pvRequest = CreateRequest::create()->createRequest(pv_request);
@@ -384,8 +386,10 @@ void ADnED::eventTask(void)
       
       shared_ptr<Monitor> monitor = channel->createMonitor(monitorRequester, pvRequest);
       
-      // Wait forever..
-      monitorRequester->waitUntilDone();
+      //Call this if we want to block here forever.
+      //monitorRequester->waitUntilDone();
+
+      //epicsThreadSleep(10);
    
       unlock();
     }

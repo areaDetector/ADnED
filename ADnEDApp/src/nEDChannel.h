@@ -61,11 +61,13 @@ namespace nEDChannel {
     void monitorEvent(MonitorPtr const & monitor);
     void unlisten(MonitorPtr const & monitor);
     boolean waitUntilDone();
+    
 
     std::string getRequesterName();
     void message(std::string const & message, MessageType messageType);
 
  private:
+    
     epicsTime next_run;
     bool quiet;
     Event done_event;

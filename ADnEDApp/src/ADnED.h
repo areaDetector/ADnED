@@ -41,6 +41,8 @@
 #define ADnEDLastParamString               "ADNED_LAST"
 #define ADnEDResetParamString              "ADNED_RESET"
 
+#define NED_MAX_STRING_SIZE 256
+
 extern "C" {
   int ADnEDConfig(const char *portName, const char *pvname, int maxBuffers, size_t maxMemory, int debug);
 }
@@ -67,13 +69,14 @@ class ADnED : public ADDriver {
   //Put private functions here
 
   //Put private static data members here
-  //static const epicsInt32 ctrlDisable_;
+  static const epicsInt32 NED_MAX_STRING_SIZE_;
 
   //Put private dynamic here
   epicsUInt32 acquiring_; 
+  char pvname_[NED_MAX_STRING_SIZE];
 
   //Constructor parameters.
-  const epicsUInt32 debug_; 
+  const epicsUInt32 debug_;
 
   epicsEventId startEvent_;
   epicsEventId stopEvent_;

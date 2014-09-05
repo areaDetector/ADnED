@@ -151,7 +151,15 @@ namespace nEDChannel {
             //cout << endl;
 
 	monitor->release(update);
-        }
+
+	//This doesn't stop anything
+	//if (updates==10) {
+	//cout << "Stopping monitor" << endl;
+	//monitor->stop();
+	//break;
+	//}
+
+      }
   }
 
   boolean nEDMonitorRequester::waitUntilDone()
