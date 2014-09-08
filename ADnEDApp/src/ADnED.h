@@ -43,6 +43,7 @@
 #define ADnEDLastParamString               "ADNED_LAST"
 #define ADnEDResetParamString              "ADNED_RESET"
 #define ADnEDEventDebugParamString         "ADNED_EVENT_DEBUG"
+#define ADnEDPulseCounterParamString       "ADNED_PULSE_COUNTER"
 
 #define NED_MAX_STRING_SIZE 256
 
@@ -82,8 +83,7 @@ class ADnED : public ADDriver {
 
   //Put private dynamic here
   epicsUInt32 acquiring_; 
-  uint64_t events_; 
-  //epicsUInt64 events_; // why does this not work?
+  epicsUInt32 pulseCounter_;
   char pvname_[NED_MAX_STRING_SIZE];
 
   //Constructor parameters.
@@ -99,6 +99,7 @@ class ADnED : public ADDriver {
   #define ADNED_FIRST_DRIVER_COMMAND ADnEDFirstParam
   int ADnEDResetParam;
   int ADnEDEventDebugParam;
+  int ADnEDPulseCounterParam;
   int ADnEDLastParam;
   #define ADNED_LAST_DRIVER_COMMAND ADnEDLastParam
 

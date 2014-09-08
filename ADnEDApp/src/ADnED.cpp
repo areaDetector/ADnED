@@ -99,10 +99,12 @@ ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t ma
   createParam(ADnEDFirstParamString,         asynParamInt32,       &ADnEDFirstParam);
   createParam(ADnEDResetParamString,         asynParamInt32,       &ADnEDResetParam);
   createParam(ADnEDEventDebugParamString,    asynParamInt32,       &ADnEDEventDebugParam);
+  createParam(ADnEDPulseCounterParamString,  asynParamInt32,       &ADnEDPulseCounterParam);
   createParam(ADnEDLastParamString,          asynParamInt32,       &ADnEDLastParam);
 
   //Initialize non static, non const, data members
   acquiring_ = 0;
+  pulseCounter_ = 0;
 
   //Create the thread that reads the data 
   status = (epicsThreadCreate("ADnEDEventTask",
@@ -130,6 +132,7 @@ ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t ma
   //Initialise any paramLib parameters that need passing up to device support
   paramStatus = ((setIntegerParam(ADnEDResetParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDEventDebugParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDPulseCounterParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setStringParam (ADManufacturer, "SNS") == asynSuccess) && paramStatus);
   paramStatus = ((setStringParam (ADModel, "nED areaDetector") == asynSuccess) && paramStatus);
 
@@ -196,7 +199,7 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
     if (value) {
       if (adStatus != ADStatusAcquire) {
 	cout << "Start acqusition." << endl;
-	events_ = 0;
+	pulseCounter_ = 0;
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Start Reading Events.\n", functionName);
 	epicsEventSignal(this->startEvent_);
       }
@@ -321,7 +324,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 
   lock();
   getIntegerParam(ADnEDEventDebugParam, &eventDebug);
-  ++events_;
+  ++pulseCounter_;
   unlock();
 
   shared_ptr<PVULong> value = pv_struct->getULongField("pulse.value");
@@ -333,10 +336,16 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   //Extract data here 
   lock();
   //Fill arrays here
+
+  //Update params at slower rate
+  //Some logic here to check time expired since last update
+  setIntegerParam(ADnEDPulseCounterParam, pulseCounter_);
+  callParamCallbacks();
+
   unlock();
  
   if (eventDebug != 0) {
-    cout << "Events: " << events_ << endl;
+    cout << "pulseCounter_: " << pulseCounter_ << endl;
     cout << "PulseID: " << std::hex << value->get() << ", " << std::dec << value->get() << endl;
   }
   
@@ -434,15 +443,15 @@ void ADnED::eventTask(void)
 
       //Wait for a stop event, with a short timeout.
       //eventStatus = epicsEventWaitWithTimeout(stopEvent_, timeout);      
-      eventStatus = epicsEventWaitWithTimeout(stopEvent_, 1);      
+      eventStatus = epicsEventWaitWithTimeout(stopEvent_, 0.1);      
       if (eventStatus == epicsEventWaitOK) {
         asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Stop Event.\n", functionName);
         acquire = 0;
       }
 
-      if (acquire) {
-	cout << "Reading Events!" << endl;
-      }
+      //if (acquire) {
+      //	cout << "Reading Events!" << endl;
+      //}
       
       if (!acquire) {
 	lock();
@@ -522,9 +531,9 @@ void ADnED::frameTask(void)
         acquire = 0;
       }
 
-      if (acquire) {
-	cout << "Reading Frames!" << endl;
-      }
+      //if (acquire) {
+      //	cout << "Reading Frames!" << endl;
+      //}
       
       if (!acquire) {
 	lock();

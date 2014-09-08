@@ -41,6 +41,17 @@ record(bo, "$(P)$(R)EventDebug")
     field(ONAM,"On")
 }
 
+# ///
+# /// Number of pulse in current acquisition
+# ///
+record(longin, "$(P)$(R)PulseCounter")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PULSE_COUNTER")
+   field(SCAN, "I/O Intr")
+}
+
 
 # ///
 # /// Disable this ADBase record scanning.
