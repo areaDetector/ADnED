@@ -44,6 +44,7 @@
 #define ADnEDResetParamString              "ADNED_RESET"
 #define ADnEDEventDebugParamString         "ADNED_EVENT_DEBUG"
 #define ADnEDPulseCounterParamString       "ADNED_PULSE_COUNTER"
+#define ADnEDEventUpdatePeriodParamString  "ADNED_EVENT_UPDATE_PERIOD"
 
 #define NED_MAX_STRING_SIZE 256
 
@@ -85,6 +86,9 @@ class ADnED : public ADDriver {
   epicsUInt32 acquiring_; 
   epicsUInt32 pulseCounter_;
   char pvname_[NED_MAX_STRING_SIZE];
+  epicsTimeStamp nowTime_;
+  double nowTimeSecs_;
+  double lastTimeSecs_;
 
   //Constructor parameters.
   const epicsUInt32 debug_;
@@ -100,6 +104,7 @@ class ADnED : public ADDriver {
   int ADnEDResetParam;
   int ADnEDEventDebugParam;
   int ADnEDPulseCounterParam;
+  int ADnEDEventUpdatePeriodParam;
   int ADnEDLastParam;
   #define ADNED_LAST_DRIVER_COMMAND ADnEDLastParam
 

@@ -44,7 +44,7 @@ record(bo, "$(P)$(R)EventDebug")
 # ///
 # /// Number of pulse in current acquisition
 # ///
-record(longin, "$(P)$(R)PulseCounter")
+record(longin, "$(P)$(R)PulseCounter_RBV")
 {
    field(PINI, "YES")
    field(DTYP, "asynInt32")
@@ -52,6 +52,31 @@ record(longin, "$(P)$(R)PulseCounter")
    field(SCAN, "I/O Intr")
 }
 
+# ///
+# /// Time between updates (ms) from the event thread.
+# ///
+record(ao, "$(P)$(R)EventUpdatePeriod")
+{
+   field(DESC, "Event Update Period")
+   field(DTYP, "asynFloat64")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_EVENT_UPDATE_PERIOD")
+   field(PREC, "0")
+   field(VAL, "100")
+   field(PINI, "YES")
+}
+
+# ///
+# /// Time between updates (ms) from the event thread (readback).
+# ///
+record(ai, "$(P)$(R)EventUpdatePeriod_RBV")
+{
+   field(DESC, "Event Update Period")
+   field(DTYP, "asynFloat64")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_EVENT_UPDATE_PERIOD")
+   field(PREC, "0")
+   field(SCAN, "I/O Intr")
+   field(EGU, "ms")	
+}
 
 # ///
 # /// Disable this ADBase record scanning.

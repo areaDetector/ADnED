@@ -34,13 +34,19 @@ using namespace epics::pvData;
 using namespace epics::pvAccess;
 using namespace nEDChannel;
 
+//***Remove these and replace with parameters that can dynamically allocate the arrays*****
+#define ADNED_ID_MIN1 1    /** Min pixel ID for detector 1 */
+#define ADNED_ID_MAX1 1024 /** Max pixel ID for detector 1 */
+#define ADNED_ID_MIN2 2048 /** Min pixel ID for detector 2 */
+#define ADNED_ID_MAX2 3072 /** Max pixel ID for detector 2 */
+
+
 //Definitions of static class data members
 //const epicsInt32 ADnED::NED_MAX_STRING_SIZE_ = 256;
 
 //C Function prototypes to tie in with EPICS
 static void ADnEDEventTaskC(void *drvPvt);
 static void ADnEDFrameTaskC(void *drvPvt);
-
 
 /**
  * Constructor for Xspress3::Xspress3. 
@@ -96,15 +102,18 @@ ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t ma
 
   //Add the params to the paramLib 
   //createParam adds the parameters to all param lists automatically (using maxAddr).
-  createParam(ADnEDFirstParamString,         asynParamInt32,       &ADnEDFirstParam);
-  createParam(ADnEDResetParamString,         asynParamInt32,       &ADnEDResetParam);
-  createParam(ADnEDEventDebugParamString,    asynParamInt32,       &ADnEDEventDebugParam);
-  createParam(ADnEDPulseCounterParamString,  asynParamInt32,       &ADnEDPulseCounterParam);
-  createParam(ADnEDLastParamString,          asynParamInt32,       &ADnEDLastParam);
+  createParam(ADnEDFirstParamString,              asynParamInt32,       &ADnEDFirstParam);
+  createParam(ADnEDResetParamString,              asynParamInt32,       &ADnEDResetParam);
+  createParam(ADnEDEventDebugParamString,         asynParamInt32,       &ADnEDEventDebugParam);
+  createParam(ADnEDPulseCounterParamString,       asynParamInt32,       &ADnEDPulseCounterParam);
+  createParam(ADnEDEventUpdatePeriodParamString,  asynParamFloat64,     &ADnEDEventUpdatePeriodParam);
+  createParam(ADnEDLastParamString,               asynParamInt32,       &ADnEDLastParam);
 
   //Initialize non static, non const, data members
   acquiring_ = 0;
   pulseCounter_ = 0;
+  nowTimeSecs_ = 0.0;
+  lastTimeSecs_ = 0.0;
 
   //Create the thread that reads the data 
   status = (epicsThreadCreate("ADnEDEventTask",
@@ -133,6 +142,7 @@ ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t ma
   paramStatus = ((setIntegerParam(ADnEDResetParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDEventDebugParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDPulseCounterParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setDoubleParam(ADnEDEventUpdatePeriodParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setStringParam (ADManufacturer, "SNS") == asynSuccess) && paramStatus);
   paramStatus = ((setStringParam (ADModel, "nED areaDetector") == asynSuccess) && paramStatus);
 
@@ -319,9 +329,22 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 {
   
   int eventDebug = 0;
+  bool eventUpdate = false;
+  epicsFloat64 updatePeriod = 0.0;
   const char* functionName = "ADnED::eventHandler";
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Event Handler.\n", functionName);
 
+  /* Get the time and decide if we update the array.*/
+  getDoubleParam(ADnEDEventUpdatePeriodParam, &updatePeriod);
+  epicsTimeGetCurrent(&nowTime_);
+  nowTimeSecs_ = nowTime_.secPastEpoch + (nowTime_.nsec / 1.e9);
+  if ((nowTimeSecs_ - lastTimeSecs_) < (updatePeriod / 1000.0)) {
+    eventUpdate = false;
+  } else {
+    eventUpdate = true;
+    lastTimeSecs_ = nowTimeSecs_;
+  }
+  
   lock();
   getIntegerParam(ADnEDEventDebugParam, &eventDebug);
   ++pulseCounter_;
@@ -339,8 +362,10 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 
   //Update params at slower rate
   //Some logic here to check time expired since last update
-  setIntegerParam(ADnEDPulseCounterParam, pulseCounter_);
-  callParamCallbacks();
+  if (eventUpdate) {
+    setIntegerParam(ADnEDPulseCounterParam, pulseCounter_);
+    callParamCallbacks();
+  }
 
   unlock();
  
@@ -361,7 +386,6 @@ void ADnED::eventTask(void)
   epicsFloat64 timeout = 0.001;
   int acquire = 0;
   int status = 0;
-  epicsTimeStamp nowTime;
   const char* functionName = "ADnED::dataTask";
  
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Started Event Thread.\n", functionName);
@@ -388,6 +412,8 @@ void ADnED::eventTask(void)
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Start Event.\n", functionName);
       acquire = 1;
       lock();
+ 
+      
       //
       // Reset event counter params here (driver specific records.)
       //
