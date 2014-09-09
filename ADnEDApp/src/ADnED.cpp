@@ -41,7 +41,7 @@ using namespace nEDChannel;
 #define ADNED_PV_REQUEST "record[queueSize=100]field()"
 #define ADNED_PV_PIXELS "pixel.value" 
 #define ADNED_PV_PULSE "pulse.value" 
-
+#define ADNED_PV_PCHARGE "protonCharge.value"
 
 //Definitions of static class data members
 const epicsInt32 ADnED::s_ADNED_MAX_STRING_SIZE = ADNED_MAX_STRING_SIZE;
@@ -105,6 +105,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDEventDebugParamString,         asynParamInt32,       &ADnEDEventDebugParam);
   createParam(ADnEDPulseCounterParamString,       asynParamInt32,       &ADnEDPulseCounterParam);
   createParam(ADnEDPulseIDParamString,            asynParamInt32,       &ADnEDPulseIDParam);
+  createParam(ADnEDPChargeParamString,            asynParamFloat64,     &ADnEDPChargeParam);
+  createParam(ADnEDPChargeIntParamString,            asynParamFloat64,     &ADnEDPChargeIntParam);
   createParam(ADnEDEventUpdatePeriodParamString,  asynParamFloat64,     &ADnEDEventUpdatePeriodParam);
   createParam(ADnEDDetPVNameParamString,          asynParamOctet,       &ADnEDDetPVNameParam);
   createParam(ADnEDDet1PixelNumStartParamString,  asynParamInt32,       &ADnEDDet1PixelNumStartParam);
@@ -116,6 +118,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   //Initialize non static, non const, data members
   m_acquiring = 0;
   m_pulseCounter = 0;
+  m_pChargeInt = 0.0;
   m_nowTimeSecs = 0.0;
   m_lastTimeSecs = 0.0;
   p_Data = NULL;
@@ -152,6 +155,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   paramStatus = ((setIntegerParam(ADnEDEventDebugParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDPulseCounterParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDPulseIDParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setDoubleParam(ADnEDPChargeParam, 0.0) == asynSuccess) && paramStatus);
+  paramStatus = ((setDoubleParam(ADnEDPChargeIntParam, 0.0) == asynSuccess) && paramStatus);
   paramStatus = ((setStringParam(ADnEDDetPVNameParam, " ") == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDDet1PixelNumStartParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDDet2PixelNumStartParam, 0) == asynSuccess) && paramStatus);
@@ -379,11 +384,18 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   ++m_pulseCounter;
   unlock();
 
-  shared_ptr<PVULong> pulseIDPtr = pv_struct->getULongField(ADNED_PV_PULSE);
+  PVULongPtr pulseIDPtr = pv_struct->getULongField(ADNED_PV_PULSE);
   if (!pulseIDPtr) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No valid pulse ID found.\n", functionName);
     return;
   }
+
+  PVDoublePtr pChargePtr = pv_struct->getDoubleField(ADNED_PV_PCHARGE);
+  if (!pChargePtr) {
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No valid pCharge found.\n", functionName);
+    return;
+  }
+  m_pChargeInt += pChargePtr->get();
 
   if (p_Data == NULL) {
     return;
@@ -413,6 +425,8 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     if (eventUpdate) {
       setIntegerParam(ADnEDPulseCounterParam, m_pulseCounter);
       setIntegerParam(ADnEDPulseIDParam, pulseIDPtr->get());
+      setDoubleParam(ADnEDPChargeParam, pChargePtr->get());
+      setDoubleParam(ADnEDPChargeIntParam, m_pChargeInt);
       callParamCallbacks();
     }
 
@@ -560,6 +574,7 @@ void ADnED::eventTask(void)
       if (p_Data != NULL) {
 	memset(p_Data, 0, m_dataMaxSize*sizeof(epicsUInt32));
       }
+      m_pChargeInt = 0.0;
       
       //
       // Reset event counter params here (driver specific records.)

@@ -45,6 +45,8 @@
 #define ADnEDEventDebugParamString         "ADNED_EVENT_DEBUG"
 #define ADnEDPulseCounterParamString       "ADNED_PULSE_COUNTER"
 #define ADnEDPulseIDParamString            "ADNED_PULSE_ID"
+#define ADnEDPChargeParamString            "ADNED_PCHARGE"
+#define ADnEDPChargeIntParamString         "ADNED_PCHARGE_INT"
 #define ADnEDEventUpdatePeriodParamString  "ADNED_EVENT_UPDATE_PERIOD"
 #define ADnEDDetPVNameParamString          "ADNED_DET_PV_NAME"
 #define ADnEDDet1PixelNumStartParamString  "ADNED_DET1_PIXEL_NUM_START"
@@ -92,6 +94,7 @@ class ADnED : public ADDriver {
   //Put private dynamic here
   epicsUInt32 m_acquiring; 
   epicsUInt32 m_pulseCounter;
+  epicsFloat64 m_pChargeInt;
   epicsTimeStamp m_nowTime;
   double m_nowTimeSecs;
   double m_lastTimeSecs;
@@ -116,6 +119,8 @@ class ADnED : public ADDriver {
   int ADnEDEventDebugParam;
   int ADnEDPulseCounterParam;
   int ADnEDPulseIDParam;
+  int ADnEDPChargeParam;
+  int ADnEDPChargeIntParam;
   int ADnEDEventUpdatePeriodParam;
   int ADnEDDetPVNameParam;
   int ADnEDDet1PixelNumStartParam;

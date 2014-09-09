@@ -110,7 +110,31 @@ record(waveform, "$(P)$(R)PVName_RBV")
     field(SCAN, "I/O Intr")
 }
 
+# ///
+# /// The latest RTDL proton charge
+# ///
+record(ai, "$(P)$(R)PCharge_RBV")
+{
+   field(DESC, "Latest Proton Charge")
+   field(DTYP, "asynFloat64")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PCHARGE")
+   field(PREC, "4")
+   field(SCAN, "I/O Intr")
+   field(EGU, "pC?")	
+}
 
+# ///
+# /// The integrated RTDL proton charge
+# ///
+record(ai, "$(P)$(R)PChargeIntegrated_RBV")
+{
+   field(DESC, "Integrated Proton Charge")
+   field(DTYP, "asynFloat64")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PCHARGE_INT")
+   field(PREC, "4")
+   field(SCAN, "I/O Intr")
+   field(EGU, "pC?")	
+}
 
 
 ##########################################################################
