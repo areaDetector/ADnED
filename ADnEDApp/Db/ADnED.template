@@ -53,6 +53,17 @@ record(longin, "$(P)$(R)PulseCounter_RBV")
 }
 
 # ///
+# /// Pulse ID values
+# ///
+record(longin, "$(P)$(R)PulseID_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PULSE_ID")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
 # /// Time between updates (ms) from the event thread.
 # ///
 record(ao, "$(P)$(R)EventUpdatePeriod")

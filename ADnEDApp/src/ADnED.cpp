@@ -25,6 +25,7 @@
 //ADnED
 #include "ADnED.h"
 #include "nEDChannel.h"
+#include <pv/pvIntrospect.h>
 
 using std::cout;
 using std::endl;
@@ -106,6 +107,7 @@ ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t ma
   createParam(ADnEDResetParamString,              asynParamInt32,       &ADnEDResetParam);
   createParam(ADnEDEventDebugParamString,         asynParamInt32,       &ADnEDEventDebugParam);
   createParam(ADnEDPulseCounterParamString,       asynParamInt32,       &ADnEDPulseCounterParam);
+  createParam(ADnEDPulseIDParamString,            asynParamInt32,       &ADnEDPulseIDParam);
   createParam(ADnEDEventUpdatePeriodParamString,  asynParamFloat64,     &ADnEDEventUpdatePeriodParam);
   createParam(ADnEDLastParamString,               asynParamInt32,       &ADnEDLastParam);
 
@@ -114,6 +116,7 @@ ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t ma
   pulseCounter_ = 0;
   nowTimeSecs_ = 0.0;
   lastTimeSecs_ = 0.0;
+  pData_ = NULL;
 
   //Create the thread that reads the data 
   status = (epicsThreadCreate("ADnEDEventTask",
@@ -142,6 +145,7 @@ ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t ma
   paramStatus = ((setIntegerParam(ADnEDResetParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDEventDebugParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDPulseCounterParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDPulseIDParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setDoubleParam(ADnEDEventUpdatePeriodParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setStringParam (ADManufacturer, "SNS") == asynSuccess) && paramStatus);
   paramStatus = ((setStringParam (ADModel, "nED areaDetector") == asynSuccess) && paramStatus);
@@ -350,11 +354,16 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   ++pulseCounter_;
   unlock();
 
-  shared_ptr<PVULong> value = pv_struct->getULongField("pulse.value");
-  if (!value) {
-    cout << "No pulse.value!" << endl;
+  shared_ptr<PVULong> pulseIDPtr = pv_struct->getULongField("pulse.value");
+  if (!pulseIDPtr) {
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No valid pulse ID found.\n", functionName);
     return;
   }
+
+  PVScalarArrayPtr eventsPtr = pv_struct->getScalarArrayField("pixel.value", pvUInt);
+  cout << eventsPtr->getLength() << endl;
+
+ 
 
   //Extract data here 
   lock();
@@ -364,6 +373,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   //Some logic here to check time expired since last update
   if (eventUpdate) {
     setIntegerParam(ADnEDPulseCounterParam, pulseCounter_);
+    setIntegerParam(ADnEDPulseIDParam, pulseIDPtr->get());
     callParamCallbacks();
   }
 
@@ -371,7 +381,8 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
  
   if (eventDebug != 0) {
     cout << "pulseCounter_: " << pulseCounter_ << endl;
-    cout << "PulseID: " << std::hex << value->get() << ", " << std::dec << value->get() << endl;
+    pv_struct->dumpValue(cout);
+    //cout << "PulseID: " << std::hex << value->get() << ", " << std::dec << value->get() << endl;
   }
   
 }
@@ -407,12 +418,28 @@ void ADnED::eventTask(void)
     setIntegerParam(ADAcquire, 0);
     callParamCallbacks();
 
+    //Need to check if changed here, otherwise leave alone.
+    if (pData_) {
+     free(pData_);
+     pData_ = NULL;
+    }
+
     eventStatus = epicsEventWait(startEvent_);          
     if (eventStatus == epicsEventWaitOK) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Start Event.\n", functionName);
       acquire = 1;
       lock();
- 
+      //*****Replace with allocation function that can do this properly
+      //Need to check if changed here, otherwise leave alone.
+      if (!pData_) {
+      	pData_ = static_cast<epicsUInt32*>(calloc(((ADNED_ID_MAX1-ADNED_ID_MIN1)+(ADNED_ID_MAX2-ADNED_ID_MIN2)), sizeof(epicsUInt32)));
+      } else {
+      	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s pData already allocated at start of acqusition.\n", functionName);
+      }
+      if (!pData_) {
+      	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s pData failed to allocate.\n", functionName);
+      }
+      //*************
       
       //
       // Reset event counter params here (driver specific records.)
