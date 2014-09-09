@@ -371,8 +371,6 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   int det2start = 0;
   int det1end = 0;
   int det2end = 0;
-  det1Size_ = 0;
-  det2Size_ = 0;
 
   lock();
   getIntegerParam(ADnEDEventDebugParam, &eventDebug);
@@ -426,7 +424,10 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   if (eventDebug != 0) {
     cout << "pulseCounter_: " << pulseCounter_ << endl;
     pv_struct->dumpValue(cout);
-    cout << "pData_:" << endl;
+    cout << "pData_: " << endl;
+    cout << " dataMaxSize_: " << dataMaxSize_ << endl;
+    cout << " det1Size_: " << det1Size_ << endl;
+    cout << " det2Size_: " << det2Size_ << endl;
     for (int i=0; i<dataMaxSize_; ++i) {
       cout << " " << pData_[i];
     }
