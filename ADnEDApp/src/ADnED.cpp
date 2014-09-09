@@ -44,7 +44,7 @@ using namespace nEDChannel;
 
 
 //Definitions of static class data members
-//const epicsInt32 ADnED::NED_MAX_STRING_SIZE_ = 256;
+const epicsInt32 ADnED::s_ADNED_MAX_STRING_SIZE = ADNED_MAX_STRING_SIZE;
 
 //C Function prototypes to tie in with EPICS
 static void ADnEDEventTaskC(void *drvPvt);
@@ -54,12 +54,11 @@ static void ADnEDFrameTaskC(void *drvPvt);
  * Constructor for Xspress3::Xspress3. 
  * This must be called in the Epics IOC startup file.
  * @param portName The Asyn port name to use
- * @param pvname The V4 PV name to use to read the event stream
  * @param maxBuffers Used by asynPortDriver (set to -1 for unlimited)
  * @param maxMemory Used by asynPortDriver (set to -1 for unlimited)
  * @param debug This debug flag for the driver. 
  */
-ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t maxMemory, int debug)
+ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   : ADDriver(portName,
              0, /* maxAddr */ 
              NUM_DRIVER_PARAMS,
@@ -71,33 +70,30 @@ ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t ma
              1, /* Autoconnect */
              0, /* default priority */
              0), /* Default stack size*/
-    debug_(debug)
+    m_debug(debug)
 {
   int status = asynSuccess;
   const char *functionName = "ADnED::ADnED";
- 
-  strncpy(pvname_, const_cast<char*>(pvname), NED_MAX_STRING_SIZE-1);
-  cout << "pvname_: " <<  pvname_ << endl;
 
   //Create the epicsEvent for signaling the threads.
   //This will cause it to do a poll immediately, rather than wait for the poll time period.
-  startEvent_ = epicsEventMustCreate(epicsEventEmpty);
-  if (!startEvent_) {
+  m_startEvent = epicsEventMustCreate(epicsEventEmpty);
+  if (!m_startEvent) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s epicsEventCreate failure for start event.\n", functionName);
     return;
   }
-  stopEvent_ = epicsEventMustCreate(epicsEventEmpty);
-  if (!stopEvent_) {
+  m_stopEvent = epicsEventMustCreate(epicsEventEmpty);
+  if (!m_stopEvent) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s epicsEventCreate failure for stop event.\n", functionName);
     return;
   }
-  startFrame_ = epicsEventMustCreate(epicsEventEmpty);
-  if (!startFrame_) {
+  m_startFrame = epicsEventMustCreate(epicsEventEmpty);
+  if (!m_startFrame) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s epicsEventCreate failure for start frame.\n", functionName);
     return;
   }
-  stopFrame_ = epicsEventMustCreate(epicsEventEmpty);
-  if (!stopFrame_) {
+  m_stopFrame = epicsEventMustCreate(epicsEventEmpty);
+  if (!m_stopFrame) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s epicsEventCreate failure for stop frame.\n", functionName);
     return;
   }
@@ -118,15 +114,15 @@ ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t ma
   createParam(ADnEDLastParamString,               asynParamInt32,       &ADnEDLastParam);
 
   //Initialize non static, non const, data members
-  acquiring_ = 0;
-  pulseCounter_ = 0;
-  nowTimeSecs_ = 0.0;
-  lastTimeSecs_ = 0.0;
-  pData_ = NULL;
-  dataAlloc_ = true;
-  dataMaxSize_ = 0;
-  det1Size_ = 0;
-  det2Size_ = 0;
+  m_acquiring = 0;
+  m_pulseCounter = 0;
+  m_nowTimeSecs = 0.0;
+  m_lastTimeSecs = 0.0;
+  p_Data = NULL;
+  m_dataAlloc = true;
+  m_dataMaxSize = 0;
+  m_det1Size = 0;
+  m_det2Size = 0;
 
   //Create the thread that reads the data 
   status = (epicsThreadCreate("ADnEDEventTask",
@@ -171,8 +167,6 @@ ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t ma
   }
 
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s End Of Constructor.\n", functionName);
-
-  cout << "PV name: " << pvname << endl;
 
 }
 
@@ -227,23 +221,23 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
     if (value) {
       if (adStatus != ADStatusAcquire) {
 	cout << "Start acqusition." << endl;
-	pulseCounter_ = 0;
+	m_pulseCounter = 0;
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Start Reading Events.\n", functionName);
-	epicsEventSignal(this->startEvent_);
+	epicsEventSignal(this->m_startEvent);
       }
     } else {
       	cout << "Stop acqusition." << endl;
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Stop Reading Events.\n", functionName);
-      epicsEventSignal(this->stopEvent_);
+      epicsEventSignal(this->m_stopEvent);
     }
   } else if (function == ADnEDDet1PixelNumStartParam) {
-    dataAlloc_ = true;
+    m_dataAlloc = true;
   } else if (function == ADnEDDet2PixelNumStartParam) {
-    dataAlloc_ = true;
+    m_dataAlloc = true;
   } else if (function == ADnEDDet1PixelNumEndParam) {
-    dataAlloc_ = true;
+    m_dataAlloc = true;
   } else if (function == ADnEDDet2PixelNumEndParam) {
-    dataAlloc_ = true;
+    m_dataAlloc = true;
   }
 
 
@@ -362,13 +356,13 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 
   /* Get the time and decide if we update the array.*/
   getDoubleParam(ADnEDEventUpdatePeriodParam, &updatePeriod);
-  epicsTimeGetCurrent(&nowTime_);
-  nowTimeSecs_ = nowTime_.secPastEpoch + (nowTime_.nsec / 1.e9);
-  if ((nowTimeSecs_ - lastTimeSecs_) < (updatePeriod / 1000.0)) {
+  epicsTimeGetCurrent(&m_nowTime);
+  m_nowTimeSecs = m_nowTime.secPastEpoch + (m_nowTime.nsec / 1.e9);
+  if ((m_nowTimeSecs - m_lastTimeSecs) < (updatePeriod / 1000.0)) {
     eventUpdate = false;
   } else {
     eventUpdate = true;
-    lastTimeSecs_ = nowTimeSecs_;
+    m_lastTimeSecs = m_nowTimeSecs;
   }
   
   int det1start = 0;
@@ -382,7 +376,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   getIntegerParam(ADnEDDet2PixelNumStartParam, &det2start);
   getIntegerParam(ADnEDDet1PixelNumEndParam, &det1end);
   getIntegerParam(ADnEDDet2PixelNumEndParam, &det2end);
-  ++pulseCounter_;
+  ++m_pulseCounter;
   unlock();
 
   shared_ptr<PVULong> pulseIDPtr = pv_struct->getULongField(ADNED_PV_PULSE);
@@ -391,7 +385,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     return;
   }
 
-  if (pData_ == NULL) {
+  if (p_Data == NULL) {
     return;
   }
 
@@ -407,17 +401,17 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
       //cout << " " << getData[i];
       int pixel = getData[i];
       if ((pixel >= det1start) && (pixel <= det1end)) {
-	pData_[pixel]++;
+	p_Data[pixel]++;
       } else if ((pixel >= det2start) && (pixel <= det2end)) {
 	offset = pixel-det2start;
-      	pData_[det1Size_+offset]++;
+      	p_Data[m_det1Size+offset]++;
       }
     }
 
     //Update params at slower rate
     //Some logic here to check time expired since last update
     if (eventUpdate) {
-      setIntegerParam(ADnEDPulseCounterParam, pulseCounter_);
+      setIntegerParam(ADnEDPulseCounterParam, m_pulseCounter);
       setIntegerParam(ADnEDPulseIDParam, pulseIDPtr->get());
       callParamCallbacks();
     }
@@ -426,14 +420,14 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   }
 
   if (eventDebug != 0) {
-    cout << "pulseCounter_: " << pulseCounter_ << endl;
+    cout << "m_pulseCounter: " << m_pulseCounter << endl;
     pv_struct->dumpValue(cout);
-    cout << "pData_: " << endl;
-    cout << " dataMaxSize_: " << dataMaxSize_ << endl;
-    cout << " det1Size_: " << det1Size_ << endl;
-    cout << " det2Size_: " << det2Size_ << endl;
-    for (int i=0; i<dataMaxSize_; ++i) {
-      cout << " " << pData_[i];
+    cout << "p_Data: " << endl;
+    cout << " m_dataMaxSize: " << m_dataMaxSize << endl;
+    cout << " m_det1Size: " << m_det1Size << endl;
+    cout << " m_det2Size: " << m_det2Size << endl;
+    for (epicsUInt32 i=0; i<m_dataMaxSize; ++i) {
+      cout << " " << p_Data[i];
     }
     cout << endl;
 
@@ -451,7 +445,7 @@ asynStatus ADnED::allocArray(void)
   const char* functionName = "ADnED::allocArray";
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s", functionName);
 
-  if (dataAlloc_ != true) {
+  if (m_dataAlloc != true) {
     //Nothing has changed
     return asynSuccess;
   }
@@ -460,8 +454,8 @@ asynStatus ADnED::allocArray(void)
   int det2start = 0;
   int det1end = 0;
   int det2end = 0;
-  det1Size_ = 0;
-  det2Size_ = 0;
+  m_det1Size = 0;
+  m_det2Size = 0;
 
   getIntegerParam(ADnEDDet1PixelNumStartParam, &det1start);
   getIntegerParam(ADnEDDet2PixelNumStartParam, &det2start);
@@ -474,7 +468,7 @@ asynStatus ADnED::allocArray(void)
   //Calculate sizes and do sanity checks
   if ((det1start != 0) && (det1end != 0)) {
     if (det1start <= det1end) {
-      det1Size_ = det1end-det1start+1;
+      m_det1Size = det1end-det1start+1;
     } else {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s det1start > det1end.\n", functionName);
       return asynError;
@@ -483,35 +477,35 @@ asynStatus ADnED::allocArray(void)
 
   if ((det2start != 0) && (det2end != 0)) {
     if (det2start <= det2end) {
-      det2Size_ = det2end-det2start+1;
+      m_det2Size = det2end-det2start+1;
     } else {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s det2start > det2end.\n", functionName);
     }
   }
   
-  dataMaxSize_ = det1Size_ + det2Size_;
-  printf("ADnED::allocArray: det1Size_: %d\n", det1Size_);
-  printf("ADnED::allocArray: det2Size_: %d\n", det2Size_);
-  printf("ADnED::allocArray: dataMaxSize_: %d\n", dataMaxSize_);
+  m_dataMaxSize = m_det1Size + m_det2Size;
+  printf("ADnED::allocArray: m_det1Size: %d\n", m_det1Size);
+  printf("ADnED::allocArray: m_det2Size: %d\n", m_det2Size);
+  printf("ADnED::allocArray: m_dataMaxSize: %d\n", m_dataMaxSize);
   
-  if (pData_) {
-    free(pData_);
-    pData_ = NULL;
+  if (p_Data) {
+    free(p_Data);
+    p_Data = NULL;
   }
   
-  if (!pData_) {
-    pData_ = static_cast<epicsUInt32*>(calloc(dataMaxSize_, sizeof(epicsUInt32)));
+  if (!p_Data) {
+    p_Data = static_cast<epicsUInt32*>(calloc(m_dataMaxSize, sizeof(epicsUInt32)));
   } else {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s pData already allocated at start of acqusition.\n", functionName);
     status = asynError;
   }
-  if (!pData_) {
+  if (!p_Data) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s pData failed to allocate.\n", functionName);
     status = asynError;
   }
 
   if (status == asynSuccess) {
-    dataAlloc_ = false;
+    m_dataAlloc = false;
   }
   
   return status;
@@ -527,6 +521,7 @@ void ADnED::eventTask(void)
   epicsFloat64 timeout = 0.001;
   int acquire = 0;
   int status = 0;
+  char pvName[s_ADNED_MAX_STRING_SIZE] = {0};
   const char* functionName = "ADnED::dataTask";
  
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Started Event Thread.\n", functionName);
@@ -540,7 +535,7 @@ void ADnED::eventTask(void)
   while (1) {
 
     //Wait for a stop event, with a short timeout, to catch any that were done during last read.
-    eventStatus = epicsEventWaitWithTimeout(stopEvent_, timeout);          
+    eventStatus = epicsEventWaitWithTimeout(m_stopEvent, timeout);          
     if (eventStatus == epicsEventWaitOK) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Stop Event Before Start Event.\n", functionName);
     }
@@ -548,19 +543,22 @@ void ADnED::eventTask(void)
     setIntegerParam(ADAcquire, 0);
     callParamCallbacks();
 
-    eventStatus = epicsEventWait(startEvent_);          
+    eventStatus = epicsEventWait(m_startEvent);          
     if (eventStatus == epicsEventWaitOK) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Start Event.\n", functionName);
       acquire = 1;
       lock();
      
+      //Read the PV name
+      getStringParam(ADnEDDetPVNameParam, sizeof(pvName), pvName);
+	
       if (allocArray() != asynSuccess) {
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to allocate array.\n", functionName);
       }
-
+      
       //Clear arrays at start of acquire every time.
-      if (pData_ != NULL) {
-	memset(pData_, 0, dataMaxSize_*sizeof(epicsUInt32));
+      if (p_Data != NULL) {
+	memset(p_Data, 0, m_dataMaxSize*sizeof(epicsUInt32));
       }
       
       //
@@ -569,7 +567,7 @@ void ADnED::eventTask(void)
       setIntegerParam(ADStatus, ADStatusAcquire);
       setStringParam(ADStatusMessage, "Acquiring Events");
       // Start frame thread
-      epicsEventSignal(this->startFrame_);
+      epicsEventSignal(this->m_startFrame);
       callParamCallbacks();
       
       //Connect channel here
@@ -581,40 +579,47 @@ void ADnED::eventTask(void)
 		  "%s: ERROR: Exception for ClientFactory::start(). Exception: %s\n", 
 		  functionName, e.what());
 	PRINT_EXCEPTION2(e, stderr);
-        cout << SHOW_EXCEPTION(e);
+	cout << SHOW_EXCEPTION(e);
       }
-	
+      
       ChannelProvider::shared_pointer channelProvider = getChannelProviderRegistry()->getProvider("pva");
       if (!channelProvider) {
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: No Channel Provider.\n", functionName);
       }
-	
-      std::string channelStr("ADnED Channel");
-      shared_ptr<nEDChannelRequester> channelRequester(new nEDChannelRequester(channelStr));
-      shared_ptr<Channel> channel(channelProvider->createChannel(pvname_, channelRequester, ADNED_PV_PRIORITY));
-      channelRequester->waitUntilConnected(ADNED_PV_TIMEOUT);
       
-      //epicsThreadSleep(1);
-      
-      std::string monitorStr("ADnED Monitor");
-      shared_ptr<PVStructure> pvRequest = CreateRequest::create()->createRequest(ADNED_PV_REQUEST);
-      shared_ptr<nEDMonitorRequester> monitorRequester(new nEDMonitorRequester(monitorStr, this));
-      
-      shared_ptr<Monitor> monitor = channel->createMonitor(monitorRequester, pvRequest);
-      
+      if (pvName[0] != NULL) {
+	try {
+	  std::string channelStr("ADnED Channel");
+	  shared_ptr<nEDChannelRequester> channelRequester(new nEDChannelRequester(channelStr));
+	  shared_ptr<Channel> channel(channelProvider->createChannel(pvName, channelRequester, ADNED_PV_PRIORITY));
+	  channelRequester->waitUntilConnected(ADNED_PV_TIMEOUT);
+	  
+	  std::string monitorStr("ADnED Monitor");
+	  shared_ptr<PVStructure> pvRequest = CreateRequest::create()->createRequest(ADNED_PV_REQUEST);
+	  shared_ptr<nEDMonitorRequester> monitorRequester(new nEDMonitorRequester(monitorStr, this));
+	  
+	  shared_ptr<Monitor> monitor = channel->createMonitor(monitorRequester, pvRequest);
+	} catch (std::exception &e)  {
+	  asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		    "%s: ERROR: Problem creating monitor. Exception: %s\n", 
+		    functionName, e.what());
+	  PRINT_EXCEPTION2(e, stderr);
+	  cout << SHOW_EXCEPTION(e);
+	}
+      }
       //Call this if we want to block here forever.
       //monitorRequester->waitUntilDone();
-
+      
       //epicsThreadSleep(10);
-   
+      
       unlock();
     }
-
+    
     while (acquire) {
 
       //Wait for a stop event, with a short timeout.
-      //eventStatus = epicsEventWaitWithTimeout(stopEvent_, timeout);      
-      eventStatus = epicsEventWaitWithTimeout(stopEvent_, 0.1);      
+      //eventStatus = epicsEventWaitWithTimeout(m_stopEvent, timeout);      
+      eventStatus = epicsEventWaitWithTimeout(m_stopEvent, 0.1);      
       if (eventStatus == epicsEventWaitOK) {
         asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Stop Event.\n", functionName);
         acquire = 0;
@@ -627,7 +632,7 @@ void ADnED::eventTask(void)
       if (!acquire) {
 	lock();
 	setIntegerParam(ADStatus, ADStatusIdle);
-	epicsEventSignal(this->stopFrame_);
+	epicsEventSignal(this->m_stopFrame);
 	unlock();
       }
       
@@ -672,7 +677,7 @@ void ADnED::frameTask(void)
   while (1) {
 
     //Wait for a stop event, with a short timeout, to catch any that were done during last read.
-    eventStatus = epicsEventWaitWithTimeout(stopFrame_, timeout);          
+    eventStatus = epicsEventWaitWithTimeout(m_stopFrame, timeout);          
     if (eventStatus == epicsEventWaitOK) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Stop Frame Event Before Start Frame Event.\n", functionName);
     }
@@ -680,7 +685,7 @@ void ADnED::frameTask(void)
     //setIntegerParam(ADnEDFrameAcquire, 0);
     callParamCallbacks();
 
-    eventStatus = epicsEventWait(startFrame_);          
+    eventStatus = epicsEventWait(m_startFrame);          
     if (eventStatus == epicsEventWaitOK) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Start Frame Event.\n", functionName);
       acquire = 1;
@@ -695,8 +700,8 @@ void ADnED::frameTask(void)
     while (acquire) {
 
       //Wait for a stop event, with a short timeout.
-      //eventStatus = epicsEventWaitWithTimeout(stopEvent_, timeout);      
-      eventStatus = epicsEventWaitWithTimeout(stopFrame_, 1);      
+      //eventStatus = epicsEventWaitWithTimeout(m_stopEvent, timeout);      
+      eventStatus = epicsEventWaitWithTimeout(m_stopFrame, 1);      
       if (eventStatus == epicsEventWaitOK) {
         asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Stop Frame Event.\n", functionName);
         acquire = 0;
@@ -742,18 +747,17 @@ extern "C" {
 /**
  * Config function for IOC shell. It instantiates an instance of the driver.
  * @param portName The Asyn port name to use
- * @param pvname The 4V PV name to use
  * @param maxBuffers Used by asynPortDriver (set to -1 for unlimited)
  * @param maxMemory Used by asynPortDriver (set to -1 for unlimited)
  * @param debug This debug flag is passed to xsp3_config in the Xspress API (0 or 1)
  */
-  int ADnEDConfig(const char *portName, const char *pvname, int maxBuffers, size_t maxMemory, int debug)
+  int ADnEDConfig(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   {
     asynStatus status = asynSuccess;
     
     /*Instantiate class.*/
     try {
-      new ADnED(portName, pvname, maxBuffers, maxMemory, debug);
+      new ADnED(portName, maxBuffers, maxMemory, debug);
     } catch (...) {
       cout << "Unknown exception caught when trying to construct ADnED." << endl;
       status = asynError;
@@ -768,20 +772,18 @@ extern "C" {
   
   /* ADnEDConfig */
   static const iocshArg ADnEDConfigArg0 = {"Port name", iocshArgString};
-  static const iocshArg ADnEDConfigArg1 = {"V4 PV Name", iocshArgString};
-  static const iocshArg ADnEDConfigArg2 = {"Max Buffers", iocshArgInt};
-  static const iocshArg ADnEDConfigArg3 = {"Max Memory", iocshArgInt};
-  static const iocshArg ADnEDConfigArg4 = {"Debug", iocshArgInt};
+  static const iocshArg ADnEDConfigArg1 = {"Max Buffers", iocshArgInt};
+  static const iocshArg ADnEDConfigArg2 = {"Max Memory", iocshArgInt};
+  static const iocshArg ADnEDConfigArg3 = {"Debug", iocshArgInt};
   static const iocshArg * const ADnEDConfigArgs[] =  {&ADnEDConfigArg0,
                                                          &ADnEDConfigArg1,
                                                          &ADnEDConfigArg2,
-                                                         &ADnEDConfigArg3,
-                                                         &ADnEDConfigArg4};
+                                                         &ADnEDConfigArg3};
   
-  static const iocshFuncDef configADnED = {"ADnEDConfig", 5, ADnEDConfigArgs};
+  static const iocshFuncDef configADnED = {"ADnEDConfig", 4, ADnEDConfigArgs};
   static void configADnEDCallFunc(const iocshArgBuf *args)
   {
-    ADnEDConfig(args[0].sval, args[1].sval, args[2].ival, args[3].ival, args[4].ival);
+    ADnEDConfig(args[0].sval, args[1].ival, args[2].ival, args[3].ival);
   }
   
   static void ADnEDRegister(void)

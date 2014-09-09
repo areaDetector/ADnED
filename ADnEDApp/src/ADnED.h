@@ -52,10 +52,10 @@
 #define ADnEDDet1PixelNumEndParamString    "ADNED_DET1_PIXEL_NUM_END"
 #define ADnEDDet2PixelNumEndParamString    "ADNED_DET2_PIXEL_NUM_END"
 
-#define NED_MAX_STRING_SIZE 256
+#define ADNED_MAX_STRING_SIZE 256
 
 extern "C" {
-  int ADnEDConfig(const char *portName, const char *pvname, int maxBuffers, size_t maxMemory, int debug);
+  int ADnEDConfig(const char *portName, int maxBuffers, size_t maxMemory, int debug);
 }
 
 namespace epics {
@@ -67,7 +67,7 @@ namespace epics {
 class ADnED : public ADDriver {
 
  public:
-  ADnED(const char *portName, const char *pvname, int maxBuffers, size_t maxMemory, int debug);
+  ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug);
   virtual ~ADnED();
 
   /* These are the methods that we override from asynPortDriver */
@@ -87,28 +87,27 @@ class ADnED : public ADDriver {
   //Put private functions here
 
   //Put private static data members here
-  static const epicsInt32 NED_MAX_STRING_SIZE_;
+  static const epicsInt32 s_ADNED_MAX_STRING_SIZE;
 
   //Put private dynamic here
-  epicsUInt32 acquiring_; 
-  epicsUInt32 pulseCounter_;
-  char pvname_[NED_MAX_STRING_SIZE];
-  epicsTimeStamp nowTime_;
-  double nowTimeSecs_;
-  double lastTimeSecs_;
-  epicsUInt32 *pData_;
-  bool dataAlloc_;
-  epicsUInt32 dataMaxSize_;
-  epicsUInt32 det1Size_;
-  epicsUInt32 det2Size_;
+  epicsUInt32 m_acquiring; 
+  epicsUInt32 m_pulseCounter;
+  epicsTimeStamp m_nowTime;
+  double m_nowTimeSecs;
+  double m_lastTimeSecs;
+  epicsUInt32 *p_Data;
+  bool m_dataAlloc;
+  epicsUInt32 m_dataMaxSize;
+  epicsUInt32 m_det1Size;
+  epicsUInt32 m_det2Size;
 
   //Constructor parameters.
-  const epicsUInt32 debug_;
+  const epicsUInt32 m_debug;
 
-  epicsEventId startEvent_;
-  epicsEventId stopEvent_;
-  epicsEventId startFrame_;
-  epicsEventId stopFrame_;
+  epicsEventId m_startEvent;
+  epicsEventId m_stopEvent;
+  epicsEventId m_startFrame;
+  epicsEventId m_stopFrame;
   
   //Values used for pasynUser->reason, and indexes into the parameter library.
   int ADnEDFirstParam;
