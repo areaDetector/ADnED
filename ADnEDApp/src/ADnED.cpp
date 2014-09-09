@@ -25,7 +25,7 @@
 //ADnED
 #include "ADnED.h"
 #include "nEDChannel.h"
-#include <pv/pvIntrospect.h>
+#include <pv/pvData.h>
 
 using std::cout;
 using std::endl;
@@ -360,8 +360,21 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     return;
   }
 
-  PVScalarArrayPtr eventsPtr = pv_struct->getScalarArrayField("pixel.value", pvUInt);
-  cout << eventsPtr->getLength() << endl;
+  PVUIntArrayPtr eventsPtr = pv_struct->getSubField<PVUIntArray>("pixel.value");
+  //cout << eventsPtr->getLength() << endl;
+  //int length = eventsPtr->getLength();
+  //for (int i=0; i<length; ++i) {
+  //  cout << eventsPtr->getScalarArray()[i] << endl;
+  //}
+  //epics::pvData::shared_vector<pvUInt> arr = eventsPtr->view();
+
+  if (eventsPtr) {
+    shared_vector<const uint32> getData = eventsPtr->view();
+    cout << "via getData";
+    for (size_t i=0; i< 10; ++i) cout << " " << getData[i];
+    cout << endl;
+  }
+
 
  
 
