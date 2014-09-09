@@ -1,0 +1,65 @@
+
+
+#####################################################################
+#
+# areaDetector nED client template file. This should be included by the
+# top level template file. It defines the records that are specific to
+# a single detector.
+#
+# Matt Pearson
+# Sept 14
+#
+# Macros:
+# P,R - base PV name
+# PORT - Asyn port name
+# ADDR - Asyn address (set to zero)
+# TIMEOUT - Asyn timeout
+# DET - detector number (start at 1)
+#
+#####################################################################
+
+# ///
+# /// Set the start of the pixel range for this detector DET=$(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):PixelNumStart")
+{
+   field(DESC, "Pixel range start DET$(DET)")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_DET$(DET)_PIXEL_NUM_START")
+   field(VAL, "0")
+}
+
+# ///
+# /// Get the start of the pixel range for this detector DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PixelNumStart_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_DET$(DET)_PIXEL_NUM_START")
+   field(SCAN, "I/O Intr")
+   field(PINI, "YES")
+}
+
+
+# ///
+# /// set the end of the pixel range for this detector DET=$(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):PixelNumEnd")
+{
+   field(DESC, "Pixel range end DET$(DET)")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_DET$(DET)_PIXEL_NUM_END")
+   field(VAL, "0")
+}
+
+# ///
+# /// Get the end of the pixel range for this detector DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PixelNumEnd_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_DET$(DET)_PIXEL_NUM_END")
+   field(SCAN, "I/O Intr")
+   field(PINI, "YES")
+}
+

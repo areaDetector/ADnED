@@ -46,6 +46,11 @@
 #define ADnEDPulseCounterParamString       "ADNED_PULSE_COUNTER"
 #define ADnEDPulseIDParamString            "ADNED_PULSE_ID"
 #define ADnEDEventUpdatePeriodParamString  "ADNED_EVENT_UPDATE_PERIOD"
+#define ADnEDDetPVNameParamString          "ADNED_DET_PV_NAME"
+#define ADnEDDet1PixelNumStartParamString  "ADNED_DET1_PIXEL_NUM_START"
+#define ADnEDDet2PixelNumStartParamString  "ADNED_DET2_PIXEL_NUM_START"
+#define ADnEDDet1PixelNumEndParamString    "ADNED_DET1_PIXEL_NUM_END"
+#define ADnEDDet2PixelNumEndParamString    "ADNED_DET2_PIXEL_NUM_END"
 
 #define NED_MAX_STRING_SIZE 256
 
@@ -75,6 +80,7 @@ class ADnED : public ADDriver {
   void eventTask(void);
   void frameTask(void);
   void eventHandler(std::tr1::shared_ptr<epics::pvData::PVStructure> const &pv_struct);
+  asynStatus allocArray(void); 
 
  private:
 
@@ -91,6 +97,10 @@ class ADnED : public ADDriver {
   double nowTimeSecs_;
   double lastTimeSecs_;
   epicsUInt32 *pData_;
+  bool dataAlloc_;
+  epicsUInt32 dataMaxSize_;
+  epicsUInt32 det1Size_;
+  epicsUInt32 det2Size_;
 
   //Constructor parameters.
   const epicsUInt32 debug_;
@@ -108,6 +118,11 @@ class ADnED : public ADDriver {
   int ADnEDPulseCounterParam;
   int ADnEDPulseIDParam;
   int ADnEDEventUpdatePeriodParam;
+  int ADnEDDetPVNameParam;
+  int ADnEDDet1PixelNumStartParam;
+  int ADnEDDet2PixelNumStartParam;
+  int ADnEDDet1PixelNumEndParam;
+  int ADnEDDet2PixelNumEndParam;
   int ADnEDLastParam;
   #define ADNED_LAST_DRIVER_COMMAND ADnEDLastParam
 

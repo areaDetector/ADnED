@@ -90,6 +90,41 @@ record(ai, "$(P)$(R)EventUpdatePeriod_RBV")
 }
 
 # ///
+# /// The V4 pvAccess PV name
+# ///
+record(waveform, "$(P)$(R)PVName")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynOctetWrite")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_DET_PV_NAME")
+    field(FTVL, "CHAR")
+    field(NELM, "256")
+    info(autosaveFields, "VAL") 
+}
+record(waveform, "$(P)$(R)PVName_RBV")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_DET_PV_NAME")
+    field(FTVL, "CHAR")
+    field(NELM, "256")
+    field(SCAN, "I/O Intr")
+}
+
+
+
+
+##########################################################################
+# Include detector specific records
+
+substitute "DET=1"
+include "ADnEDDetector.template"
+
+substitute "DET=2"
+include "ADnEDDetector.template"
+
+##########################################################################
+
+# ///
 # /// Disable this ADBase record scanning.
 # ///
 record(ai, "$(P)$(R)PoolUsedMem")

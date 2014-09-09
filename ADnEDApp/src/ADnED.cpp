@@ -35,11 +35,8 @@ using namespace epics::pvData;
 using namespace epics::pvAccess;
 using namespace nEDChannel;
 
-//***Remove these and replace with parameters that can dynamically allocate the arrays*****
-#define ADNED_ID_MIN1 1    /** Min pixel ID for detector 1 */
-#define ADNED_ID_MAX1 1024 /** Max pixel ID for detector 1 */
-#define ADNED_ID_MIN2 2048 /** Min pixel ID for detector 2 */
-#define ADNED_ID_MAX2 3072 /** Max pixel ID for detector 2 */
+#define ADNED_PV_PIXELS "pixel.value" 
+#define ADNED_PV_PULSE "pulse.value" 
 
 
 //Definitions of static class data members
@@ -109,6 +106,11 @@ ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t ma
   createParam(ADnEDPulseCounterParamString,       asynParamInt32,       &ADnEDPulseCounterParam);
   createParam(ADnEDPulseIDParamString,            asynParamInt32,       &ADnEDPulseIDParam);
   createParam(ADnEDEventUpdatePeriodParamString,  asynParamFloat64,     &ADnEDEventUpdatePeriodParam);
+  createParam(ADnEDDetPVNameParamString,          asynParamOctet,       &ADnEDDetPVNameParam);
+  createParam(ADnEDDet1PixelNumStartParamString,  asynParamInt32,       &ADnEDDet1PixelNumStartParam);
+  createParam(ADnEDDet2PixelNumStartParamString,  asynParamInt32,       &ADnEDDet2PixelNumStartParam);
+  createParam(ADnEDDet1PixelNumEndParamString,    asynParamInt32,       &ADnEDDet1PixelNumEndParam);
+  createParam(ADnEDDet2PixelNumEndParamString,    asynParamInt32,       &ADnEDDet2PixelNumEndParam);
   createParam(ADnEDLastParamString,               asynParamInt32,       &ADnEDLastParam);
 
   //Initialize non static, non const, data members
@@ -117,6 +119,10 @@ ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t ma
   nowTimeSecs_ = 0.0;
   lastTimeSecs_ = 0.0;
   pData_ = NULL;
+  dataAlloc_ = true;
+  dataMaxSize_ = 0;
+  det1Size_ = 0;
+  det2Size_ = 0;
 
   //Create the thread that reads the data 
   status = (epicsThreadCreate("ADnEDEventTask",
@@ -146,7 +152,11 @@ ADnED::ADnED(const char *portName, const char *pvname, int maxBuffers, size_t ma
   paramStatus = ((setIntegerParam(ADnEDEventDebugParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDPulseCounterParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDPulseIDParam, 0) == asynSuccess) && paramStatus);
-  paramStatus = ((setDoubleParam(ADnEDEventUpdatePeriodParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setStringParam(ADnEDDetPVNameParam, " ") == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDDet1PixelNumStartParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDDet2PixelNumStartParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDDet1PixelNumEndParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDDet2PixelNumEndParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setStringParam (ADManufacturer, "SNS") == asynSuccess) && paramStatus);
   paramStatus = ((setStringParam (ADModel, "nED areaDetector") == asynSuccess) && paramStatus);
 
@@ -222,6 +232,14 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Stop Reading Events.\n", functionName);
       epicsEventSignal(this->stopEvent_);
     }
+  } else if (function == ADnEDDet1PixelNumStartParam) {
+    dataAlloc_ = true;
+  } else if (function == ADnEDDet2PixelNumStartParam) {
+    dataAlloc_ = true;
+  } else if (function == ADnEDDet1PixelNumEndParam) {
+    dataAlloc_ = true;
+  } else if (function == ADnEDDet2PixelNumEndParam) {
+    dataAlloc_ = true;
   }
 
 
@@ -349,55 +367,149 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     lastTimeSecs_ = nowTimeSecs_;
   }
   
+  int det1start = 0;
+  int det2start = 0;
+  int det1end = 0;
+  int det2end = 0;
+  det1Size_ = 0;
+  det2Size_ = 0;
+
   lock();
   getIntegerParam(ADnEDEventDebugParam, &eventDebug);
+  getIntegerParam(ADnEDDet1PixelNumStartParam, &det1start);
+  getIntegerParam(ADnEDDet2PixelNumStartParam, &det2start);
+  getIntegerParam(ADnEDDet1PixelNumEndParam, &det1end);
+  getIntegerParam(ADnEDDet2PixelNumEndParam, &det2end);
   ++pulseCounter_;
   unlock();
 
-  shared_ptr<PVULong> pulseIDPtr = pv_struct->getULongField("pulse.value");
+  shared_ptr<PVULong> pulseIDPtr = pv_struct->getULongField(ADNED_PV_PULSE);
   if (!pulseIDPtr) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No valid pulse ID found.\n", functionName);
     return;
   }
 
-  PVUIntArrayPtr eventsPtr = pv_struct->getSubField<PVUIntArray>("pixel.value");
-  //cout << eventsPtr->getLength() << endl;
-  //int length = eventsPtr->getLength();
-  //for (int i=0; i<length; ++i) {
-  //  cout << eventsPtr->getScalarArray()[i] << endl;
-  //}
-  //epics::pvData::shared_vector<pvUInt> arr = eventsPtr->view();
+  if (pData_ == NULL) {
+    return;
+  }
 
+  PVUIntArrayPtr eventsPtr = pv_struct->getSubField<PVUIntArray>(ADNED_PV_PIXELS);
   if (eventsPtr) {
+    uint32 length = eventsPtr->getLength();
     shared_vector<const uint32> getData = eventsPtr->view();
-    cout << "via getData";
-    for (size_t i=0; i< 10; ++i) cout << " " << getData[i];
-    cout << endl;
+
+    lock();
+
+    int offset = 0;
+    for (size_t i=0; i<length; ++i) {
+      //cout << " " << getData[i];
+      int pixel = getData[i];
+      if ((pixel >= det1start) && (pixel <= det1end)) {
+	pData_[pixel]++;
+      } else if ((pixel >= det2start) && (pixel <= det2end)) {
+	offset = pixel-det2start;
+      	pData_[det1Size_+offset]++;
+      }
+    }
+
+    //Update params at slower rate
+    //Some logic here to check time expired since last update
+    if (eventUpdate) {
+      setIntegerParam(ADnEDPulseCounterParam, pulseCounter_);
+      setIntegerParam(ADnEDPulseIDParam, pulseIDPtr->get());
+      callParamCallbacks();
+    }
+
+    unlock();
   }
 
-
- 
-
-  //Extract data here 
-  lock();
-  //Fill arrays here
-
-  //Update params at slower rate
-  //Some logic here to check time expired since last update
-  if (eventUpdate) {
-    setIntegerParam(ADnEDPulseCounterParam, pulseCounter_);
-    setIntegerParam(ADnEDPulseIDParam, pulseIDPtr->get());
-    callParamCallbacks();
-  }
-
-  unlock();
- 
   if (eventDebug != 0) {
     cout << "pulseCounter_: " << pulseCounter_ << endl;
     pv_struct->dumpValue(cout);
+    cout << "pData_:" << endl;
+    for (int i=0; i<dataMaxSize_; ++i) {
+      cout << " " << pData_[i];
+    }
+    cout << endl;
+
     //cout << "PulseID: " << std::hex << value->get() << ", " << std::dec << value->get() << endl;
   }
   
+}
+
+/**
+ * Allocate local storage for event handler
+ */
+asynStatus ADnED::allocArray(void) 
+{
+  asynStatus status = asynSuccess;
+  const char* functionName = "ADnED::allocArray";
+  asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s", functionName);
+
+  if (dataAlloc_ != true) {
+    //Nothing has changed
+    return asynSuccess;
+  }
+
+  int det1start = 0;
+  int det2start = 0;
+  int det1end = 0;
+  int det2end = 0;
+  det1Size_ = 0;
+  det2Size_ = 0;
+
+  getIntegerParam(ADnEDDet1PixelNumStartParam, &det1start);
+  getIntegerParam(ADnEDDet2PixelNumStartParam, &det2start);
+  getIntegerParam(ADnEDDet1PixelNumEndParam, &det1end);
+  getIntegerParam(ADnEDDet2PixelNumEndParam, &det2end);
+  
+  printf("ADnED::allocArray: det1start: %d, det1end: %d, det2start: %d, det2end: %d\n", 
+	 det1start, det1end, det2start, det2end);
+
+  //Calculate sizes and do sanity checks
+  if ((det1start != 0) && (det1end != 0)) {
+    if (det1start <= det1end) {
+      det1Size_ = det1end-det1start+1;
+    } else {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s det1start > det1end.\n", functionName);
+      return asynError;
+    }
+  }
+
+  if ((det2start != 0) && (det2end != 0)) {
+    if (det2start <= det2end) {
+      det2Size_ = det2end-det2start+1;
+    } else {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s det2start > det2end.\n", functionName);
+    }
+  }
+  
+  dataMaxSize_ = det1Size_ + det2Size_;
+  printf("ADnED::allocArray: det1Size_: %d\n", det1Size_);
+  printf("ADnED::allocArray: det2Size_: %d\n", det2Size_);
+  printf("ADnED::allocArray: dataMaxSize_: %d\n", dataMaxSize_);
+  
+  if (pData_) {
+    free(pData_);
+    pData_ = NULL;
+  }
+  
+  if (!pData_) {
+    pData_ = static_cast<epicsUInt32*>(calloc(dataMaxSize_, sizeof(epicsUInt32)));
+  } else {
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s pData already allocated at start of acqusition.\n", functionName);
+    status = asynError;
+  }
+  if (!pData_) {
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s pData failed to allocate.\n", functionName);
+    status = asynError;
+  }
+
+  if (status == asynSuccess) {
+    dataAlloc_ = false;
+  }
+  
+  return status;
 }
 
 
@@ -431,28 +543,20 @@ void ADnED::eventTask(void)
     setIntegerParam(ADAcquire, 0);
     callParamCallbacks();
 
-    //Need to check if changed here, otherwise leave alone.
-    if (pData_) {
-     free(pData_);
-     pData_ = NULL;
-    }
-
     eventStatus = epicsEventWait(startEvent_);          
     if (eventStatus == epicsEventWaitOK) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Start Event.\n", functionName);
       acquire = 1;
       lock();
-      //*****Replace with allocation function that can do this properly
-      //Need to check if changed here, otherwise leave alone.
-      if (!pData_) {
-      	pData_ = static_cast<epicsUInt32*>(calloc(((ADNED_ID_MAX1-ADNED_ID_MIN1)+(ADNED_ID_MAX2-ADNED_ID_MIN2)), sizeof(epicsUInt32)));
-      } else {
-      	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s pData already allocated at start of acqusition.\n", functionName);
+     
+      if (allocArray() != asynSuccess) {
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to allocate array.\n", functionName);
       }
-      if (!pData_) {
-      	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s pData failed to allocate.\n", functionName);
+
+      //Clear arrays at start of acquire every time.
+      if (pData_ != NULL) {
+	memset(pData_, 0, dataMaxSize_*sizeof(epicsUInt32));
       }
-      //*************
       
       //
       // Reset event counter params here (driver specific records.)
