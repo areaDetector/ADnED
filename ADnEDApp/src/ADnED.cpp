@@ -35,6 +35,10 @@ using namespace epics::pvData;
 using namespace epics::pvAccess;
 using namespace nEDChannel;
 
+//Not sure how we want to these yet, so will leave them as #defines for now.
+#define ADNED_PV_TIMEOUT 2.0
+#define ADNED_PV_PRIORITY ChannelProvider::PRIORITY_DEFAULT
+#define ADNED_PV_REQUEST "record[queueSize=100]field()"
 #define ADNED_PV_PIXELS "pixel.value" 
 #define ADNED_PV_PULSE "pulse.value" 
 
@@ -567,10 +571,6 @@ void ADnED::eventTask(void)
       // Start frame thread
       epicsEventSignal(this->startFrame_);
       callParamCallbacks();
-
-      double pv_timeout = 2.0;
-      const char *pv_request = "record[queueSize=100]field()";
-      short pv_priority = ChannelProvider::PRIORITY_DEFAULT;
       
       //Connect channel here
       try {
@@ -591,13 +591,13 @@ void ADnED::eventTask(void)
 	
       std::string channelStr("ADnED Channel");
       shared_ptr<nEDChannelRequester> channelRequester(new nEDChannelRequester(channelStr));
-      shared_ptr<Channel> channel(channelProvider->createChannel(pvname_, channelRequester, pv_priority));
-      channelRequester->waitUntilConnected(timeout);
+      shared_ptr<Channel> channel(channelProvider->createChannel(pvname_, channelRequester, ADNED_PV_PRIORITY));
+      channelRequester->waitUntilConnected(ADNED_PV_TIMEOUT);
       
       //epicsThreadSleep(1);
       
       std::string monitorStr("ADnED Monitor");
-      shared_ptr<PVStructure> pvRequest = CreateRequest::create()->createRequest(pv_request);
+      shared_ptr<PVStructure> pvRequest = CreateRequest::create()->createRequest(ADNED_PV_REQUEST);
       shared_ptr<nEDMonitorRequester> monitorRequester(new nEDMonitorRequester(monitorStr, this));
       
       shared_ptr<Monitor> monitor = channel->createMonitor(monitorRequester, pvRequest);
