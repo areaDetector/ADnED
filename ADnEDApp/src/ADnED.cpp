@@ -30,14 +30,13 @@
 using std::cout;
 using std::endl;
 
-using namespace std::tr1;
-using namespace epics::pvData;
-using namespace epics::pvAccess;
-using namespace nEDChannel;
+using std::tr1::shared_ptr;
+using nEDChannel::nEDChannelRequester;
+using nEDChannel::nEDMonitorRequester;
 
 //Not sure how we want to these yet, so will leave them as #defines for now.
 #define ADNED_PV_TIMEOUT 2.0
-#define ADNED_PV_PRIORITY ChannelProvider::PRIORITY_DEFAULT
+#define ADNED_PV_PRIORITY epics::pvAccess::ChannelProvider::PRIORITY_DEFAULT
 #define ADNED_PV_REQUEST "record[queueSize=100]field()"
 #define ADNED_PV_PIXELS "pixel.value" 
 #define ADNED_PV_PULSE "pulse.value" 
@@ -385,13 +384,13 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   ++m_pulseCounter;
   unlock();
 
-  PVULongPtr pulseIDPtr = pv_struct->getULongField(ADNED_PV_PULSE);
+  epics::pvData::PVULongPtr pulseIDPtr = pv_struct->getULongField(ADNED_PV_PULSE);
   if (!pulseIDPtr) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No valid pulse ID found.\n", functionName);
     return;
   }
 
-  PVDoublePtr pChargePtr = pv_struct->getDoubleField(ADNED_PV_PCHARGE);
+  epics::pvData::PVDoublePtr pChargePtr = pv_struct->getDoubleField(ADNED_PV_PCHARGE);
   if (!pChargePtr) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No valid pCharge found.\n", functionName);
     return;
@@ -406,10 +405,10 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     return;
   }
 
-  PVUIntArrayPtr eventsPtr = pv_struct->getSubField<PVUIntArray>(ADNED_PV_PIXELS);
+  epics::pvData::PVUIntArrayPtr eventsPtr = pv_struct->getSubField<epics::pvData::PVUIntArray>(ADNED_PV_PIXELS);
   if (eventsPtr) {
-    uint32 length = eventsPtr->getLength();
-    shared_vector<const uint32> getData = eventsPtr->view();
+    epics::pvData::uint32 length = eventsPtr->getLength();
+    epics::pvData::shared_vector<const epics::pvData::uint32> getData = eventsPtr->view();
 
     lock();
 
@@ -593,38 +592,34 @@ void ADnED::eventTask(void)
       //Connect channel here
       try {
 	cout << "Starting ClientFactory::start() " << endl;
-	ClientFactory::start();
+	epics::pvAccess::ClientFactory::start();
       } catch (std::exception &e)  {
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
 		  "%s: ERROR: Exception for ClientFactory::start(). Exception: %s\n", 
 		  functionName, e.what());
-	PRINT_EXCEPTION2(e, stderr);
-	cout << SHOW_EXCEPTION(e);
       }
       
-      ChannelProvider::shared_pointer channelProvider = getChannelProviderRegistry()->getProvider("pva");
+      epics::pvAccess::ChannelProvider::shared_pointer channelProvider = epics::pvAccess::getChannelProviderRegistry()->getProvider("pva");
       if (!channelProvider) {
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: No Channel Provider.\n", functionName);
       }
       
-      if (pvName[0] != NULL) {
+      if (pvName[0] != '0') {
 	try {
 	  std::string channelStr("ADnED Channel");
 	  shared_ptr<nEDChannelRequester> channelRequester(new nEDChannelRequester(channelStr));
-	  shared_ptr<Channel> channel(channelProvider->createChannel(pvName, channelRequester, ADNED_PV_PRIORITY));
+	  shared_ptr<epics::pvAccess::Channel> channel(channelProvider->createChannel(pvName, channelRequester, ADNED_PV_PRIORITY));
 	  channelRequester->waitUntilConnected(ADNED_PV_TIMEOUT);
 	  
 	  std::string monitorStr("ADnED Monitor");
-	  shared_ptr<PVStructure> pvRequest = CreateRequest::create()->createRequest(ADNED_PV_REQUEST);
+	  shared_ptr<epics::pvData::PVStructure> pvRequest = epics::pvData::CreateRequest::create()->createRequest(ADNED_PV_REQUEST);
 	  shared_ptr<nEDMonitorRequester> monitorRequester(new nEDMonitorRequester(monitorStr, this));
 	  
-	  shared_ptr<Monitor> monitor = channel->createMonitor(monitorRequester, pvRequest);
+	  shared_ptr<epics::pvData::Monitor> monitor = channel->createMonitor(monitorRequester, pvRequest);
 	} catch (std::exception &e)  {
 	  asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
 		    "%s: ERROR: Problem creating monitor. Exception: %s\n", 
 		    functionName, e.what());
-	  PRINT_EXCEPTION2(e, stderr);
-	  cout << SHOW_EXCEPTION(e);
 	}
       }
       //Call this if we want to block here forever.
@@ -658,7 +653,7 @@ void ADnED::eventTask(void)
       
     } // End of while(acquire)
 
-    ClientFactory::stop();
+    epics::pvAccess::ClientFactory::stop();
 
   } // End of while(1)
 

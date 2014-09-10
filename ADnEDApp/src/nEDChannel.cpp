@@ -25,6 +25,10 @@ namespace nEDChannel {
   using std::endl;
   using std::string;
 
+  using std::tr1::shared_ptr;
+  using namespace epics::pvData;
+  using namespace epics::pvAccess;
+
   //ChannelRequester
 
   nEDChannelRequester::nEDChannelRequester(std::string &requester_name) : ChannelRequester(), m_requesterName(requester_name)

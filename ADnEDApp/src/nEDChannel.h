@@ -23,10 +23,10 @@ class ADnED;
 
 namespace nEDChannel {
 
-  using namespace std::tr1;
+  using std::tr1::shared_ptr;
   using namespace epics::pvData;
   using namespace epics::pvAccess;
-
+ 
   //Channel connect/disconnect class
 
   class nEDChannelRequester : public virtual ChannelRequester {
@@ -38,7 +38,7 @@ namespace nEDChannel {
     
     void channelCreated(const Status& status, Channel::shared_pointer const & channel);
     void channelStateChange(Channel::shared_pointer const & channel, Channel::ConnectionState connectionState);
-    boolean waitUntilConnected(double timeOut);
+    epics::pvData::boolean waitUntilConnected(double timeOut);
     std::string getRequesterName();
     void message(std::string const & message, MessageType messageType);
     
@@ -80,8 +80,7 @@ namespace nEDChannel {
     size_t m_valueOffset;
     uint64 m_overruns;
     uint64 m_missingPulses;
-    
-
+ 
     void checkUpdate(shared_ptr<PVStructure> const &structure);
 
   };
