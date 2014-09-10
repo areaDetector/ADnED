@@ -355,6 +355,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   
   int eventDebug = 0;
   bool eventUpdate = false;
+  static epicsUInt32 lastPulseID;
   epicsFloat64 updatePeriod = 0.0;
   const char* functionName = "ADnED::eventHandler";
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Event Handler.\n", functionName);
@@ -395,7 +396,11 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No valid pCharge found.\n", functionName);
     return;
   }
-  m_pChargeInt += pChargePtr->get();
+
+  if (pulseIDPtr->get() != lastPulseID) {
+    m_pChargeInt += pChargePtr->get();
+  }
+  lastPulseID = pulseIDPtr->get();
 
   if (p_Data == NULL) {
     return;
