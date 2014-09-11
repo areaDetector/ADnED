@@ -359,7 +359,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   const char* functionName = "ADnED::eventHandler";
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Event Handler.\n", functionName);
 
-  /* Get the time and decide if we update the array.*/
+  /* Get the time and decide if we update the PVs.*/
   getDoubleParam(ADnEDEventUpdatePeriodParam, &updatePeriod);
   epicsTimeGetCurrent(&m_nowTime);
   m_nowTimeSecs = m_nowTime.secPastEpoch + (m_nowTime.nsec / 1.e9);
