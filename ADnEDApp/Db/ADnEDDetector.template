@@ -12,7 +12,7 @@
 # Macros:
 # P,R - base PV name
 # PORT - Asyn port name
-# ADDR - Asyn address (set to zero)
+# ADDR - Asyn address (used to identify a detector, 1-based)
 # TIMEOUT - Asyn timeout
 # DET - detector number (start at 1)
 #
@@ -25,7 +25,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelNumStart")
 {
    field(DESC, "Pixel range start DET$(DET)")
    field(DTYP, "asynInt32")
-   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_DET$(DET)_PIXEL_NUM_START")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_START")
    field(VAL, "0")
 }
 
@@ -35,7 +35,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelNumStart")
 record(longin, "$(P)$(R)Det$(DET):PixelNumStart_RBV")
 {
    field(DTYP, "asynInt32")
-   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_DET$(DET)_PIXEL_NUM_START")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_START")
    field(SCAN, "I/O Intr")
    field(PINI, "YES")
 }
@@ -48,7 +48,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelNumEnd")
 {
    field(DESC, "Pixel range end DET$(DET)")
    field(DTYP, "asynInt32")
-   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_DET$(DET)_PIXEL_NUM_END")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_END")
    field(VAL, "0")
 }
 
@@ -58,7 +58,66 @@ record(longout, "$(P)$(R)Det$(DET):PixelNumEnd")
 record(longin, "$(P)$(R)Det$(DET):PixelNumEnd_RBV")
 {
    field(DTYP, "asynInt32")
-   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_DET$(DET)_PIXEL_NUM_END")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_END")
+   field(SCAN, "I/O Intr")
+   field(PINI, "YES")
+}
+
+#####################################################################
+# These records are read only and are used to feed back the NDArray 
+# index values for this detector
+
+# ///
+# /// The NDArray detector data index start for DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):NDArrayStart_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_START")
+   field(SCAN, "I/O Intr")
+   field(PINI, "YES")
+}
+
+# ///
+# /// The NDArray detector data index end for DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):NDArrayEnd_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_END")
+   field(SCAN, "I/O Intr")
+   field(PINI, "YES")
+}
+
+# ///
+# /// The NDArray detector data index size for DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):NDArraySize_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_SIZE")
+   field(SCAN, "I/O Intr")
+   field(PINI, "YES")
+}
+
+# ///
+# /// The NDArray TOF index start for DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):NDArrayTOFStart_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_TOF_START")
+   field(SCAN, "I/O Intr")
+   field(PINI, "YES")
+}
+
+# ///
+# /// The NDArray TOF index end for DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):NDArrayTOFEnd_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_TOF_END")
    field(SCAN, "I/O Intr")
    field(PINI, "YES")
 }

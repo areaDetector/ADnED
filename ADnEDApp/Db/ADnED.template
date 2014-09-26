@@ -96,7 +96,7 @@ record(waveform, "$(P)$(R)PVName")
 {
     field(PINI, "YES")
     field(DTYP, "asynOctetWrite")
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_DET_PV_NAME")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME")
     field(FTVL, "CHAR")
     field(NELM, "256")
     info(autosaveFields, "VAL") 
@@ -104,10 +104,58 @@ record(waveform, "$(P)$(R)PVName")
 record(waveform, "$(P)$(R)PVName_RBV")
 {
     field(DTYP, "asynOctetRead")
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_DET_PV_NAME")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME")
     field(FTVL, "CHAR")
     field(NELM, "256")
     field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Number of detectors.
+# ///
+record(longout, "$(P)$(R)NumDetectors")
+{
+   field(DESC, "Num Detectors")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_NUM_DET")
+   field(VAL, "0")
+   field(PINI, "YES")
+}
+
+# ///
+# /// Number of detectors (readback)
+# ///
+record(longin, "$(P)$(R)NumDetectors_RBV")
+{
+   field(DESC, "Num Detectors")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_NUM_DET")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// TOF Max (eg. 160000 or 320000, in units of 100ns).
+# ///
+record(longout, "$(P)$(R)TOFMax")
+{
+   field(DESC, "Max TOF Value")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_TOF_MAX")
+   field(VAL, "0")
+   field(PINI, "YES")
+   field(EGU, "100ns")
+}
+
+# ///
+# /// TOF Max (eg. 160000 or 320000, in units of 100ns). (readback)
+# ///
+record(longin, "$(P)$(R)TOFMax_RBV")
+{
+   field(DESC, "Max TOF Value")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_TOF_MAX")
+   field(SCAN, "I/O Intr")
+   field(EGU, "100ns")
 }
 
 # ///
@@ -138,7 +186,7 @@ record(ai, "$(P)$(R)PChargeIntegrated_RBV")
 
 
 ##########################################################################
-# Include detector specific records
+# Include detector specific records (needs to be 1-based).
 
 substitute "DET=1"
 include "ADnEDDetector.template"

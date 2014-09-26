@@ -48,11 +48,16 @@
 #define ADnEDPChargeParamString            "ADNED_PCHARGE"
 #define ADnEDPChargeIntParamString         "ADNED_PCHARGE_INT"
 #define ADnEDEventUpdatePeriodParamString  "ADNED_EVENT_UPDATE_PERIOD"
-#define ADnEDDetPVNameParamString          "ADNED_DET_PV_NAME"
-#define ADnEDDet1PixelNumStartParamString  "ADNED_DET1_PIXEL_NUM_START"
-#define ADnEDDet2PixelNumStartParamString  "ADNED_DET2_PIXEL_NUM_START"
-#define ADnEDDet1PixelNumEndParamString    "ADNED_DET1_PIXEL_NUM_END"
-#define ADnEDDet2PixelNumEndParamString    "ADNED_DET2_PIXEL_NUM_END"
+#define ADnEDPVNameParamString             "ADNED_PV_NAME"
+#define ADnEDNumDetParamString             "ADNED_NUM_DET"
+#define ADnEDDetPixelNumStartParamString   "ADNED_DET_PIXEL_NUM_START"
+#define ADnEDDetPixelNumEndParamString     "ADNED_DET_PIXEL_NUM_END"
+#define ADnEDDetNDArrayStartParamString    "ADNED_DET_NDARRAY_START"
+#define ADnEDDetNDArrayEndParamString      "ADNED_DET_NDARRAY_END"
+#define ADnEDDetNDArraySizeParamString     "ADNED_DET_NDARRAY_SIZE"
+#define ADnEDDetNDArrayTOFStartParamString "ADNED_DET_NDARRAY_TOF_START"
+#define ADnEDDetNDArrayTOFEndParamString   "ADNED_DET_NDARRAY_TOF_END"
+#define ADnEDTOFMaxParamString             "ADNED_TOF_MAX"
 
 #define ADNED_MAX_STRING_SIZE 256
 
@@ -90,6 +95,7 @@ class ADnED : public ADDriver {
 
   //Put private static data members here
   static const epicsInt32 s_ADNED_MAX_STRING_SIZE;
+  static const epicsInt32 s_ADNED_MAX_DETS;
 
   //Put private dynamic here
   epicsUInt32 m_acquiring; 
@@ -101,8 +107,6 @@ class ADnED : public ADDriver {
   epicsUInt32 *p_Data;
   bool m_dataAlloc;
   epicsUInt32 m_dataMaxSize;
-  epicsUInt32 m_det1Size;
-  epicsUInt32 m_det2Size;
 
   //Constructor parameters.
   const epicsUInt32 m_debug;
@@ -122,11 +126,16 @@ class ADnED : public ADDriver {
   int ADnEDPChargeParam;
   int ADnEDPChargeIntParam;
   int ADnEDEventUpdatePeriodParam;
-  int ADnEDDetPVNameParam;
-  int ADnEDDet1PixelNumStartParam;
-  int ADnEDDet2PixelNumStartParam;
-  int ADnEDDet1PixelNumEndParam;
-  int ADnEDDet2PixelNumEndParam;
+  int ADnEDPVNameParam;
+  int ADnEDNumDetParam;
+  int ADnEDDetPixelNumStartParam;
+  int ADnEDDetPixelNumEndParam;
+  int ADnEDDetNDArrayStartParam;
+  int ADnEDDetNDArrayEndParam;
+  int ADnEDDetNDArraySizeParam;
+  int ADnEDDetNDArrayTOFStartParam;
+  int ADnEDDetNDArrayTOFEndParam;
+  int ADnEDTOFMaxParam;
   int ADnEDLastParam;
   #define ADNED_LAST_DRIVER_COMMAND ADnEDLastParam
 
