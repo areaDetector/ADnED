@@ -401,7 +401,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   }
   lastPulseID = pulseIDPtr->get();
 
-  if (p_Data == NULL) {
+  if ((p_Data == NULL) || (m_dataMaxSize == 0)) {
     return;
   }
 
@@ -484,18 +484,18 @@ asynStatus ADnED::allocArray(void)
 	 det1start, det1end, det2start, det2end);
 
   //Calculate sizes and do sanity checks
-  if ((det1start != 0) && (det1end != 0)) {
+  if ((det1start != 0) || (det1end != 0)) {
     if (det1start <= det1end) {
-      m_det1Size = det1end-det1start+1;
+      m_det1Size = det1end-det1start;
     } else {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s det1start > det1end.\n", functionName);
       return asynError;
     }
   }
 
-  if ((det2start != 0) && (det2end != 0)) {
+  if ((det2start != 0) || (det2end != 0)) {
     if (det2start <= det2end) {
-      m_det2Size = det2end-det2start+1;
+      m_det2Size = det2end-det2start;
     } else {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s det2start > det2end.\n", functionName);
     }
@@ -512,7 +512,11 @@ asynStatus ADnED::allocArray(void)
   }
   
   if (!p_Data) {
-    p_Data = static_cast<epicsUInt32*>(calloc(m_dataMaxSize, sizeof(epicsUInt32)));
+    if (m_dataMaxSize != 0) {
+      p_Data = static_cast<epicsUInt32*>(calloc(m_dataMaxSize, sizeof(epicsUInt32)));
+    } else {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Not allocating zero sized array.\n", functionName);
+    }
   } else {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s pData already allocated at start of acqusition.\n", functionName);
     status = asynError;
