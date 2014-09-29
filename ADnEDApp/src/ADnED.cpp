@@ -106,6 +106,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDEventDebugParamString,         asynParamInt32,       &ADnEDEventDebugParam);
   createParam(ADnEDSeqCounterParamString,       asynParamInt32,       &ADnEDSeqCounterParam);
   createParam(ADnEDSeqIDParamString,            asynParamInt32,       &ADnEDSeqIDParam);
+  createParam(ADnEDSeqIDMissingParamString,            asynParamInt32,       &ADnEDSeqIDMissingParam);
+  createParam(ADnEDSeqIDNumMissingParamString,            asynParamInt32,       &ADnEDSeqIDNumMissingParam);
   createParam(ADnEDPChargeParamString,            asynParamFloat64,     &ADnEDPChargeParam);
   createParam(ADnEDPChargeIntParamString,            asynParamFloat64,     &ADnEDPChargeIntParam);
   createParam(ADnEDEventUpdatePeriodParamString,  asynParamFloat64,     &ADnEDEventUpdatePeriodParam);
@@ -159,6 +161,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   paramStatus = ((setIntegerParam(ADnEDEventDebugParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDSeqCounterParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDSeqIDParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDSeqIDMissingParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDSeqIDNumMissingParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setDoubleParam(ADnEDPChargeParam, 0.0) == asynSuccess) && paramStatus);
   paramStatus = ((setDoubleParam(ADnEDPChargeIntParam, 0.0) == asynSuccess) && paramStatus);
   paramStatus = ((setStringParam(ADnEDPVNameParam, " ") == asynSuccess) && paramStatus);
@@ -384,6 +388,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   bool eventUpdate = false;
   static epicsUInt32 lastSeqID;
   epicsFloat64 updatePeriod = 0.0;
+  int numMissingPackets = 0;
   const char* functionName = "ADnED::eventHandler";
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Event Handler.\n", functionName);
 
@@ -430,6 +435,13 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   if (!pChargePtr) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No valid pCharge found.\n", functionName);
     return;
+  }
+
+  //Detect missing packets
+  if (seqIDPtr->get() != lastSeqID+1) {
+    setIntegerParam(ADnEDSeqIDMissingParam, lastSeqID+1);
+    getIntegerParam(ADnEDSeqIDNumMissingParam, &numMissingPackets);
+    setIntegerParam(ADnEDSeqIDNumMissingParam, numMissingPackets+(seqIDPtr->get()-lastSeqID+1));
   }
 
   if (seqIDPtr->get() != lastSeqID) {

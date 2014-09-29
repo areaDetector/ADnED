@@ -42,13 +42,13 @@ record(bo, "$(P)$(R)EventDebug")
 }
 
 # ///
-# /// Number of pulse in current acquisition
+# /// Number of V4 packets in current acquisition
 # ///
-record(longin, "$(P)$(R)PulseCounter_RBV")
+record(longin, "$(P)$(R)SeqCounter_RBV")
 {
    field(PINI, "YES")
    field(DTYP, "asynInt32")
-   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PULSE_COUNTER")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_COUNTER")
    field(SCAN, "I/O Intr")
 }
 
@@ -63,6 +63,29 @@ record(longin, "$(P)$(R)SeqID_RBV")
    field(PINI, "YES")
    field(DTYP, "asynInt32")
    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_ID")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// This will be non-zero if any missing V4 packets are detected. This record
+# /// will be updated with the latest missing sequence ID.
+# ///
+record(longin, "$(P)$(R)SeqIDMissing_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_ID_MISSING")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// This is the number of missing V4 packets, if any have been detected.
+# ///
+record(longin, "$(P)$(R)SeqIDNumMissing_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_ID_NUM_MISSING")
    field(SCAN, "I/O Intr")
 }
 
