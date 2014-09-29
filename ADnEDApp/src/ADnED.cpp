@@ -40,6 +40,7 @@ using nEDChannel::nEDMonitorRequester;
 #define ADNED_PV_PRIORITY epics::pvAccess::ChannelProvider::PRIORITY_DEFAULT
 #define ADNED_PV_REQUEST "record[queueSize=100]field()"
 #define ADNED_PV_PIXELS "pixel.value" 
+#define ADNED_PV_TIMESTAMP "timeStamp"
 #define ADNED_PV_SEQ "timeStamp.userTag" 
 #define ADNED_PV_PCHARGE "protonCharge.value"
 
@@ -132,6 +133,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   p_Data = NULL;
   m_dataAlloc = true;
   m_dataMaxSize = 0;
+  m_TimeStamp.put(0,0);
+  m_TimeStampLast.put(0,0);
 
   //Create the thread that reads the data 
   status = (epicsThreadCreate("ADnEDEventTask",
@@ -386,6 +389,8 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   
   int eventDebug = 0;
   bool eventUpdate = false;
+  epicsUInt32 seqID = 0;
+  bool newPulse = false;
   static epicsUInt32 lastSeqID;
   epicsFloat64 updatePeriod = 0.0;
   int numMissingPackets = 0;
@@ -425,12 +430,34 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   //  cout << " NDArrayStartValues: " << NDArrayStartValues[det] << endl;
   //}
 
-  epics::pvData::PVIntPtr seqIDPtr = pv_struct->getIntField(ADNED_PV_SEQ);
-  if (!seqIDPtr) {
-    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No valid timeStamp.userTag found.\n", functionName);
+  //epics::pvData::PVIntPtr seqIDPtr = pv_struct->getIntField(ADNED_PV_SEQ);
+  //if (!seqIDPtr) {
+  //  asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No valid timeStamp.userTag found.\n", functionName);
+  //  return;
+  //}
+
+  //Compare timeStamp to last timeStamp to detect a new pulse.
+  lock();
+  try {
+    if (!m_PVTimeStamp.attach(pv_struct->getStructureField(ADNED_PV_TIMESTAMP))) {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Failed to attach PVTimeStamp.\n", functionName);
+      return;
+    }
+    m_PVTimeStamp.get(m_TimeStamp);
+    if (m_TimeStampLast != m_TimeStamp) {
+      newPulse = true;
+    } 
+    m_TimeStampLast.put(m_TimeStamp.getSecondsPastEpoch(), m_TimeStamp.getNanoseconds());
+    seqID = m_TimeStamp.getUserTag();
+  } catch (std::exception &e)  {
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+	      "%s: Failed to deal with time stamp objects. Exception: %s\n", 
+	      functionName, e.what());
+    unlock();
     return;
   }
-
+  unlock();
+  
   epics::pvData::PVDoublePtr pChargePtr = pv_struct->getDoubleField(ADNED_PV_PCHARGE);
   if (!pChargePtr) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No valid pCharge found.\n", functionName);
@@ -438,16 +465,16 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   }
 
   //Detect missing packets
-  if (seqIDPtr->get() != lastSeqID+1) {
+  if (seqID != lastSeqID+1) {
     setIntegerParam(ADnEDSeqIDMissingParam, lastSeqID+1);
     getIntegerParam(ADnEDSeqIDNumMissingParam, &numMissingPackets);
-    setIntegerParam(ADnEDSeqIDNumMissingParam, numMissingPackets+(seqIDPtr->get()-lastSeqID+1));
+    setIntegerParam(ADnEDSeqIDNumMissingParam, numMissingPackets+(seqID-lastSeqID+1));
   }
+  lastSeqID = seqID;
 
-  if (seqIDPtr->get() != lastSeqID) {
+  if (newPulse) {
     m_pChargeInt += pChargePtr->get();
   }
-  lastSeqID = seqIDPtr->get();
 
   if ((p_Data == NULL) || (m_dataMaxSize == 0)) {
     return;
@@ -480,7 +507,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     //Some logic here to check time expired since last update
     if (eventUpdate) {
       setIntegerParam(ADnEDSeqCounterParam, m_seqCounter);
-      setIntegerParam(ADnEDSeqIDParam, seqIDPtr->get());
+      setIntegerParam(ADnEDSeqIDParam, seqID);
       setDoubleParam(ADnEDPChargeParam, pChargePtr->get());
       setDoubleParam(ADnEDPChargeIntParam, m_pChargeInt);
       callParamCallbacks();

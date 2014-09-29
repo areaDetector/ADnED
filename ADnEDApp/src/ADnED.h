@@ -33,6 +33,7 @@
 
 #include <asynOctetSyncIO.h>
 
+#include <pv/pvTimeStamp.h>
 #include "ADDriver.h"
 #include "nEDChannel.h"
 
@@ -109,6 +110,9 @@ class ADnED : public ADDriver {
   epicsUInt32 *p_Data;
   bool m_dataAlloc;
   epicsUInt32 m_dataMaxSize;
+  epics::pvData::PVTimeStamp m_PVTimeStamp;
+  epics::pvData::TimeStamp m_TimeStamp;
+  epics::pvData::TimeStamp m_TimeStampLast;
 
   //Constructor parameters.
   const epicsUInt32 m_debug;
