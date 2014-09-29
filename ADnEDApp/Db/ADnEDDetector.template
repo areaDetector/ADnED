@@ -12,9 +12,8 @@
 # Macros:
 # P,R - base PV name
 # PORT - Asyn port name
-# ADDR - Asyn address (used to identify a detector, 1-based)
+# DET - Asyn address (used to identify a detector, 1-based)
 # TIMEOUT - Asyn timeout
-# DET - detector number (start at 1)
 #
 #####################################################################
 
@@ -42,7 +41,7 @@ record(longin, "$(P)$(R)Det$(DET):PixelNumStart_RBV")
 
 
 # ///
-# /// set the end of the pixel range for this detector DET=$(DET)
+# /// Set the end of the pixel range for this detector DET=$(DET)
 # ///
 record(longout, "$(P)$(R)Det$(DET):PixelNumEnd")
 {
@@ -65,7 +64,8 @@ record(longin, "$(P)$(R)Det$(DET):PixelNumEnd_RBV")
 
 #####################################################################
 # These records are read only and are used to feed back the NDArray 
-# index values for this detector
+# index values for this detector. This will be required for the 
+# plugins that extract the detector specific data.
 
 # ///
 # /// The NDArray detector data index start for DET=$(DET)

@@ -111,7 +111,8 @@ record(waveform, "$(P)$(R)PVName_RBV")
 }
 
 # ///
-# /// Number of detectors.
+# /// Number of detectors. This cannot exceed a maximum number
+# /// hardcoded in the driver.
 # ///
 record(longout, "$(P)$(R)NumDetectors")
 {
@@ -203,3 +204,4 @@ record(ai, "$(P)$(R)PoolUsedMem")
 {
    field(SCAN, "Passive")
 }
+
