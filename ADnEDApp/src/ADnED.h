@@ -43,8 +43,8 @@
 #define ADnEDLastParamString               "ADNED_LAST"
 #define ADnEDResetParamString              "ADNED_RESET"
 #define ADnEDEventDebugParamString         "ADNED_EVENT_DEBUG"
-#define ADnEDPulseCounterParamString       "ADNED_PULSE_COUNTER"
-#define ADnEDPulseIDParamString            "ADNED_PULSE_ID"
+#define ADnEDSeqCounterParamString         "ADNED_SEQ_COUNTER"
+#define ADnEDSeqIDParamString              "ADNED_SEQ_ID"
 #define ADnEDPChargeParamString            "ADNED_PCHARGE"
 #define ADnEDPChargeIntParamString         "ADNED_PCHARGE_INT"
 #define ADnEDEventUpdatePeriodParamString  "ADNED_EVENT_UPDATE_PERIOD"
@@ -99,7 +99,7 @@ class ADnED : public ADDriver {
 
   //Put private dynamic here
   epicsUInt32 m_acquiring; 
-  epicsUInt32 m_pulseCounter;
+  epicsUInt32 m_seqCounter;
   epicsFloat64 m_pChargeInt;
   epicsTimeStamp m_nowTime;
   double m_nowTimeSecs;
@@ -121,8 +121,8 @@ class ADnED : public ADDriver {
   #define ADNED_FIRST_DRIVER_COMMAND ADnEDFirstParam
   int ADnEDResetParam;
   int ADnEDEventDebugParam;
-  int ADnEDPulseCounterParam;
-  int ADnEDPulseIDParam;
+  int ADnEDSeqCounterParam;
+  int ADnEDSeqIDParam;
   int ADnEDPChargeParam;
   int ADnEDPChargeIntParam;
   int ADnEDEventUpdatePeriodParam;

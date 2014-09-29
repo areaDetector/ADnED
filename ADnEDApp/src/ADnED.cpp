@@ -40,7 +40,7 @@ using nEDChannel::nEDMonitorRequester;
 #define ADNED_PV_PRIORITY epics::pvAccess::ChannelProvider::PRIORITY_DEFAULT
 #define ADNED_PV_REQUEST "record[queueSize=100]field()"
 #define ADNED_PV_PIXELS "pixel.value" 
-#define ADNED_PV_PULSE "pulse.value" 
+#define ADNED_PV_SEQ "timeStamp.userTag" 
 #define ADNED_PV_PCHARGE "protonCharge.value"
 
 //Definitions of static class data members
@@ -104,8 +104,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDFirstParamString,              asynParamInt32,       &ADnEDFirstParam);
   createParam(ADnEDResetParamString,              asynParamInt32,       &ADnEDResetParam);
   createParam(ADnEDEventDebugParamString,         asynParamInt32,       &ADnEDEventDebugParam);
-  createParam(ADnEDPulseCounterParamString,       asynParamInt32,       &ADnEDPulseCounterParam);
-  createParam(ADnEDPulseIDParamString,            asynParamInt32,       &ADnEDPulseIDParam);
+  createParam(ADnEDSeqCounterParamString,       asynParamInt32,       &ADnEDSeqCounterParam);
+  createParam(ADnEDSeqIDParamString,            asynParamInt32,       &ADnEDSeqIDParam);
   createParam(ADnEDPChargeParamString,            asynParamFloat64,     &ADnEDPChargeParam);
   createParam(ADnEDPChargeIntParamString,            asynParamFloat64,     &ADnEDPChargeIntParam);
   createParam(ADnEDEventUpdatePeriodParamString,  asynParamFloat64,     &ADnEDEventUpdatePeriodParam);
@@ -123,7 +123,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
 
   //Initialize non static, non const, data members
   m_acquiring = 0;
-  m_pulseCounter = 0;
+  m_seqCounter = 0;
   m_pChargeInt = 0.0;
   m_nowTimeSecs = 0.0;
   m_lastTimeSecs = 0.0;
@@ -157,8 +157,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   //Initialise any paramLib parameters that need passing up to device support
   paramStatus = ((setIntegerParam(ADnEDResetParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDEventDebugParam, 0) == asynSuccess) && paramStatus);
-  paramStatus = ((setIntegerParam(ADnEDPulseCounterParam, 0) == asynSuccess) && paramStatus);
-  paramStatus = ((setIntegerParam(ADnEDPulseIDParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDSeqCounterParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDSeqIDParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setDoubleParam(ADnEDPChargeParam, 0.0) == asynSuccess) && paramStatus);
   paramStatus = ((setDoubleParam(ADnEDPChargeIntParam, 0.0) == asynSuccess) && paramStatus);
   paramStatus = ((setStringParam(ADnEDPVNameParam, " ") == asynSuccess) && paramStatus);
@@ -244,7 +244,7 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
     if (value) {
       if (adStatus != ADStatusAcquire) {
 	cout << "Start acqusition." << endl;
-	m_pulseCounter = 0;
+	m_seqCounter = 0;
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Start Reading Events.\n", functionName);
 	epicsEventSignal(this->m_startEvent);
       }
@@ -382,7 +382,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   
   int eventDebug = 0;
   bool eventUpdate = false;
-  static epicsUInt32 lastPulseID;
+  static epicsUInt32 lastSeqID;
   epicsFloat64 updatePeriod = 0.0;
   const char* functionName = "ADnED::eventHandler";
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Event Handler.\n", functionName);
@@ -410,7 +410,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     getIntegerParam(det, ADnEDDetPixelNumEndParam, &detEndValues[det]);
     getIntegerParam(det, ADnEDDetNDArrayStartParam, &NDArrayStartValues[det]);
   }
-  ++m_pulseCounter;
+  ++m_seqCounter;
   unlock();
 
   //for (int det=1; det<=numDet; det++) {
@@ -420,9 +420,9 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   //  cout << " NDArrayStartValues: " << NDArrayStartValues[det] << endl;
   //}
 
-  epics::pvData::PVULongPtr pulseIDPtr = pv_struct->getULongField(ADNED_PV_PULSE);
-  if (!pulseIDPtr) {
-    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No valid pulse ID found.\n", functionName);
+  epics::pvData::PVIntPtr seqIDPtr = pv_struct->getIntField(ADNED_PV_SEQ);
+  if (!seqIDPtr) {
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No valid timeStamp.userTag found.\n", functionName);
     return;
   }
 
@@ -432,10 +432,10 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     return;
   }
 
-  if (pulseIDPtr->get() != lastPulseID) {
+  if (seqIDPtr->get() != lastSeqID) {
     m_pChargeInt += pChargePtr->get();
   }
-  lastPulseID = pulseIDPtr->get();
+  lastSeqID = seqIDPtr->get();
 
   if ((p_Data == NULL) || (m_dataMaxSize == 0)) {
     return;
@@ -467,8 +467,8 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     //Update params at slower rate
     //Some logic here to check time expired since last update
     if (eventUpdate) {
-      setIntegerParam(ADnEDPulseCounterParam, m_pulseCounter);
-      setIntegerParam(ADnEDPulseIDParam, pulseIDPtr->get());
+      setIntegerParam(ADnEDSeqCounterParam, m_seqCounter);
+      setIntegerParam(ADnEDSeqIDParam, seqIDPtr->get());
       setDoubleParam(ADnEDPChargeParam, pChargePtr->get());
       setDoubleParam(ADnEDPChargeIntParam, m_pChargeInt);
       callParamCallbacks();
@@ -478,7 +478,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   }
 
   if (eventDebug != 0) {
-    cout << "m_pulseCounter: " << m_pulseCounter << endl;
+    cout << "m_seqCounter: " << m_seqCounter << endl;
     pv_struct->dumpValue(cout);
     cout << "p_Data: " << endl;
     cout << " m_dataMaxSize: " << m_dataMaxSize << endl;

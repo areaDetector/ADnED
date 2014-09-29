@@ -99,10 +99,10 @@ namespace nEDChannel {
         // Need to navigate the hierarchy, won't get the overall PVStructure offset.
         // Easier: Create temporary PVStructure
         PVStructurePtr pvStructure = getPVDataCreate()->createPVStructure(structure);
-        shared_ptr<PVULong> value = pvStructure->getULongField("pulse.value");
+        shared_ptr<PVInt> value = pvStructure->getIntField("timeStamp.userTag");
         if (! value)
         {
-            cout << "No 'pulse.value' ULong" << endl;
+            cout << "No timeStamp.userTag Int" << endl;
             return;
         }
         m_valueOffset = value->getFieldOffset();
