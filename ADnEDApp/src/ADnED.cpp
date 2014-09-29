@@ -55,7 +55,6 @@ static void ADnEDFrameTaskC(void *drvPvt);
  * Constructor for Xspress3::Xspress3. 
  * This must be called in the Epics IOC startup file.
  * @param portName The Asyn port name to use
- * @param numDet The number of detectors to use
  * @param maxBuffers Used by asynPortDriver (set to -1 for unlimited)
  * @param maxMemory Used by asynPortDriver (set to -1 for unlimited)
  * @param debug This debug flag for the driver. 
