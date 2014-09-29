@@ -45,6 +45,7 @@
 #define ADnEDResetParamString              "ADNED_RESET"
 #define ADnEDEventDebugParamString         "ADNED_EVENT_DEBUG"
 #define ADnEDSeqCounterParamString         "ADNED_SEQ_COUNTER"
+#define ADnEDPulseCounterParamString       "ADNED_PULSE_COUNTER"
 #define ADnEDSeqIDParamString              "ADNED_SEQ_ID"
 #define ADnEDSeqIDMissingParamString       "ADNED_SEQ_ID_MISSING"
 #define ADnEDSeqIDNumMissingParamString    "ADNED_SEQ_ID_NUM_MISSING"
@@ -103,6 +104,7 @@ class ADnED : public ADDriver {
   //Put private dynamic here
   epicsUInt32 m_acquiring; 
   epicsUInt32 m_seqCounter;
+  epicsUInt32 m_pulseCounter;
   epicsFloat64 m_pChargeInt;
   epicsTimeStamp m_nowTime;
   double m_nowTimeSecs;
@@ -128,6 +130,7 @@ class ADnED : public ADDriver {
   int ADnEDResetParam;
   int ADnEDEventDebugParam;
   int ADnEDSeqCounterParam;
+  int ADnEDPulseCounterParam;
   int ADnEDSeqIDParam;
   int ADnEDSeqIDMissingParam;
   int ADnEDSeqIDNumMissingParam;

@@ -53,6 +53,17 @@ record(longin, "$(P)$(R)SeqCounter_RBV")
 }
 
 # ///
+# /// Number of pulses detected by comparing seq timestamps.
+# ///
+record(longin, "$(P)$(R)PulseCounter_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PULSE_COUNTER")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
 # /// Sequence ID values (the timeStamp.userTag). This is not the pulse ID.
 # /// It is a unique ID sent by the server with every V4 packet. So there
 # /// may be multiple packets with the same ID. Note: the timeStamp NT

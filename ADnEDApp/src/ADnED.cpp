@@ -106,6 +106,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDResetParamString,              asynParamInt32,       &ADnEDResetParam);
   createParam(ADnEDEventDebugParamString,         asynParamInt32,       &ADnEDEventDebugParam);
   createParam(ADnEDSeqCounterParamString,       asynParamInt32,       &ADnEDSeqCounterParam);
+  createParam(ADnEDPulseCounterParamString,       asynParamInt32,       &ADnEDPulseCounterParam);
   createParam(ADnEDSeqIDParamString,            asynParamInt32,       &ADnEDSeqIDParam);
   createParam(ADnEDSeqIDMissingParamString,            asynParamInt32,       &ADnEDSeqIDMissingParam);
   createParam(ADnEDSeqIDNumMissingParamString,            asynParamInt32,       &ADnEDSeqIDNumMissingParam);
@@ -127,6 +128,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   //Initialize non static, non const, data members
   m_acquiring = 0;
   m_seqCounter = 0;
+  m_pulseCounter = 0;
   m_pChargeInt = 0.0;
   m_nowTimeSecs = 0.0;
   m_lastTimeSecs = 0.0;
@@ -163,6 +165,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   paramStatus = ((setIntegerParam(ADnEDResetParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDEventDebugParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDSeqCounterParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDPulseCounterParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDSeqIDParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDSeqIDMissingParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDSeqIDNumMissingParam, 0) == asynSuccess) && paramStatus);
@@ -474,6 +477,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 
   if (newPulse) {
     m_pChargeInt += pChargePtr->get();
+    ++m_pulseCounter;
   }
 
   if ((p_Data == NULL) || (m_dataMaxSize == 0)) {
@@ -507,6 +511,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     //Some logic here to check time expired since last update
     if (eventUpdate) {
       setIntegerParam(ADnEDSeqCounterParam, m_seqCounter);
+      setIntegerParam(ADnEDPulseCounterParam, m_pulseCounter);
       setIntegerParam(ADnEDSeqIDParam, seqID);
       setDoubleParam(ADnEDPChargeParam, pChargePtr->get());
       setDoubleParam(ADnEDPChargeIntParam, m_pChargeInt);
@@ -669,12 +674,19 @@ void ADnED::eventTask(void)
 	memset(p_Data, 0, m_dataMaxSize*sizeof(epicsUInt32));
       }
       m_pChargeInt = 0.0;
+      m_seqCounter = 0;
+      m_pulseCounter = 0;
       
       //
       // Reset event counter params here (driver specific records.)
       //
       setIntegerParam(ADStatus, ADStatusAcquire);
       setStringParam(ADStatusMessage, "Acquiring Events");
+      setIntegerParam(ADnEDSeqCounterParam, 0);
+      setIntegerParam(ADnEDPulseCounterParam, 0);
+      setIntegerParam(ADnEDSeqIDParam, 0);
+      setDoubleParam(ADnEDPChargeParam, 0.0);
+      setDoubleParam(ADnEDPChargeIntParam, 0.0);
       // Start frame thread
       epicsEventSignal(this->m_startFrame);
       callParamCallbacks();
