@@ -692,6 +692,8 @@ void ADnED::eventTask(void)
       setIntegerParam(ADnEDSeqIDParam, 0);
       setDoubleParam(ADnEDPChargeParam, 0.0);
       setDoubleParam(ADnEDPChargeIntParam, 0.0);
+      m_TimeStamp.put(0,0);
+      m_TimeStampLast.put(0,0);
       // Start frame thread
       epicsEventSignal(this->m_startFrame);
       callParamCallbacks();
