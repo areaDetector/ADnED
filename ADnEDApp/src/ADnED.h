@@ -53,6 +53,7 @@
 #define ADnEDPChargeParamString            "ADNED_PCHARGE"
 #define ADnEDPChargeIntParamString         "ADNED_PCHARGE_INT"
 #define ADnEDEventUpdatePeriodParamString  "ADNED_EVENT_UPDATE_PERIOD"
+#define ADnEDFrameUpdatePeriodParamString  "ADNED_FRAME_UPDATE_PERIOD"
 #define ADnEDPVNameParamString             "ADNED_PV_NAME"
 #define ADnEDNumDetParamString             "ADNED_NUM_DET"
 #define ADnEDDetPixelNumStartParamString   "ADNED_DET_PIXEL_NUM_START"
@@ -139,6 +140,7 @@ class ADnED : public ADDriver {
   int ADnEDPChargeParam;
   int ADnEDPChargeIntParam;
   int ADnEDEventUpdatePeriodParam;
+  int ADnEDFrameUpdatePeriodParam;
   int ADnEDPVNameParam;
   int ADnEDNumDetParam;
   int ADnEDDetPixelNumStartParam;

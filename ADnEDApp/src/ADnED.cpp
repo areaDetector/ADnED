@@ -115,6 +115,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDPChargeParamString,            asynParamFloat64,     &ADnEDPChargeParam);
   createParam(ADnEDPChargeIntParamString,            asynParamFloat64,     &ADnEDPChargeIntParam);
   createParam(ADnEDEventUpdatePeriodParamString,  asynParamFloat64,     &ADnEDEventUpdatePeriodParam);
+  createParam(ADnEDFrameUpdatePeriodParamString,  asynParamFloat64,     &ADnEDFrameUpdatePeriodParam);
   createParam(ADnEDPVNameParamString,          asynParamOctet,       &ADnEDPVNameParam);
   createParam(ADnEDNumDetParamString,             asynParamInt32,       &ADnEDNumDetParam);
   createParam(ADnEDDetPixelNumStartParamString,  asynParamInt32,       &ADnEDDetPixelNumStartParam);
@@ -185,6 +186,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArraySizeParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArrayTOFStartParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArrayTOFEndParam, 0) == asynSuccess) && paramStatus);
+    callParamCallbacks(det);
   }
   paramStatus = ((setIntegerParam(ADnEDTOFMaxParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setStringParam (ADManufacturer, "SNS") == asynSuccess) && paramStatus);
@@ -197,6 +199,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   }
 
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s End Of Constructor.\n", functionName);
+
+  epicsThreadSleep(1);
 
 }
 
@@ -259,11 +263,13 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	cout << "Start acqusition." << endl;
 	m_seqCounter = 0;
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Start Reading Events.\n", functionName);
+	cout << "Sending start event" << endl;
 	epicsEventSignal(this->m_startEvent);
       }
     } else {
-      	cout << "Stop acqusition." << endl;
+      cout << "Stop acqusition." << endl;
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Stop Reading Events.\n", functionName);
+      cout << "Sending stop event" << endl;
       epicsEventSignal(this->m_stopEvent);
     }
   } else if (function == ADnEDDetPixelNumStartParam) {
@@ -318,6 +324,10 @@ asynStatus ADnED::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
   status = getAddress(pasynUser, &addr); 
   if (status!=asynSuccess) {
     return(status);
+  }
+
+  if (function == ADnEDFrameUpdatePeriodParam) {
+    printf("Setting ADnEDFrameUpdatePeriodParam to %f\n", value);
   }
 
   if (status != asynSuccess) {
@@ -404,6 +414,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Event Handler.\n", functionName);
 
   /* Get the time and decide if we update the PVs.*/
+  lock();
   getDoubleParam(ADnEDEventUpdatePeriodParam, &updatePeriod);
   epicsTimeGetCurrent(&m_nowTime);
   m_nowTimeSecs = m_nowTime.secPastEpoch + (m_nowTime.nsec / 1.e9);
@@ -413,6 +424,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     eventUpdate = true;
     m_lastTimeSecs = m_nowTimeSecs;
   }
+  unlock();
   
   int detStartValues[s_ADNED_MAX_DETS+1] = {0};
   int detEndValues[s_ADNED_MAX_DETS+1] = {0};
@@ -525,7 +537,6 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     }    
 
     //Update params at slower rate
-    //Some logic here to check time expired since last update
     if (eventUpdate) {
       setIntegerParam(ADnEDSeqCounterParam, m_seqCounter);
       setIntegerParam(ADnEDPulseCounterParam, m_pulseCounter);
@@ -688,6 +699,7 @@ void ADnED::eventTask(void)
 
     eventStatus = epicsEventWait(m_startEvent);          
     if (eventStatus == epicsEventWaitOK) {
+      cout << "Got start event" << endl;
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Start Event.\n", functionName);
       acquire = 1;
       lock();
@@ -720,6 +732,7 @@ void ADnED::eventTask(void)
       m_TimeStamp.put(0,0);
       m_TimeStampLast.put(0,0);
       // Start frame thread
+      cout << "Send start frame" << endl;
       epicsEventSignal(this->m_startFrame);
       callParamCallbacks();
       
@@ -770,6 +783,7 @@ void ADnED::eventTask(void)
       //eventStatus = epicsEventWaitWithTimeout(m_stopEvent, timeout);      
       eventStatus = epicsEventWaitWithTimeout(m_stopEvent, 0.1);      
       if (eventStatus == epicsEventWaitOK) {
+	cout << "Got stop event" << endl;
         asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Stop Event.\n", functionName);
         acquire = 0;
       }
@@ -781,6 +795,7 @@ void ADnED::eventTask(void)
       if (!acquire) {
 	lock();
 	setIntegerParam(ADStatus, ADStatusIdle);
+	cout << "Send stop frame" << endl;
 	epicsEventSignal(this->m_stopFrame);
 	unlock();
       }
@@ -815,7 +830,9 @@ void ADnED::frameTask(void)
   epicsFloat64 timeout = 0.001;
   int acquire = 0;
   int status = 0;
-  epicsTimeStamp nowTime;
+  int arrayCounter = 0;
+  bool frameUpdate = false;
+  epicsFloat64 updatePeriod = 0.0;
   const char* functionName = "ADnED::frameTask";
  
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Started Frame Thread.\n", functionName);
@@ -826,20 +843,21 @@ void ADnED::frameTask(void)
   while (1) {
 
     //Wait for a stop event, with a short timeout, to catch any that were done during last read.
-    eventStatus = epicsEventWaitWithTimeout(m_stopFrame, timeout);          
+    eventStatus = epicsEventWaitWithTimeout(m_stopFrame, 0.01);          
     if (eventStatus == epicsEventWaitOK) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Stop Frame Event Before Start Frame Event.\n", functionName);
     }
     
-    //setIntegerParam(ADnEDFrameAcquire, 0);
     callParamCallbacks();
 
     eventStatus = epicsEventWait(m_startFrame);          
     if (eventStatus == epicsEventWaitOK) {
+      cout << "Got start frame" << endl;
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Start Frame Event.\n", functionName);
       acquire = 1;
+      arrayCounter = 0;
       lock();
-      setIntegerParam(NDArrayCounter, 0);
+      setIntegerParam(NDArrayCounter, arrayCounter);
       //setIntegerParam(ADnEDFrameStatus, ADStatusAcquire);
       //setStringParam(ADnEDFrameStatusMessage, "Acquiring Frames");
       callParamCallbacks();
@@ -848,23 +866,31 @@ void ADnED::frameTask(void)
 
     while (acquire) {
 
-      //Wait for a stop event, with a short timeout.
-      //eventStatus = epicsEventWaitWithTimeout(m_stopEvent, timeout);      
-      eventStatus = epicsEventWaitWithTimeout(m_stopFrame, 1);      
+      //Get the update period.
+      getDoubleParam(ADnEDFrameUpdatePeriodParam, &updatePeriod);
+      timeout = updatePeriod / 1000.0;
+      
+      //Wait for a stop event
+      eventStatus = epicsEventWaitWithTimeout(m_stopFrame, timeout);
       if (eventStatus == epicsEventWaitOK) {
+	cout << "Got stop frame" << endl;
         asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Stop Frame Event.\n", functionName);
         acquire = 0;
       }
 
-      //if (acquire) {
-      //	cout << "Reading Frames!" << endl;
-      //}
-      
-      if (!acquire) {
-	lock();
-	//setIntegerParam(ADnEDFrameStatus, ADStatusIdle);
-	unlock();
+      if (acquire) {
+	cout << "Reading Frames!" << endl;
+
+	++arrayCounter;
+	setIntegerParam(NDArrayCounter, arrayCounter);
+	callParamCallbacks();
       }
+      
+      //if (!acquire) {
+      //lock();
+	//setIntegerParam(ADnEDFrameStatus, ADStatusIdle);
+	//unlock();
+      //}
       
     } // End of while(acquire)
 

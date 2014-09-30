@@ -11,9 +11,6 @@ cd ${TOP}
 dbLoadDatabase "dbd/example.dbd"
 example_registerRecordDeviceDriver pdbbase
 
-## Load record instances
-dbLoadRecords "db/example.db"
-
 #####################################################
 # ADnED
 
@@ -23,6 +20,8 @@ ADnEDConfig("NED", -1, -1, 1)
 
 #####################################################
 
+## Load record instances
+dbLoadRecords "db/example.db"
 
 cd ${TOP}/iocBoot/${IOC}
 iocInit

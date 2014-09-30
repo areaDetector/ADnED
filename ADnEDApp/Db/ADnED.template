@@ -161,6 +161,32 @@ record(waveform, "$(P)$(R)PVName_RBV")
 }
 
 # ///
+# /// Time between NDArray updates (ms) from the frame thread.
+# ///
+record(ao, "$(P)$(R)FrameUpdatePeriod")
+{
+   field(DESC, "Frame Update Period")
+   field(DTYP, "asynFloat64")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_FRAME_UPDATE_PERIOD")
+   field(PREC, "0")
+   field(VAL, "100")
+   field(PINI, "YES")
+}
+
+# ///
+# /// Time between NDArray updates (ms) from the frame thread (readback).
+# ///
+record(ai, "$(P)$(R)FrameUpdatePeriod_RBV")
+{
+   field(DESC, "Frame Update Period")
+   field(DTYP, "asynFloat64")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_FRAME_UPDATE_PERIOD")
+   field(PREC, "0")
+   field(SCAN, "I/O Intr")
+   field(EGU, "ms")	
+}
+
+# ///
 # /// Number of detectors. This cannot exceed a maximum number
 # /// hardcoded in the driver.
 # ///
