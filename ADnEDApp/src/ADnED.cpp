@@ -40,6 +40,7 @@ using nEDChannel::nEDMonitorRequester;
 #define ADNED_PV_PRIORITY epics::pvAccess::ChannelProvider::PRIORITY_DEFAULT
 #define ADNED_PV_REQUEST "record[queueSize=100]field()"
 #define ADNED_PV_PIXELS "pixel.value" 
+#define ADNED_PV_TOF "time_of_flight.value" 
 #define ADNED_PV_TIMESTAMP "timeStamp"
 #define ADNED_PV_SEQ "timeStamp.userTag" 
 #define ADNED_PV_PCHARGE "protonCharge.value"
@@ -416,6 +417,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   int detStartValues[s_ADNED_MAX_DETS+1] = {0};
   int detEndValues[s_ADNED_MAX_DETS+1] = {0};
   int NDArrayStartValues[s_ADNED_MAX_DETS+1] = {0};
+  int NDArrayTOFStartValues[s_ADNED_MAX_DETS+1] = {0};
   int numDet = 0;
   getIntegerParam(ADnEDNumDetParam, &numDet);
   getIntegerParam(ADnEDEventDebugParam, &eventDebug);
@@ -423,6 +425,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     getIntegerParam(det, ADnEDDetPixelNumStartParam, &detStartValues[det]);
     getIntegerParam(det, ADnEDDetPixelNumEndParam, &detEndValues[det]);
     getIntegerParam(det, ADnEDDetNDArrayStartParam, &NDArrayStartValues[det]);
+    getIntegerParam(det, ADnEDDetNDArrayTOFStartParam, &NDArrayTOFStartValues[det]);
   }
 
   //for (int det=1; det<=numDet; det++) {
@@ -484,26 +487,35 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     return;
   }
 
-  epics::pvData::PVUIntArrayPtr eventsPtr = pv_struct->getSubField<epics::pvData::PVUIntArray>(ADNED_PV_PIXELS);
-  if (eventsPtr) {
-    epics::pvData::uint32 length = eventsPtr->getLength();
-    epics::pvData::shared_vector<const epics::pvData::uint32> getData = eventsPtr->view();
+  epics::pvData::PVUIntArrayPtr pixelsPtr = pv_struct->getSubField<epics::pvData::PVUIntArray>(ADNED_PV_PIXELS);
+  epics::pvData::PVUIntArrayPtr tofPtr = pv_struct->getSubField<epics::pvData::PVUIntArray>(ADNED_PV_TOF);
+  if (pixelsPtr && tofPtr) {
+    
+    epics::pvData::uint32 pixelsLength = pixelsPtr->getLength();
+    epics::pvData::shared_vector<const epics::pvData::uint32> pixelsData = pixelsPtr->view();
+
+    epics::pvData::uint32 tofLength = tofPtr->getLength();
+    epics::pvData::shared_vector<const epics::pvData::uint32> tofData = tofPtr->view();
+
+    if (pixelsLength != tofLength) {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s pixelsLength != tofLength.\n", functionName);
+      return;
+    }
 
     lock();
 
     int offset = 0;
-    for (size_t i=0; i<length; ++i) {
-      //cout << " " << getData[i];
-      int pixel = getData[i];
+    for (size_t i=0; i<pixelsLength; ++i) {
       for (int det=1; det<=numDet; det++) {
-	if ((pixel >= detStartValues[det]) && (pixel <= detEndValues[det])) {
-	  if (det==1) {
-	    p_Data[pixel]++;
-	  } else {
-	    offset = pixel-detStartValues[det];
-	    p_Data[NDArrayStartValues[det]+offset]++;
-	  }
+
+	if ((pixelsData[i] >= detStartValues[det]) && (pixelsData[i] <= detEndValues[det])) {
+	  //Pixel ID Data
+	  offset = pixelsData[i]-detStartValues[det];
+	  p_Data[NDArrayStartValues[det]+offset]++;
+	  //TOF Data
+	  p_Data[NDArrayTOFStartValues[det]+tofData[i]]++;
 	}
+
       }
     }
     
