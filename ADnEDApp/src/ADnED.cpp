@@ -542,7 +542,9 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 }
 
 /**
- * Allocate local storage for event handler
+ * Allocate local storage for event handler. This is only done when any of the detector
+ * sizes or TOF range has changed. It then publishes the start and end points of
+ * the detector and TOF data in the NDArray object. 
  */
 asynStatus ADnED::allocArray(void) 
 {
@@ -568,7 +570,7 @@ asynStatus ADnED::allocArray(void)
     return asynError;
   }
 
-  m_dataMaxSize =0;
+  m_dataMaxSize = 0;
   int detSize = 0;
 
   for (int det=1; det<=numDet; det++) {
@@ -591,7 +593,7 @@ asynStatus ADnED::allocArray(void)
     printf("ADnED::allocArray: detSize: %d\n", detSize);
 
     setIntegerParam(det, ADnEDDetNDArrayStartParam, m_dataMaxSize);
-    setIntegerParam(det, ADnEDDetNDArrayEndParam, m_dataMaxSize+detSize);
+    setIntegerParam(det, ADnEDDetNDArrayEndParam, m_dataMaxSize+detSize-1);
     setIntegerParam(det, ADnEDDetNDArraySizeParam, detSize);
     callParamCallbacks(det);
     
@@ -601,7 +603,18 @@ asynStatus ADnED::allocArray(void)
   
   printf("ADnED::allocArray: final m_dataMaxSize: %d\n", m_dataMaxSize);
   printf("ADnED::allocArray: TOF Size: %d\n", numDet * (tofMax+1));
-  
+
+  epicsUInt32 tofStart = m_dataMaxSize+1;
+  epicsUInt32 tofEnd = 0;
+  for (int det=1; det<=numDet; det++) {
+    tofEnd = tofStart+tofMax;
+    printf("ADnED::allocArray: det %d, TOF start: %d, TOF end: %d\n", det, tofStart, tofEnd);
+    setIntegerParam(det, ADnEDDetNDArrayTOFStartParam, tofStart);
+    setIntegerParam(det, ADnEDDetNDArrayTOFEndParam, tofEnd);
+    tofStart = tofEnd+1;
+    callParamCallbacks(det);
+  }
+
   if (p_Data) {
     free(p_Data);
     p_Data = NULL;
