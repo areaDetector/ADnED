@@ -101,6 +101,19 @@ record(longin, "$(P)$(R)SeqIDNumMissing_RBV")
 }
 
 # ///
+# /// This is a flag to indicate I detected an out of order packet (with backwards timestamp).
+# ///
+record(bi, "$(P)$(R)BadTimeStamp_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_BAD_TIMESTAMP")
+   field(SCAN, "I/O Intr")
+   field(ZNAM, "Ok")
+   field(ONAM, "Error")
+}
+
+# ///
 # /// Time between updates (ms) from the event thread.
 # ///
 record(ao, "$(P)$(R)EventUpdatePeriod")

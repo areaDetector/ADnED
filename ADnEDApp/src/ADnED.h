@@ -49,6 +49,7 @@
 #define ADnEDSeqIDParamString              "ADNED_SEQ_ID"
 #define ADnEDSeqIDMissingParamString       "ADNED_SEQ_ID_MISSING"
 #define ADnEDSeqIDNumMissingParamString    "ADNED_SEQ_ID_NUM_MISSING"
+#define ADnEDBadTimeStampParamString       "ADNED_BAD_TIMESTAMP"
 #define ADnEDPChargeParamString            "ADNED_PCHARGE"
 #define ADnEDPChargeIntParamString         "ADNED_PCHARGE_INT"
 #define ADnEDEventUpdatePeriodParamString  "ADNED_EVENT_UPDATE_PERIOD"
@@ -134,6 +135,7 @@ class ADnED : public ADDriver {
   int ADnEDSeqIDParam;
   int ADnEDSeqIDMissingParam;
   int ADnEDSeqIDNumMissingParam;
+  int ADnEDBadTimeStampParam;
   int ADnEDPChargeParam;
   int ADnEDPChargeIntParam;
   int ADnEDEventUpdatePeriodParam;

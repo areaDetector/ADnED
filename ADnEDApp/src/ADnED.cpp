@@ -110,6 +110,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDSeqIDParamString,            asynParamInt32,       &ADnEDSeqIDParam);
   createParam(ADnEDSeqIDMissingParamString,            asynParamInt32,       &ADnEDSeqIDMissingParam);
   createParam(ADnEDSeqIDNumMissingParamString,            asynParamInt32,       &ADnEDSeqIDNumMissingParam);
+  createParam(ADnEDBadTimeStampParamString,            asynParamInt32,       &ADnEDBadTimeStampParam);
   createParam(ADnEDPChargeParamString,            asynParamFloat64,     &ADnEDPChargeParam);
   createParam(ADnEDPChargeIntParamString,            asynParamFloat64,     &ADnEDPChargeIntParam);
   createParam(ADnEDEventUpdatePeriodParamString,  asynParamFloat64,     &ADnEDEventUpdatePeriodParam);
@@ -169,6 +170,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   paramStatus = ((setIntegerParam(ADnEDSeqIDParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDSeqIDMissingParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDSeqIDNumMissingParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDBadTimeStampParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setDoubleParam(ADnEDPChargeParam, 0.0) == asynSuccess) && paramStatus);
   paramStatus = ((setDoubleParam(ADnEDPChargeIntParam, 0.0) == asynSuccess) && paramStatus);
   paramStatus = ((setStringParam(ADnEDPVNameParam, " ") == asynSuccess) && paramStatus);
@@ -415,7 +417,6 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   int detEndValues[s_ADNED_MAX_DETS+1] = {0};
   int NDArrayStartValues[s_ADNED_MAX_DETS+1] = {0};
   int numDet = 0;
-  lock();
   getIntegerParam(ADnEDNumDetParam, &numDet);
   getIntegerParam(ADnEDEventDebugParam, &eventDebug);
   for (int det=1; det<=numDet; det++) {
@@ -423,8 +424,6 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     getIntegerParam(det, ADnEDDetPixelNumEndParam, &detEndValues[det]);
     getIntegerParam(det, ADnEDDetNDArrayStartParam, &NDArrayStartValues[det]);
   }
-  ++m_seqCounter;
-  unlock();
 
   //for (int det=1; det<=numDet; det++) {
   //  cout << "det: " << det << endl;
@@ -441,6 +440,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 
   //Compare timeStamp to last timeStamp to detect a new pulse.
   lock();
+  ++m_seqCounter;  
   try {
     if (!m_PVTimeStamp.attach(pv_struct->getStructureField(ADNED_PV_TIMESTAMP))) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Failed to attach PVTimeStamp.\n", functionName);
@@ -449,9 +449,22 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     m_PVTimeStamp.get(m_TimeStamp);
     if (m_TimeStampLast != m_TimeStamp) {
       newPulse = true;
-    } 
+    }
+    setIntegerParam(ADnEDBadTimeStampParam, 0);
+    if (m_TimeStampLast > m_TimeStamp) {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Backwards timeStamp detected.\n", functionName);
+      setIntegerParam(ADnEDBadTimeStampParam, 1);
+      return;
+    }
     m_TimeStampLast.put(m_TimeStamp.getSecondsPastEpoch(), m_TimeStamp.getNanoseconds());
     seqID = m_TimeStamp.getUserTag();
+    //Detect missing packets
+    if (seqID != lastSeqID+1) {
+      setIntegerParam(ADnEDSeqIDMissingParam, lastSeqID+1);
+      getIntegerParam(ADnEDSeqIDNumMissingParam, &numMissingPackets);
+      setIntegerParam(ADnEDSeqIDNumMissingParam, numMissingPackets+(seqID-lastSeqID+1));
+    }
+    lastSeqID = seqID;
   } catch (std::exception &e)  {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
 	      "%s: Failed to deal with time stamp objects. Exception: %s\n", 
@@ -465,19 +478,6 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   if (!pChargePtr) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No valid pCharge found.\n", functionName);
     return;
-  }
-
-  //Detect missing packets
-  if (seqID != lastSeqID+1) {
-    setIntegerParam(ADnEDSeqIDMissingParam, lastSeqID+1);
-    getIntegerParam(ADnEDSeqIDNumMissingParam, &numMissingPackets);
-    setIntegerParam(ADnEDSeqIDNumMissingParam, numMissingPackets+(seqID-lastSeqID+1));
-  }
-  lastSeqID = seqID;
-
-  if (newPulse) {
-    m_pChargeInt += pChargePtr->get();
-    ++m_pulseCounter;
   }
 
   if ((p_Data == NULL) || (m_dataMaxSize == 0)) {
@@ -507,6 +507,11 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
       }
     }
     
+    if (newPulse) {
+      m_pChargeInt += pChargePtr->get();
+      ++m_pulseCounter;
+    }    
+
     //Update params at slower rate
     //Some logic here to check time expired since last update
     if (eventUpdate) {
