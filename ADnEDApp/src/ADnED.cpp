@@ -942,6 +942,8 @@ void ADnED::frameTask(void)
 	  }
 
 	  lock();
+	  //Free the NDArray 
+	  pNDArray->release();
 	  setIntegerParam(NDArrayCounter, arrayCounter);	  
 	  callParamCallbacks();
 	  unlock();
