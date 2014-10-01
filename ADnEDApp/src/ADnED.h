@@ -117,6 +117,7 @@ class ADnED : public ADDriver {
   epicsUInt32 *p_Data;
   bool m_dataAlloc;
   epicsUInt32 m_dataMaxSize;
+  epicsUInt32 m_bufferMaxSize;
   epicsUInt32 m_tofMax;
   epics::pvData::PVTimeStamp m_PVTimeStamp;
   epics::pvData::TimeStamp m_TimeStamp;

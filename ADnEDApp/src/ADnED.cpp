@@ -141,6 +141,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   p_Data = NULL;
   m_dataAlloc = true;
   m_dataMaxSize = 0;
+  m_bufferMaxSize = 0;
   m_tofMax = 0;
   m_TimeStamp.put(0,0);
   m_TimeStampLast.put(0,0);
@@ -672,7 +673,8 @@ asynStatus ADnED::allocArray(void)
   
   if (!p_Data) {
     if (m_dataMaxSize != 0) {
-      p_Data = static_cast<epicsUInt32*>(calloc(m_dataMaxSize+(numDet * (tofMax+1)), sizeof(epicsUInt32)));
+      m_bufferMaxSize = m_dataMaxSize+(numDet * (tofMax+1));
+      p_Data = static_cast<epicsUInt32*>(calloc(m_bufferMaxSize, sizeof(epicsUInt32)));
     } else {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Not allocating zero sized array.\n", functionName);
     }
@@ -863,7 +865,10 @@ void ADnED::frameTask(void)
   int status = 0;
   int arrayCounter = 0;
   bool frameUpdate = false;
+  int arrayCallbacks = 0;
   epicsFloat64 updatePeriod = 0.0;
+  epicsTimeStamp nowTime;
+  NDArray *pNDArray = NULL;
   const char* functionName = "ADnED::frameTask";
  
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Started Frame Thread.\n", functionName);
@@ -912,9 +917,36 @@ void ADnED::frameTask(void)
       if (acquire) {
 	//cout << "Reading Frames!" << endl;
 
-	++arrayCounter;
-	setIntegerParam(NDArrayCounter, arrayCounter);
-	callParamCallbacks();
+	//Copy p_Data here into an NDArray of the same size. Do array callbacks.
+	getIntegerParam(NDArrayCallbacks, &arrayCallbacks);
+	if (arrayCallbacks) {
+	  ++arrayCounter;
+	  size_t dims[2] = {1, m_bufferMaxSize};
+	  if ((pNDArray = this->pNDArrayPool->alloc(2, dims, NDUInt32, 0, NULL)) == NULL) {
+	    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: pNDArrayPool->alloc failed.\n", functionName);
+	    //setStringParam(ADStatusMessage, "Memory Error. Check IOC Log.");
+	    //setIntegerParam(ADStatus, ADStatusError);
+	    //setIntegerParam(ADAcquire, ADAcquireFalse_);
+	    //acquire = 0;
+	    //allocError = 1;
+	  } else {
+	    epicsTimeGetCurrent(&nowTime);
+	    pNDArray->uniqueId = arrayCounter;
+	    pNDArray->timeStamp = nowTime.secPastEpoch + nowTime.nsec / 1.e9;
+	    pNDArray->pAttributeList->add("TIMESTAMP", "Host Timestamp", NDAttrFloat64, &(pNDArray->timeStamp));
+	    lock();
+	    memcpy(pNDArray->pData, p_Data, m_bufferMaxSize);
+	    unlock();
+	    asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s: Calling NDArray callback\n", functionName);
+	    doCallbacksGenericPointer(pNDArray, NDArrayData, 0);
+	  }
+
+	  lock();
+	  setIntegerParam(NDArrayCounter, arrayCounter);	  
+	  callParamCallbacks();
+	  unlock();
+	}
+
       }
       
       //if (!acquire) {
