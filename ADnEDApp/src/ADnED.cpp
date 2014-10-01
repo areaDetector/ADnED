@@ -126,6 +126,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDDetNDArraySizeParamString,    asynParamInt32,       &ADnEDDetNDArraySizeParam);
   createParam(ADnEDDetNDArrayTOFStartParamString,    asynParamInt32,       &ADnEDDetNDArrayTOFStartParam);
   createParam(ADnEDDetNDArrayTOFEndParamString,    asynParamInt32,       &ADnEDDetNDArrayTOFEndParam);
+  createParam(ADnEDDetEventRateParamString,    asynParamInt32,       &ADnEDDetEventRateParam);
   createParam(ADnEDTOFMaxParamString,             asynParamInt32,       &ADnEDTOFMaxParam);
   createParam(ADnEDLastParamString,               asynParamInt32,       &ADnEDLastParam);
 
@@ -189,6 +190,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArraySizeParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArrayTOFStartParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArrayTOFEndParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetEventRateParam, 0) == asynSuccess) && paramStatus);
     callParamCallbacks(det);
   }
   paramStatus = ((setIntegerParam(ADnEDTOFMaxParam, 0) == asynSuccess) && paramStatus);
@@ -416,6 +418,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   int numMissingPackets = 0;
   double timeDiffSecs = 0.0;
   static epicsUInt32 eventsSinceLastUpdate;
+  static epicsUInt32 detEventsSinceLastUpdate[s_ADNED_MAX_DETS+1];
   epicsUInt32 eventRate = 0;
   const char* functionName = "ADnED::eventHandler";
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Event Handler.\n", functionName);
@@ -525,11 +528,8 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
       return;
     }
 
-    //Sum events to calculate event rate.
+    //Count events to calculate event rate.
     eventsSinceLastUpdate += pixelsLength;
-    //printf(" pixelsLength: %d, timeDiffSecs: %f\n", pixelsLength, timeDiffSecs);
-    //eventRate = static_cast<epicsUInt32>(floor(pixelsLength / timeDiffSecs));
-    //printf(" eventRate: %d\n", eventRate);
 
     lock();
 
@@ -543,6 +543,8 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	  p_Data[NDArrayStartValues[det]+offset]++;
 	  //TOF Data
 	  p_Data[NDArrayTOFStartValues[det]+tofData[i]]++;
+	  //Count events to calculate event rate
+	  detEventsSinceLastUpdate[det]++;
 	}
 
       }
@@ -560,10 +562,18 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
       eventRate = static_cast<epicsUInt32>(floor(eventsSinceLastUpdate/timeDiffSecs));
       setIntegerParam(ADnEDEventRateParam, eventRate);
       eventsSinceLastUpdate = 0;
+      for (int det=1; det<=numDet; det++) {
+	eventRate = static_cast<epicsUInt32>(floor(detEventsSinceLastUpdate[det]/timeDiffSecs));
+	setIntegerParam(det, ADnEDDetEventRateParam, eventRate);
+	detEventsSinceLastUpdate[det] = 0;
+      }
       setIntegerParam(ADnEDSeqIDParam, seqID);
       setDoubleParam(ADnEDPChargeParam, pChargePtr->get());
       setDoubleParam(ADnEDPChargeIntParam, m_pChargeInt);
       callParamCallbacks();
+      for (int det=1; det<=numDet; det++) {
+	callParamCallbacks(det);
+      }
     }
 
     unlock();
@@ -647,7 +657,7 @@ asynStatus ADnED::allocArray(void)
   printf("ADnED::allocArray: final m_dataMaxSize: %d\n", m_dataMaxSize);
   printf("ADnED::allocArray: TOF Size: %d\n", numDet * (tofMax+1));
 
-  epicsUInt32 tofStart = m_dataMaxSize+1;
+  epicsUInt32 tofStart = m_dataMaxSize;
   epicsUInt32 tofEnd = 0;
   for (int det=1; det<=numDet; det++) {
     tofEnd = tofStart+tofMax;

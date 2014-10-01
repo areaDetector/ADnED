@@ -122,3 +122,17 @@ record(longin, "$(P)$(R)Det$(DET):NDArrayTOFEnd_RBV")
    field(PINI, "YES")
 }
 
+#####################################################################
+# Detector specific data feedback
+
+# ///
+# /// Event rate
+# ///
+record(longin, "$(P)$(R)Det$(DET):EventRate_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_EVENT_RATE")
+   field(SCAN, "I/O Intr")
+   field(EGU, "e/s")
+}
