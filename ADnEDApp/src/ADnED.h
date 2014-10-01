@@ -106,6 +106,7 @@ class ADnED : public ADDriver {
   //Put private dynamic here
   epicsUInt32 m_acquiring; 
   epicsUInt32 m_seqCounter;
+  epicsUInt32 m_lastSeqID;
   epicsUInt32 m_pulseCounter;
   epicsFloat64 m_pChargeInt;
   epicsTimeStamp m_nowTime;

@@ -131,6 +131,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   //Initialize non static, non const, data members
   m_acquiring = 0;
   m_seqCounter = 0;
+  m_lastSeqID = 0;
   m_pulseCounter = 0;
   m_pChargeInt = 0.0;
   m_nowTimeSecs = 0.0;
@@ -259,7 +260,7 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
     
   } else if (function == ADAcquire) {
     if (value) {
-      if (adStatus != ADStatusAcquire) {
+      if ((adStatus == ADStatusIdle) || (adStatus == ADStatusError) || (adStatus == ADStatusAborted)) {
 	cout << "Start acqusition." << endl;
 	m_seqCounter = 0;
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Start Reading Events.\n", functionName);
@@ -267,10 +268,12 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	epicsEventSignal(this->m_startEvent);
       }
     } else {
-      cout << "Stop acqusition." << endl;
-      asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Stop Reading Events.\n", functionName);
-      cout << "Sending stop event" << endl;
-      epicsEventSignal(this->m_stopEvent);
+      if (adStatus == ADStatusAcquire) {
+	cout << "Stop acqusition." << endl;
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Stop Reading Events.\n", functionName);
+	cout << "Sending stop event" << endl;
+	epicsEventSignal(this->m_stopEvent);
+      }
     }
   } else if (function == ADnEDDetPixelNumStartParam) {
     m_dataAlloc = true;
@@ -407,7 +410,6 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   bool eventUpdate = false;
   epicsUInt32 seqID = 0;
   bool newPulse = false;
-  static epicsUInt32 lastSeqID;
   epicsFloat64 updatePeriod = 0.0;
   int numMissingPackets = 0;
   const char* functionName = "ADnED::eventHandler";
@@ -459,27 +461,30 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   try {
     if (!m_PVTimeStamp.attach(pv_struct->getStructureField(ADNED_PV_TIMESTAMP))) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Failed to attach PVTimeStamp.\n", functionName);
+      unlock();
       return;
     }
     m_PVTimeStamp.get(m_TimeStamp);
     if (m_TimeStampLast != m_TimeStamp) {
       newPulse = true;
     }
-    setIntegerParam(ADnEDBadTimeStampParam, 0);
     if (m_TimeStampLast > m_TimeStamp) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Backwards timeStamp detected.\n", functionName);
       setIntegerParam(ADnEDBadTimeStampParam, 1);
+      unlock();
       return;
     }
     m_TimeStampLast.put(m_TimeStamp.getSecondsPastEpoch(), m_TimeStamp.getNanoseconds());
-    seqID = m_TimeStamp.getUserTag();
+    seqID = static_cast<epicsUInt32>(m_TimeStamp.getUserTag());
     //Detect missing packets
-    if (seqID != lastSeqID+1) {
-      setIntegerParam(ADnEDSeqIDMissingParam, lastSeqID+1);
-      getIntegerParam(ADnEDSeqIDNumMissingParam, &numMissingPackets);
-      setIntegerParam(ADnEDSeqIDNumMissingParam, numMissingPackets+(seqID-lastSeqID+1));
+    if (m_lastSeqID != 0) {
+      if (seqID != m_lastSeqID+1) {
+	setIntegerParam(ADnEDSeqIDMissingParam, m_lastSeqID+1);
+	getIntegerParam(ADnEDSeqIDNumMissingParam, &numMissingPackets);
+	setIntegerParam(ADnEDSeqIDNumMissingParam, numMissingPackets+(seqID-m_lastSeqID+1));
+      }
     }
-    lastSeqID = seqID;
+    m_lastSeqID = seqID;
   } catch (std::exception &e)  {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
 	      "%s: Failed to deal with time stamp objects. Exception: %s\n", 
@@ -688,7 +693,7 @@ void ADnED::eventTask(void)
 
   while (1) {
 
-    //Wait for a stop event, with a short timeout, to catch any that were done during last read.
+    //Wait for a stop event, with a short timeout, to catch any that were done after last one.
     eventStatus = epicsEventWaitWithTimeout(m_stopEvent, timeout);          
     if (eventStatus == epicsEventWaitOK) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Stop Event Before Start Event.\n", functionName);
@@ -718,6 +723,7 @@ void ADnED::eventTask(void)
       m_pChargeInt = 0.0;
       m_seqCounter = 0;
       m_pulseCounter = 0;
+      m_lastSeqID = 0;
       
       //
       // Reset event counter params here (driver specific records.)
@@ -729,6 +735,9 @@ void ADnED::eventTask(void)
       setIntegerParam(ADnEDSeqIDParam, 0);
       setDoubleParam(ADnEDPChargeParam, 0.0);
       setDoubleParam(ADnEDPChargeIntParam, 0.0);
+      setIntegerParam(ADnEDSeqIDMissingParam, 0);
+      setIntegerParam(ADnEDSeqIDNumMissingParam, 0);
+      setIntegerParam(ADnEDBadTimeStampParam, 0);
       m_TimeStamp.put(0,0);
       m_TimeStampLast.put(0,0);
       // Start frame thread
@@ -879,7 +888,7 @@ void ADnED::frameTask(void)
       }
 
       if (acquire) {
-	cout << "Reading Frames!" << endl;
+	//cout << "Reading Frames!" << endl;
 
 	++arrayCounter;
 	setIntegerParam(NDArrayCounter, arrayCounter);

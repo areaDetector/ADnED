@@ -87,6 +87,10 @@ record(longin, "$(P)$(R)SeqIDMissing_RBV")
    field(DTYP, "asynInt32")
    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_ID_MISSING")
    field(SCAN, "I/O Intr")
+   field(LOLO, "-1")
+   field(HIHI, "1")
+   field(LLSV, "MAJOR")
+   field(HHSV, "MAJOR")
 }
 
 # ///
@@ -98,6 +102,10 @@ record(longin, "$(P)$(R)SeqIDNumMissing_RBV")
    field(DTYP, "asynInt32")
    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_ID_NUM_MISSING")
    field(SCAN, "I/O Intr")
+   field(LOLO, "-1")
+   field(HIHI, "1")
+   field(LLSV, "MAJOR")
+   field(HHSV, "MAJOR")
 }
 
 # ///
@@ -111,6 +119,8 @@ record(bi, "$(P)$(R)BadTimeStamp_RBV")
    field(SCAN, "I/O Intr")
    field(ZNAM, "Ok")
    field(ONAM, "Error")
+   field(ZSV, "NO_ALARM")
+   field(OSV, "MAJOR")
 }
 
 # ///
@@ -245,7 +255,7 @@ record(ai, "$(P)$(R)PCharge_RBV")
    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PCHARGE")
    field(PREC, "4")
    field(SCAN, "I/O Intr")
-   field(EGU, "pC?")	
+   field(EGU, "pC")	
 }
 
 # ///
@@ -258,7 +268,7 @@ record(ai, "$(P)$(R)PChargeIntegrated_RBV")
    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PCHARGE_INT")
    field(PREC, "4")
    field(SCAN, "I/O Intr")
-   field(EGU, "pC?")	
+   field(EGU, "pC")	
 }
 
 

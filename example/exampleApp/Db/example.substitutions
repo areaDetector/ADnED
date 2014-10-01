@@ -5,6 +5,11 @@ pattern {P, R, PORT, ADDR, TIMEOUT}
 	{BL99:Det:, ADnED:, NED, 0, 5}
 }
 
+file save_restoreStatus.db
+{
+pattern {P}
+        {BL99:CS:Det:ADnED:}
+}
 
 file ioc_sns.db
 {
