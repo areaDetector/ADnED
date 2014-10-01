@@ -46,6 +46,7 @@
 #define ADnEDEventDebugParamString         "ADNED_EVENT_DEBUG"
 #define ADnEDSeqCounterParamString         "ADNED_SEQ_COUNTER"
 #define ADnEDPulseCounterParamString       "ADNED_PULSE_COUNTER"
+#define ADnEDEventRateParamString          "ADNED_EVENT_RATE"
 #define ADnEDSeqIDParamString              "ADNED_SEQ_ID"
 #define ADnEDSeqIDMissingParamString       "ADNED_SEQ_ID_MISSING"
 #define ADnEDSeqIDNumMissingParamString    "ADNED_SEQ_ID_NUM_MISSING"
@@ -134,6 +135,7 @@ class ADnED : public ADDriver {
   int ADnEDEventDebugParam;
   int ADnEDSeqCounterParam;
   int ADnEDPulseCounterParam;
+  int ADnEDEventRateParam;
   int ADnEDSeqIDParam;
   int ADnEDSeqIDMissingParam;
   int ADnEDSeqIDNumMissingParam;
