@@ -141,6 +141,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   p_Data = NULL;
   m_dataAlloc = true;
   m_dataMaxSize = 0;
+  m_tofMax = 0;
   m_TimeStamp.put(0,0);
   m_TimeStampLast.put(0,0);
 
@@ -436,7 +437,8 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     m_lastTimeSecs = m_nowTimeSecs;
   }
   unlock();
-  
+
+  //TODO: remove this section and store them as data members. They should be set in the alloc function.
   int detStartValues[s_ADNED_MAX_DETS+1] = {0};
   int detEndValues[s_ADNED_MAX_DETS+1] = {0};
   int NDArrayStartValues[s_ADNED_MAX_DETS+1] = {0};
@@ -450,13 +452,6 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     getIntegerParam(det, ADnEDDetNDArrayStartParam, &NDArrayStartValues[det]);
     getIntegerParam(det, ADnEDDetNDArrayTOFStartParam, &NDArrayTOFStartValues[det]);
   }
-
-  //for (int det=1; det<=numDet; det++) {
-  //  cout << "det: " << det << endl;
-  //  cout << " detStartValues: " << detStartValues[det] << endl;
-  //  cout << " detEndValues: " << detEndValues[det] << endl;
-  //  cout << " NDArrayStartValues: " << NDArrayStartValues[det] << endl;
-  //}
 
   //epics::pvData::PVIntPtr seqIDPtr = pv_struct->getIntField(ADNED_PV_SEQ);
   //if (!seqIDPtr) {
@@ -542,7 +537,9 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	  offset = pixelsData[i]-detStartValues[det];
 	  p_Data[NDArrayStartValues[det]+offset]++;
 	  //TOF Data
-	  p_Data[NDArrayTOFStartValues[det]+tofData[i]]++;
+	  if (tofData[i] <= m_tofMax) {
+	    p_Data[NDArrayTOFStartValues[det]+tofData[i]]++;
+	  }
 	  //Count events to calculate event rate
 	  detEventsSinceLastUpdate[det]++;
 	}
@@ -614,9 +611,9 @@ asynStatus ADnED::allocArray(void)
   int detStart = 0;
   int detEnd = 0;
   int tofMax = 0;
-
   getIntegerParam(ADnEDNumDetParam, &numDet);
   getIntegerParam(ADnEDTOFMaxParam, &tofMax);
+  m_tofMax = tofMax;
 
   if (numDet == 0) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No detectors.\n", functionName);
