@@ -336,10 +336,10 @@ include "ADnEDDetector.template"
 # ///
 # /// Disable this ADBase record scanning.
 # ///
-record(ai, "$(P)$(R)PoolUsedMem")
-{
-   field(SCAN, "Passive")
-}
+#record(ai, "$(P)$(R)PoolUsedMem")
+#{
+#   field(SCAN, "Passive")
+#}
 
 # ///
 # /// Add EGU field to ArrayRate_RBV
