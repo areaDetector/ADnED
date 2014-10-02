@@ -921,8 +921,9 @@ void ADnED::frameTask(void)
 	getIntegerParam(NDArrayCallbacks, &arrayCallbacks);
 	if (arrayCallbacks) {
 	  ++arrayCounter;
-	  size_t dims[2] = {1, m_bufferMaxSize};
-	  if ((pNDArray = this->pNDArrayPool->alloc(2, dims, NDUInt32, 0, NULL)) == NULL) {
+	  //size_t dims[2] = {1, m_bufferMaxSize};
+	  size_t dims[1] = {m_bufferMaxSize};
+	  if ((pNDArray = this->pNDArrayPool->alloc(1, dims, NDUInt32, 0, NULL)) == NULL) {
 	    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: pNDArrayPool->alloc failed.\n", functionName);
 	    //setStringParam(ADStatusMessage, "Memory Error. Check IOC Log.");
 	    //setIntegerParam(ADStatus, ADStatusError);
@@ -935,7 +936,7 @@ void ADnED::frameTask(void)
 	    pNDArray->timeStamp = nowTime.secPastEpoch + nowTime.nsec / 1.e9;
 	    pNDArray->pAttributeList->add("TIMESTAMP", "Host Timestamp", NDAttrFloat64, &(pNDArray->timeStamp));
 	    lock();
-	    memcpy(pNDArray->pData, p_Data, m_bufferMaxSize);
+	    memcpy(pNDArray->pData, p_Data, m_bufferMaxSize * sizeof(epicsUInt32));
 	    unlock();
 	    asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s: Calling NDArray callback\n", functionName);
 	    doCallbacksGenericPointer(pNDArray, NDArrayData, 0);
