@@ -742,7 +742,7 @@ void ADnED::eventTask(void)
       
       //Clear arrays at start of acquire every time.
       if (p_Data != NULL) {
-	memset(p_Data, 0, m_dataMaxSize*sizeof(epicsUInt32));
+	memset(p_Data, 0, m_bufferMaxSize*sizeof(epicsUInt32));
       }
       m_pChargeInt = 0.0;
       m_seqCounter = 0;
