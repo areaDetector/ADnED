@@ -107,6 +107,9 @@ class ADnED : public ADDriver {
   //Put private static data members here
   static const epicsInt32 s_ADNED_MAX_STRING_SIZE;
   static const epicsInt32 s_ADNED_MAX_DETS;
+  static const epicsUInt32 s_ADNED_ALLOC_STATUS_OK;
+  static const epicsUInt32 s_ADNED_ALLOC_STATUS_REQ;
+  static const epicsUInt32 s_ADNED_ALLOC_STATUS_FAIL;
 
   //Put private dynamic here
   epicsUInt32 m_acquiring; 

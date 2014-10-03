@@ -314,12 +314,19 @@ record(bo, "$(P)$(R)AllocSpace")
     field(DTYP,"asynInt32")
     field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_ALLOC_SPACE")
 }
-record(bi, "$(P)$(R)AllocSpaceStatus_RBV")
+record(mbbi, "$(P)$(R)AllocSpaceStatus_RBV")
 {
     field(DTYP,"asynInt32")
     field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_ALLOC_SPACE_STATUS")
-    field(ZNAM,"Ok")  
-    field(ONAM,"Required")
+    field(ZRST,"Ok")
+    field(ZRVL, "0")
+    field(ZRSV, "NO_ALARM")
+    field(ONST, "Required")
+    field(ONVL, "1")
+    field(ONSV, "NO_ALARM")
+    field(TWST, "Failed")
+    field(TWVL, "2")
+    field(TWSV, "MAJOR")
     field(SCAN, "I/O Intr")
 }
 

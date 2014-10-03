@@ -48,6 +48,9 @@ using nEDChannel::nEDMonitorRequester;
 //Definitions of static class data members
 const epicsInt32 ADnED::s_ADNED_MAX_STRING_SIZE = ADNED_MAX_STRING_SIZE;
 const epicsInt32 ADnED::s_ADNED_MAX_DETS = 8;
+const epicsUInt32 ADnED::s_ADNED_ALLOC_STATUS_OK = 0;
+const epicsUInt32 ADnED::s_ADNED_ALLOC_STATUS_REQ = 1;
+const epicsUInt32 ADnED::s_ADNED_ALLOC_STATUS_FAIL = 2;
 
 //C Function prototypes to tie in with EPICS
 static void ADnEDEventTaskC(void *drvPvt);
@@ -199,7 +202,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   }
   paramStatus = ((setIntegerParam(ADnEDTOFMaxParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDAllocSpaceParam, 0) == asynSuccess) && paramStatus);
-  paramStatus = ((setIntegerParam(ADnEDAllocSpaceStatusParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDAllocSpaceStatusParam, s_ADNED_ALLOC_STATUS_OK) == asynSuccess) && paramStatus);
   paramStatus = ((setStringParam (ADManufacturer, "SNS") == asynSuccess) && paramStatus);
   paramStatus = ((setStringParam (ADModel, "nED areaDetector") == asynSuccess) && paramStatus);
 
@@ -297,7 +300,8 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
   } else if (function == ADnEDAllocSpaceParam) {
     if (allocArray() != asynSuccess) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to allocate array.\n", functionName);
-      setIntegerParam(ADnEDAllocSpaceStatusParam, 1);
+      setIntegerParam(ADnEDAllocSpaceStatusParam, s_ADNED_ALLOC_STATUS_FAIL);
+      callParamCallbacks();
       return asynError;
     }
   } else if (function == ADnEDNumDetParam) {
@@ -310,7 +314,7 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
   }
 
   if (m_dataAlloc) {
-    setIntegerParam(ADnEDAllocSpaceStatusParam, 1);
+    setIntegerParam(ADnEDAllocSpaceStatusParam, s_ADNED_ALLOC_STATUS_REQ);
     callParamCallbacks();
   }
 
@@ -655,6 +659,7 @@ asynStatus ADnED::allocArray(void)
       detSize = detEnd-detStart+1;
     } else {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s detStart > detEnd.\n", functionName);
+      setIntegerParam(ADnEDAllocSpaceStatusParam, s_ADNED_ALLOC_STATUS_FAIL);
       return asynError;
     }
     
@@ -695,19 +700,23 @@ asynStatus ADnED::allocArray(void)
       p_Data = static_cast<epicsUInt32*>(calloc(m_bufferMaxSize, sizeof(epicsUInt32)));
     } else {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Not allocating zero sized array.\n", functionName);
+      setIntegerParam(ADnEDAllocSpaceStatusParam, s_ADNED_ALLOC_STATUS_FAIL);
+      status = asynError;
     }
   } else {
-    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s pData already allocated at start of acqusition.\n", functionName);
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s pData already allocated.\n", functionName);
+    setIntegerParam(ADnEDAllocSpaceStatusParam, s_ADNED_ALLOC_STATUS_FAIL);
     status = asynError;
   }
   if (!p_Data) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s pData failed to allocate.\n", functionName);
+    setIntegerParam(ADnEDAllocSpaceStatusParam, s_ADNED_ALLOC_STATUS_FAIL);
     status = asynError;
   }
 
   if (status == asynSuccess) {
     m_dataAlloc = false;
-    setIntegerParam(ADnEDAllocSpaceStatusParam, 0);
+    setIntegerParam(ADnEDAllocSpaceStatusParam, s_ADNED_ALLOC_STATUS_OK);
   }
   
   return status;
