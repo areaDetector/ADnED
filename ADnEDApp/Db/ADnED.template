@@ -342,6 +342,21 @@ include "ADnEDDetector.template"
 #}
 
 # ///
+# /// Redefine Acquire record to not be busy type.
+# /// This is so we can use callback on the start process.
+# /// This needs to be a different name because we cannot redefine record type.
+# ///
+record(bo, "$(P)$(R)Start") {
+   field(DTYP, "asynInt32")
+   field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ACQUIRE")
+   field(ZNAM, "Done")
+   field(ONAM, "Acquire")
+   field(VAL,  "0")
+}
+
+
+
+# ///
 # /// Add EGU field to ArrayRate_RBV
 # ///
 record(calc, "$(P)$(R)ArrayRate_RBV")
