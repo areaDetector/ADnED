@@ -303,6 +303,26 @@ record(ai, "$(P)$(R)PChargeIntegrated_RBV")
    field(EGU, "pC")	
 }
 
+# /// 
+# /// Allocate space for NDArray buffer. This can either be called by hand after
+# /// modifying the pixel ID ranges or max TOF. It's called automatically on
+# /// a start if any of those params have been changed, and the function hasn't already
+# /// been called.
+# ///
+record(bo, "$(P)$(R)AllocSpace")
+{
+    field(DTYP,"asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_ALLOC_SPACE")
+}
+record(bi, "$(P)$(R)AllocSpaceStatus_RBV")
+{
+    field(DTYP,"asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_ALLOC_SPACE_STATUS")
+    field(ZNAM,"Ok")  
+    field(ONAM,"Required")
+    field(SCAN, "I/O Intr")
+}
+
 
 ##########################################################################
 # Include detector specific records (needs to be 1-based).

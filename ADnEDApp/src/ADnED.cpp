@@ -128,6 +128,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDDetNDArrayTOFEndParamString,    asynParamInt32,       &ADnEDDetNDArrayTOFEndParam);
   createParam(ADnEDDetEventRateParamString,    asynParamInt32,       &ADnEDDetEventRateParam);
   createParam(ADnEDTOFMaxParamString,             asynParamInt32,       &ADnEDTOFMaxParam);
+  createParam(ADnEDAllocSpaceParamString,         asynParamInt32,       &ADnEDAllocSpaceParam);
+  createParam(ADnEDAllocSpaceStatusParamString,         asynParamInt32,       &ADnEDAllocSpaceStatusParam);
   createParam(ADnEDLastParamString,               asynParamInt32,       &ADnEDLastParam);
 
   //Initialize non static, non const, data members
@@ -196,6 +198,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     callParamCallbacks(det);
   }
   paramStatus = ((setIntegerParam(ADnEDTOFMaxParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDAllocSpaceParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDAllocSpaceStatusParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setStringParam (ADManufacturer, "SNS") == asynSuccess) && paramStatus);
   paramStatus = ((setStringParam (ADModel, "nED areaDetector") == asynSuccess) && paramStatus);
 
@@ -290,6 +294,12 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
     m_dataAlloc = true;
   } else if (function == ADnEDTOFMaxParam) {
     m_dataAlloc = true;
+  } else if (function == ADnEDAllocSpaceParam) {
+    if (allocArray() != asynSuccess) {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to allocate array.\n", functionName);
+      setIntegerParam(ADnEDAllocSpaceStatusParam, 1);
+      return asynError;
+    }
   } else if (function == ADnEDNumDetParam) {
     if (value > s_ADNED_MAX_DETS) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
@@ -297,6 +307,11 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
 		functionName, s_ADNED_MAX_DETS);
       return asynError;
     }
+  }
+
+  if (m_dataAlloc) {
+    setIntegerParam(ADnEDAllocSpaceStatusParam, 1);
+    callParamCallbacks();
   }
 
   if (status != asynSuccess) {
@@ -692,6 +707,7 @@ asynStatus ADnED::allocArray(void)
 
   if (status == asynSuccess) {
     m_dataAlloc = false;
+    setIntegerParam(ADnEDAllocSpaceStatusParam, 0);
   }
   
   return status;
@@ -768,13 +784,11 @@ void ADnED::eventTask(void)
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Start Event.\n", functionName);
       acquire = 1;
       lock();
-     
-      //Read the PV name
-      getStringParam(ADnEDPVNameParam, sizeof(pvName), pvName);
 	
       if (allocArray() != asynSuccess) {
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to allocate array.\n", functionName);
-      }
+	acquire = 0;
+      } else {
       
       //Clear arrays at start of acquire every time.
       if (p_Data != NULL) {
@@ -789,6 +803,9 @@ void ADnED::eventTask(void)
       epicsEventSignal(this->m_startFrame);
       callParamCallbacks();
       
+      //Read the PV name
+      getStringParam(ADnEDPVNameParam, sizeof(pvName), pvName);
+
       //Connect channel here
       try {
 	cout << "Starting ClientFactory::start() " << endl;
@@ -821,6 +838,8 @@ void ADnED::eventTask(void)
 		    "%s: ERROR: Problem creating monitor. Exception: %s\n", 
 		    functionName, e.what());
 	}
+      }
+
       }
       //Call this if we want to block here forever.
       //monitorRequester->waitUntilDone();
