@@ -18,6 +18,21 @@
 #####################################################################
 
 # ///
+# /// Set the description name for this detector
+# ///
+record(stringout, "$(P)$(R)Det$(DET):Description")
+{
+   field(DESC, "Description")
+   field(VAL, " ")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL") 
+}
+
+
+#####################################################################
+# Set pixel ID ranges for this detector
+
+# ///
 # /// Set the start of the pixel range for this detector DET=$(DET)
 # ///
 record(longout, "$(P)$(R)Det$(DET):PixelNumStart")
