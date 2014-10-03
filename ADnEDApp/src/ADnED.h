@@ -96,6 +96,7 @@ class ADnED : public ADDriver {
   void frameTask(void);
   void eventHandler(std::tr1::shared_ptr<epics::pvData::PVStructure> const &pv_struct);
   asynStatus allocArray(void); 
+  asynStatus clearParams(void);
 
  private:
 

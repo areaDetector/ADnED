@@ -269,6 +269,9 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
       if ((adStatus == ADStatusIdle) || (adStatus == ADStatusError) || (adStatus == ADStatusAborted)) {
 	cout << "Start acqusition." << endl;
 	m_seqCounter = 0;
+	if (clearParams() != asynSuccess) {
+	  asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to run clearParams on start.\n", functionName);
+	}
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Start Reading Events.\n", functionName);
 	cout << "Sending start event" << endl;
 	epicsEventSignal(this->m_startEvent);
@@ -439,7 +442,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   }
   unlock();
 
-  //TODO: remove this section and store them as data members. They should be set in the alloc function.
+  //TODO: remove this section and store them as data members. They should be set in the alloc function.?
   int detStartValues[s_ADNED_MAX_DETS+1] = {0};
   int detEndValues[s_ADNED_MAX_DETS+1] = {0};
   int NDArrayStartValues[s_ADNED_MAX_DETS+1] = {0};
@@ -694,6 +697,39 @@ asynStatus ADnED::allocArray(void)
   return status;
 }
 
+/**
+ * Clear parameters and data members on a acqusition start.
+ */
+asynStatus ADnED::clearParams(void)
+{
+  bool status = true;
+  const char* functionName = "ADnED::clearParams";
+
+  status = ((setIntegerParam(ADnEDSeqCounterParam, 0) == asynSuccess) && status);
+  status = ((setIntegerParam(ADnEDPulseCounterParam, 0) == asynSuccess) && status);
+  status = ((setIntegerParam(ADnEDSeqIDParam, 0) == asynSuccess) && status);
+  status = ((setDoubleParam(ADnEDPChargeParam, 0.0) == asynSuccess) && status);
+  status = ((setDoubleParam(ADnEDPChargeIntParam, 0.0) == asynSuccess) && status);
+  status = ((setIntegerParam(ADnEDSeqIDMissingParam, 0) == asynSuccess) && status);
+  status = ((setIntegerParam(ADnEDSeqIDNumMissingParam, 0) == asynSuccess) && status);
+  status = ((setIntegerParam(ADnEDBadTimeStampParam, 0) == asynSuccess) && status);
+
+  m_pChargeInt = 0.0;
+  m_seqCounter = 0;
+  m_pulseCounter = 0;
+  m_lastSeqID = 0;
+  m_seqCounter = 0;
+  m_TimeStamp.put(0,0);
+  m_TimeStampLast.put(0,0);
+
+  if (!status) {
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to clear params.\n", functionName);
+    return asynError;
+  }
+  
+  return asynSuccess;
+}
+
 
 /**
  * Event readout task.
@@ -705,7 +741,7 @@ void ADnED::eventTask(void)
   int acquire = 0;
   int status = 0;
   char pvName[s_ADNED_MAX_STRING_SIZE] = {0};
-  const char* functionName = "ADnED::dataTask";
+  const char* functionName = "ADnED::eventTask";
  
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Started Event Thread.\n", functionName);
 
@@ -744,26 +780,10 @@ void ADnED::eventTask(void)
       if (p_Data != NULL) {
 	memset(p_Data, 0, m_bufferMaxSize*sizeof(epicsUInt32));
       }
-      m_pChargeInt = 0.0;
-      m_seqCounter = 0;
-      m_pulseCounter = 0;
-      m_lastSeqID = 0;
       
-      //
-      // Reset event counter params here (driver specific records.)
-      //
       setIntegerParam(ADStatus, ADStatusAcquire);
       setStringParam(ADStatusMessage, "Acquiring Events");
-      setIntegerParam(ADnEDSeqCounterParam, 0);
-      setIntegerParam(ADnEDPulseCounterParam, 0);
-      setIntegerParam(ADnEDSeqIDParam, 0);
-      setDoubleParam(ADnEDPChargeParam, 0.0);
-      setDoubleParam(ADnEDPChargeIntParam, 0.0);
-      setIntegerParam(ADnEDSeqIDMissingParam, 0);
-      setIntegerParam(ADnEDSeqIDNumMissingParam, 0);
-      setIntegerParam(ADnEDBadTimeStampParam, 0);
-      m_TimeStamp.put(0,0);
-      m_TimeStampLast.put(0,0);
+      
       // Start frame thread
       cout << "Send start frame" << endl;
       epicsEventSignal(this->m_startFrame);
