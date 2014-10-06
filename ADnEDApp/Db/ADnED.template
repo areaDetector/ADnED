@@ -166,6 +166,7 @@ record(ao, "$(P)$(R)EventUpdatePeriod")
    field(PREC, "0")
    field(VAL, "100")
    field(PINI, "YES")
+   field(autosaveFields, "VAL")
 }
 
 # ///
@@ -213,6 +214,7 @@ record(ao, "$(P)$(R)FrameUpdatePeriod")
    field(PREC, "0")
    field(VAL, "100")
    field(PINI, "YES")
+   field(autosaveFields, "VAL")
 }
 
 # ///
@@ -239,6 +241,7 @@ record(longout, "$(P)$(R)NumDetectors")
    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_NUM_DET")
    field(VAL, "0")
    field(PINI, "YES")
+   field(autosaveFields, "VAL")
 }
 
 # ///
@@ -263,6 +266,7 @@ record(longout, "$(P)$(R)TOFMax")
    field(VAL, "0")
    field(PINI, "YES")
    field(EGU, "100ns")
+   field(autosaveFields, "VAL")
 }
 
 # ///
@@ -344,18 +348,6 @@ substitute "DET=3"
 include "ADnEDDetector.template"
 
 substitute "DET=4"
-include "ADnEDDetector.template"
-
-substitute "DET=5"
-include "ADnEDDetector.template"
-
-substitute "DET=6"
-include "ADnEDDetector.template"
-
-substitute "DET=7"
-include "ADnEDDetector.template"
-
-substitute "DET=8"
 include "ADnEDDetector.template"
 
 ##########################################################################

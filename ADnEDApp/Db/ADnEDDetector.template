@@ -41,6 +41,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelNumStart")
    field(DTYP, "asynInt32")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_START")
    field(VAL, "0")
+   field(autosaveFields, "VAL")
 }
 
 # ///
@@ -64,6 +65,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelNumEnd")
    field(DTYP, "asynInt32")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_END")
    field(VAL, "0")
+   field(autosaveFields, "VAL")
 }
 
 # ///
@@ -151,3 +153,5 @@ record(longin, "$(P)$(R)Det$(DET):EventRate_RBV")
    field(SCAN, "I/O Intr")
    field(EGU, "e/s")
 }
+
+
