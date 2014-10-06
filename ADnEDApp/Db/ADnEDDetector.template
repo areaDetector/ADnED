@@ -25,7 +25,6 @@ record(stringout, "$(P)$(R)Det$(DET):Description")
    field(DESC, "Description")
    field(VAL, " ")
    field(PINI, "YES")
-   info(autosaveFields, "VAL") 
 }
 
 
@@ -41,7 +40,6 @@ record(longout, "$(P)$(R)Det$(DET):PixelNumStart")
    field(DTYP, "asynInt32")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_START")
    field(VAL, "0")
-   field(autosaveFields, "VAL")
 }
 
 # ///
@@ -65,7 +63,6 @@ record(longout, "$(P)$(R)Det$(DET):PixelNumEnd")
    field(DTYP, "asynInt32")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_END")
    field(VAL, "0")
-   field(autosaveFields, "VAL")
 }
 
 # ///

@@ -166,7 +166,6 @@ record(ao, "$(P)$(R)EventUpdatePeriod")
    field(PREC, "0")
    field(VAL, "100")
    field(PINI, "YES")
-   field(autosaveFields, "VAL")
 }
 
 # ///
@@ -192,7 +191,6 @@ record(waveform, "$(P)$(R)PVName")
     field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME")
     field(FTVL, "CHAR")
     field(NELM, "256")
-    info(autosaveFields, "VAL") 
 }
 record(waveform, "$(P)$(R)PVName_RBV")
 {
@@ -214,7 +212,6 @@ record(ao, "$(P)$(R)FrameUpdatePeriod")
    field(PREC, "0")
    field(VAL, "100")
    field(PINI, "YES")
-   field(autosaveFields, "VAL")
 }
 
 # ///
@@ -241,7 +238,6 @@ record(longout, "$(P)$(R)NumDetectors")
    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_NUM_DET")
    field(VAL, "0")
    field(PINI, "YES")
-   field(autosaveFields, "VAL")
 }
 
 # ///
@@ -266,7 +262,6 @@ record(longout, "$(P)$(R)TOFMax")
    field(VAL, "0")
    field(PINI, "YES")
    field(EGU, "100ns")
-   field(autosaveFields, "VAL")
 }
 
 # ///
