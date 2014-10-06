@@ -40,6 +40,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelNumStart")
    field(DTYP, "asynInt32")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_START")
    field(VAL, "0")
+   field(PINI, "YES")
 }
 
 # ///
@@ -50,7 +51,6 @@ record(longin, "$(P)$(R)Det$(DET):PixelNumStart_RBV")
    field(DTYP, "asynInt32")
    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_START")
    field(SCAN, "I/O Intr")
-   field(PINI, "YES")
 }
 
 
@@ -63,6 +63,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelNumEnd")
    field(DTYP, "asynInt32")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_END")
    field(VAL, "0")
+   field(PINI, "YES")
 }
 
 # ///
@@ -73,7 +74,6 @@ record(longin, "$(P)$(R)Det$(DET):PixelNumEnd_RBV")
    field(DTYP, "asynInt32")
    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_END")
    field(SCAN, "I/O Intr")
-   field(PINI, "YES")
 }
 
 #####################################################################
@@ -89,7 +89,6 @@ record(longin, "$(P)$(R)Det$(DET):NDArrayStart_RBV")
    field(DTYP, "asynInt32")
    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_START")
    field(SCAN, "I/O Intr")
-   field(PINI, "YES")
 }
 
 # ///
@@ -100,7 +99,6 @@ record(longin, "$(P)$(R)Det$(DET):NDArrayEnd_RBV")
    field(DTYP, "asynInt32")
    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_END")
    field(SCAN, "I/O Intr")
-   field(PINI, "YES")
 }
 
 # ///
@@ -111,7 +109,6 @@ record(longin, "$(P)$(R)Det$(DET):NDArraySize_RBV")
    field(DTYP, "asynInt32")
    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_SIZE")
    field(SCAN, "I/O Intr")
-   field(PINI, "YES")
 }
 
 # ///
@@ -122,7 +119,6 @@ record(longin, "$(P)$(R)Det$(DET):NDArrayTOFStart_RBV")
    field(DTYP, "asynInt32")
    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_TOF_START")
    field(SCAN, "I/O Intr")
-   field(PINI, "YES")
 }
 
 # ///
@@ -133,7 +129,6 @@ record(longin, "$(P)$(R)Det$(DET):NDArrayTOFEnd_RBV")
    field(DTYP, "asynInt32")
    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_TOF_END")
    field(SCAN, "I/O Intr")
-   field(PINI, "YES")
 }
 
 #####################################################################
@@ -150,5 +145,8 @@ record(longin, "$(P)$(R)Det$(DET):EventRate_RBV")
    field(SCAN, "I/O Intr")
    field(EGU, "e/s")
 }
+
+
+
 
 
