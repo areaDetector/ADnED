@@ -28,6 +28,7 @@ record(calcout, "$(P)$(R)Det$(DET):ConfigTOFStart")
   field(INPA, "$(P)$(R)Det$(DET):NDArrayTOFStart_RBV")
   field(CALC, "A")
   field(OUT, "$(P)$(R)Det$(DET):$(TOFROI):MinX PP")
+  field(FLNK, "$(P)$(R)Det$(DET):ConfigTOFSize")
 }
 
 # ///

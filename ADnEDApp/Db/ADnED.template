@@ -9,13 +9,15 @@
 # Sept 14
 #
 # Macros:
-# P,R - base PV name
+# P - base PV name
 # PORT - Asyn port name
 # ADDR - Asyn address (set to zero)
 # TIMEOUT - Asyn timeout
 # TOFSIZE - The size of the waveforms for the TOF spectrums
 #
 #####################################################################
+
+substitute "R=ADnED:"
 
 include "ADBase.template" 
 
@@ -376,18 +378,21 @@ include "ADnEDDetector.template"
 substitute "DET=4"
 include "ADnEDDetector.template"
 
-
+substitute "R=ADnED:"
 substitute "DET=1"
 substitute "TOFROI=TOF"
 substitute "PIXROI="
 include "ADnEDDetectorPlugin.template"
 
+substitute "R=ADnED:"
 substitute "DET=2"
 include "ADnEDDetectorPlugin.template"
 
+substitute "R=ADnED:"
 substitute "DET=3"
 include "ADnEDDetectorPlugin.template"
 
+substitute "R=ADnED:"
 substitute "DET=4"
 include "ADnEDDetectorPlugin.template"
 
