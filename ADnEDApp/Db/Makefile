@@ -13,6 +13,7 @@ include $(TOP)/configure/CONFIG
 DB += ADnED.template
 DB += ADnEDDetector.template
 DB += ADnEDDetectorPlugin.template
+DB += ADnEDPixelROI.template
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add

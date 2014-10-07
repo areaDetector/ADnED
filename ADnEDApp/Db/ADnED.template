@@ -381,7 +381,7 @@ include "ADnEDDetector.template"
 substitute "R=ADnED:"
 substitute "DET=1"
 substitute "TOFROI=TOF"
-substitute "PIXROI="
+substitute "PIXROI=XY"
 include "ADnEDDetectorPlugin.template"
 
 substitute "R=ADnED:"

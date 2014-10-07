@@ -42,10 +42,26 @@ record(calcout, "$(P)$(R)Det$(DET):ConfigTOFSize")
 }
 
 # ///
-# /// TODO - put records dealing with pixel data ROI here
+# /// Copy NDArray Pixel Data Start Index to MinX of ROI plugin
 # ///
+record(calcout, "$(P)$(R)Det$(DET):ConfigXYStart")
+{
+  field(INPA, "$(P)$(R)Det$(DET):NDArrayStart_RBV")
+  field(CALC, "A")
+  field(OUT, "$(P)$(R)Det$(DET):$(PIXROI):MinX PP")
+  field(FLNK, "$(P)$(R)Det$(DET):ConfigXYSize")
+}
 
-
+# ///
+# /// Copy NDArray Pixel Data Size to SizeX of ROI plugin
+# ///
+record(calcout, "$(P)$(R)Det$(DET):ConfigXYSize")
+{
+  field(INPA, "$(P)$(R)Det$(DET):NDArrayStart_RBV")
+  field(INPB, "$(P)$(R)Det$(DET):NDArrayEnd_RBV")
+  field(CALC, "(B-A)+1")
+  field(OUT, "$(P)$(R)Det$(DET):$(PIXROI):SizeX PP")
+}
 
 #####################################################################
 # Instantiate detector specific plugins here
@@ -90,6 +106,11 @@ substitute "XSIZE=1"
 substitute "YSIZE=1"
 include "NDStats.template"
 
-
+# Pixel Initial ROI and X/Y Mapping Plugin
+substitute "R=ADnED:Det$(DET):XY:"
+substitute "PORT=DET$(DET).XY"
+substitute "NDARRAY_PORT=$(ADNED_PORT)"
+include "NDPluginBase.template"
+include "NDROI.template"
 
 
