@@ -10,9 +10,14 @@ $(P)Det1:PixelNumEnd
 $(P)Det1:TOF:EnableCallbacks
 $(P)Det1:TOF:MinX
 $(P)Det1:TOF:SizeX
+$(P)Det1:TOF:BinX
+$(P)Det1:TOF:EnableScale
+$(P)Det1:TOF:Scale
 $(P)Det1:TOF:Array:EnableCallbacks
 $(P)Det1:TOF:Array:MinCallbackTime
 $(P)Det1:TOF:ROI1:EnableCallbacks
+$(P)Det1:TOF:ROI1:MinX
+$(P)Det1:TOF:ROI1:SizeX
 $(P)Det1:TOF:Stat1:EnableCallbacks
 $(P)Det1:TOF:Stat1:BgdWidth
 
@@ -22,9 +27,14 @@ $(P)Det2:PixelNumEnd
 $(P)Det2:TOF:EnableCallbacks
 $(P)Det2:TOF:MinX
 $(P)Det2:TOF:SizeX
+$(P)Det2:TOF:BinX
+$(P)Det2:TOF:EnableScale
+$(P)Det2:TOF:Scale
 $(P)Det2:TOF:Array:EnableCallbacks
 $(P)Det2:TOF:Array:MinCallbackTime
 $(P)Det2:TOF:ROI1:EnableCallbacks
+$(P)Det2:TOF:ROI1:MinX
+$(P)Det2:TOF:ROI1:SizeX
 $(P)Det2:TOF:Stat1:EnableCallbacks
 $(P)Det2:TOF:Stat1:BgdWidth
 
@@ -34,9 +44,14 @@ $(P)Det3:PixelNumEnd
 $(P)Det3:TOF:EnableCallbacks
 $(P)Det3:TOF:MinX
 $(P)Det3:TOF:SizeX
+$(P)Det3:TOF:BinX
+$(P)Det3:TOF:EnableScale
+$(P)Det3:TOF:Scale
 $(P)Det3:TOF:Array:EnableCallbacks
 $(P)Det3:TOF:Array:MinCallbackTime
 $(P)Det3:TOF:ROI1:EnableCallbacks
+$(P)Det3:TOF:ROI1:MinX
+$(P)Det3:TOF:ROI1:SizeX
 $(P)Det3:TOF:Stat1:EnableCallbacks
 $(P)Det3:TOF:Stat1:BgdWidth
 
@@ -46,8 +61,13 @@ $(P)Det4:PixelNumEnd
 $(P)Det4:TOF:EnableCallbacks
 $(P)Det4:TOF:MinX
 $(P)Det4:TOF:SizeX
+$(P)Det4:TOF:BinX
+$(P)Det4:TOF:EnableScale
+$(P)Det4:TOF:Scale
 $(P)Det4:TOF:Array:EnableCallbacks
 $(P)Det4:TOF:Array:MinCallbackTime
 $(P)Det4:TOF:ROI1:EnableCallbacks
+$(P)Det4:TOF:ROI1:MinX
+$(P)Det4:TOF:ROI1:SizeX
 $(P)Det4:TOF:Stat1:EnableCallbacks
 $(P)Det4:TOF:Stat1:BgdWidth
