@@ -1,0 +1,50 @@
+
+#####################################################################
+#
+# areaDetector nED client template file. This is used to automatically
+# configure the plugin ROIs for a single detector. It copies the NDArray
+# index numbers published by the main driver into the ROI Min and Size records.
+# This works for both a detector and beam monitor. It assumes there is
+# a ROI plugin extracting the block of data for this detector for
+# both the pixel and the TOF data (2 ROI plugins).
+#
+# Matt Pearson
+# Oct 14
+#
+# Macros:
+# P,R - base PV name
+# DET - Detector number (1-based)
+# TOFROI - TOF ROI name
+# PIXROI - Pixel ROI name
+#
+#####################################################################
+
+# ///
+# /// Copy NDArray TOF Start Index to MinX of ROI plugin
+# ///
+record(calcout, "$(P)$(R)Det$(DET):ConfigTOFStart")
+{
+  field(INPA, "$(P)$(R)Det$(DET):NDArrayTOFStart_RBV")
+  field(CALC, "A")
+  field(OUT, "$(P)$(R)Det$(DET):$(TOFROI):MinX PP")
+}
+
+# ///
+# /// Copy NDArray TOF Size to SizeX of ROI plugin
+# ///
+record(calcout, "$(P)$(R)Det$(DET):ConfigTOFSize")
+{
+  field(INPA, "$(P)$(R)TOFMax_RBV")
+  field(CALC, "A")
+  field(OUT, "$(P)$(R)Det$(DET):$(TOFROI):SizeX PP")
+}
+
+# ///
+# /// TODO - put records dealing with pixel data ROI here
+# ///
+
+
+
+
+
+
