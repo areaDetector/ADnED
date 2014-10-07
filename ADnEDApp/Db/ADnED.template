@@ -13,9 +13,9 @@
 # PORT - Asyn port name
 # ADDR - Asyn address (set to zero)
 # TIMEOUT - Asyn timeout
+# TOFSIZE - The size of the waveforms for the TOF spectrums
 #
 #####################################################################
-
 
 include "ADBase.template" 
 
@@ -259,7 +259,7 @@ record(longout, "$(P)$(R)TOFMax")
    field(DESC, "Max TOF Value")
    field(DTYP, "asynInt32")
    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_TOF_MAX")
-   field(VAL, "0")
+   field(VAL, "$(TOFSIZE)")
    field(PINI, "YES")
    field(EGU, "100ns")
 }
@@ -329,24 +329,6 @@ record(mbbi, "$(P)$(R)AllocSpaceStatus_RBV")
     field(SCAN, "I/O Intr")
 }
 
-
-##########################################################################
-# Include detector specific records (needs to be 1-based).
-
-substitute "DET=1"
-include "ADnEDDetector.template"
-
-substitute "DET=2"
-include "ADnEDDetector.template"
-
-substitute "DET=3"
-include "ADnEDDetector.template"
-
-substitute "DET=4"
-include "ADnEDDetector.template"
-
-##########################################################################
-
 # ///
 # /// Disable this ADBase record scanning.
 # ///
@@ -369,7 +351,6 @@ record(bo, "$(P)$(R)Start") {
 }
 
 
-
 # ///
 # /// Add EGU field to ArrayRate_RBV
 # ///
@@ -377,4 +358,40 @@ record(calc, "$(P)$(R)ArrayRate_RBV")
 {
     field(EGU, "Hz")
 }
+
+
+
+##########################################################################
+# Include detector specific records (needs to be 1-based).
+
+substitute "DET=1"
+include "ADnEDDetector.template"
+
+substitute "DET=2"
+include "ADnEDDetector.template"
+
+substitute "DET=3"
+include "ADnEDDetector.template"
+
+substitute "DET=4"
+include "ADnEDDetector.template"
+
+
+substitute "DET=1"
+substitute "TOFROI=TOF"
+substitute "PIXROI="
+include "ADnEDDetectorPlugin.template"
+
+substitute "DET=2"
+include "ADnEDDetectorPlugin.template"
+
+substitute "DET=3"
+include "ADnEDDetectorPlugin.template"
+
+substitute "DET=4"
+include "ADnEDDetectorPlugin.template"
+
+##########################################################################
+
+
 
