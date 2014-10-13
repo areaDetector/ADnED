@@ -130,6 +130,9 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDDetNDArrayTOFStartParamString,    asynParamInt32,       &ADnEDDetNDArrayTOFStartParam);
   createParam(ADnEDDetNDArrayTOFEndParamString,    asynParamInt32,       &ADnEDDetNDArrayTOFEndParam);
   createParam(ADnEDDetEventRateParamString,    asynParamInt32,       &ADnEDDetEventRateParam);
+  createParam(ADnEDDetTOFROIStartParamString,    asynParamInt32,       &ADnEDDetTOFROIStartParam);
+  createParam(ADnEDDetTOFROIEndParamString,    asynParamInt32,       &ADnEDDetTOFROIEndParam);
+  createParam(ADnEDDetTOFROIEnableParamString,    asynParamInt32,       &ADnEDDetTOFROIEnableParam);
   createParam(ADnEDTOFMaxParamString,             asynParamInt32,       &ADnEDTOFMaxParam);
   createParam(ADnEDAllocSpaceParamString,         asynParamInt32,       &ADnEDAllocSpaceParam);
   createParam(ADnEDAllocSpaceStatusParamString,         asynParamInt32,       &ADnEDAllocSpaceStatusParam);
@@ -198,6 +201,9 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArrayTOFStartParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArrayTOFEndParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetEventRateParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIStartParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIEndParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIEnableParam, 0) == asynSuccess) && paramStatus);
     callParamCallbacks(det);
   }
   paramStatus = ((setIntegerParam(ADnEDTOFMaxParam, 0) == asynSuccess) && paramStatus);
@@ -461,11 +467,13 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   }
   unlock();
 
-  //TODO: remove this section and store them as data members. They should be set in the alloc function.?
   int detStartValues[s_ADNED_MAX_DETS+1] = {0};
   int detEndValues[s_ADNED_MAX_DETS+1] = {0};
   int NDArrayStartValues[s_ADNED_MAX_DETS+1] = {0};
   int NDArrayTOFStartValues[s_ADNED_MAX_DETS+1] = {0};
+  int detTOFROIStartValues[s_ADNED_MAX_DETS+1] = {0};
+  int detTOFROIEndValues[s_ADNED_MAX_DETS+1] = {0};
+  int detTOFROIEnabled[s_ADNED_MAX_DETS+1] = {0};
   int numDet = 0;
   getIntegerParam(ADnEDNumDetParam, &numDet);
   getIntegerParam(ADnEDEventDebugParam, &eventDebug);
@@ -474,6 +482,10 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     getIntegerParam(det, ADnEDDetPixelNumEndParam, &detEndValues[det]);
     getIntegerParam(det, ADnEDDetNDArrayStartParam, &NDArrayStartValues[det]);
     getIntegerParam(det, ADnEDDetNDArrayTOFStartParam, &NDArrayTOFStartValues[det]);
+    //These two params are used to filter events based on a TOF ROI
+    getIntegerParam(det, ADnEDDetTOFROIStartParam, &detTOFROIStartValues[det]);
+    getIntegerParam(det, ADnEDDetTOFROIEndParam, &detTOFROIEndValues[det]);
+    getIntegerParam(det, ADnEDDetTOFROIEnableParam, &detTOFROIEnabled[det]);
   }
 
   //epics::pvData::PVIntPtr seqIDPtr = pv_struct->getIntField(ADNED_PV_SEQ);
@@ -555,10 +567,22 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     for (size_t i=0; i<pixelsLength; ++i) {
       for (int det=1; det<=numDet; det++) {
 
+	//Dtermine if this pixel is in this DET range.
 	if ((pixelsData[i] >= detStartValues[det]) && (pixelsData[i] <= detEndValues[det])) {
-	  //Pixel ID Data
-	  offset = pixelsData[i]-detStartValues[det];
-	  p_Data[NDArrayStartValues[det]+offset]++;
+  
+	  //Filter on TOF if the ROI is enabled
+	  if (detTOFROIEnabled[det]) {
+	    if ((tofData[i] >= detTOFROIStartValues[det]) && (tofData[i] <= detTOFROIEndValues[det])) {
+	      //Pixel ID Data (TOF filtered)
+	      offset = pixelsData[i]-detStartValues[det];
+	      p_Data[NDArrayStartValues[det]+offset]++;
+	    }
+	  } else {
+	    //Pixel ID Data
+	    offset = pixelsData[i]-detStartValues[det];
+	    p_Data[NDArrayStartValues[det]+offset]++;
+	  }
+
 	  //TOF Data
 	  if (tofData[i] <= m_tofMax) {
 	    p_Data[NDArrayTOFStartValues[det]+tofData[i]]++;

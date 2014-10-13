@@ -113,4 +113,14 @@ substitute "NDARRAY_PORT=$(ADNED_PORT)"
 include "NDPluginBase.template"
 include "NDROI.template"
 
+# Pixel X/Y Waveform
+
+
+# Pixel X/Y Second ROI
+
+
+# Pixel X/Y Stats
+
+
+
 

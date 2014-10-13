@@ -146,6 +146,80 @@ record(longin, "$(P)$(R)Det$(DET):EventRate_RBV")
    field(EGU, "e/s")
 }
 
+#####################################################################
+# Define a TOF ROI to pre-filter the events for this detector DET=$(DET)
+
+# ///
+# /// Set the TOF ROI start for DET $(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):PreTOFROIStart")
+{
+   field(DESC, "Pre TOF ROI Start")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_START")
+   field(VAL, "0")
+   field(PINI, "YES")
+}
+
+# ///
+# ///  Read the TOF ROI start for DET $(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PreTOFROIStart_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_START")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Set the TOF ROI end for DET $(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):PreTOFROIEnd")
+{
+   field(DESC, "Pre TOF ROI End")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_END")
+   field(VAL, "0")
+   field(PINI, "YES")
+}
+
+# ///
+# ///  Read the TOF ROI end for DET $(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PreTOFROIEnd_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_END")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Enable the use of this TOF ROI pre-filter for DET $(DET)
+# ///
+record(bo, "$(P)$(R)Det$(DET):PreTOFROIEnable")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_ENABLE")
+    field(ZNAM, "Disable")
+    field(ONAM, "Enable")
+}
+
+# ///
+# /// Enable the use of this TOF ROI pre-filter for DET $(DET) (Readback only)
+# ///
+record(bi, "$(P)$(R)Det$(DET):PreTOFROIEnable_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_ENABLE")
+    field(ZNAM, "Disable")
+    field(ONAM, "Enable")
+    field(SCAN, "I/O Intr")
+}
+
+
+
+
 
 
 

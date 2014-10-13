@@ -65,6 +65,9 @@
 #define ADnEDDetNDArrayTOFStartParamString "ADNED_DET_NDARRAY_TOF_START"
 #define ADnEDDetNDArrayTOFEndParamString   "ADNED_DET_NDARRAY_TOF_END"
 #define ADnEDDetEventRateParamString       "ADNED_DET_EVENT_RATE"
+#define ADnEDDetTOFROIStartParamString     "ADNED_DET_TOF_ROI_START"
+#define ADnEDDetTOFROIEndParamString       "ADNED_DET_TOF_ROI_END"
+#define ADnEDDetTOFROIEnableParamString    "ADNED_DET_TOF_ROI_ENABLE"
 #define ADnEDTOFMaxParamString             "ADNED_TOF_MAX"
 #define ADnEDAllocSpaceParamString         "ADNED_ALLOC_SPACE"
 #define ADnEDAllocSpaceStatusParamString   "ADNED_ALLOC_SPACE_STATUS"
@@ -163,6 +166,9 @@ class ADnED : public ADDriver {
   int ADnEDDetNDArrayTOFStartParam;
   int ADnEDDetNDArrayTOFEndParam;
   int ADnEDDetEventRateParam;
+  int ADnEDDetTOFROIStartParam;
+  int ADnEDDetTOFROIEndParam;
+  int ADnEDDetTOFROIEnableParam;
   int ADnEDTOFMaxParam;
   int ADnEDAllocSpaceParam;
   int ADnEDAllocSpaceStatusParam;
