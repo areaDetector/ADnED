@@ -111,6 +111,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   //createParam adds the parameters to all param lists automatically (using maxAddr).
   createParam(ADnEDFirstParamString,              asynParamInt32,       &ADnEDFirstParam);
   createParam(ADnEDResetParamString,              asynParamInt32,       &ADnEDResetParam);
+  createParam(ADnEDStartParamString,              asynParamInt32,       &ADnEDStartParam);
   createParam(ADnEDEventDebugParamString,         asynParamInt32,       &ADnEDEventDebugParam);
   createParam(ADnEDSeqCounterParamString,       asynParamInt32,       &ADnEDSeqCounterParam);
   createParam(ADnEDPulseCounterParamString,       asynParamInt32,       &ADnEDPulseCounterParam);
@@ -182,6 +183,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   bool paramStatus = true;
   //Initialise any paramLib parameters that need passing up to device support
   paramStatus = ((setIntegerParam(ADnEDResetParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDStartParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDEventDebugParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDSeqCounterParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDPulseCounterParam, 0) == asynSuccess) && paramStatus);
@@ -280,7 +282,7 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
   if (function == ADnEDResetParam) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Reset.\n", functionName);
     
-  } else if (function == ADAcquire) {
+  } else if ((function == ADAcquire) || (function == ADnEDStartParam)) {
     if (value) {
       if ((adStatus == ADStatusIdle) || (adStatus == ADStatusError) || (adStatus == ADStatusAborted)) {
 	cout << "Start acqusition." << endl;
@@ -911,10 +913,15 @@ void ADnED::eventTask(void)
       lock();
       setIntegerParam(ADStatus, ADStatusError);
       cout << "Error detected. Send stop frame." << endl;
-      epicsEventSignal(this->m_stopFrame);
+      epicsEventSignal(this->m_stopFrame);    
       unlock();
       acquire = false;
     }
+
+    //Complete Start callback
+    callParamCallbacks();
+    setIntegerParam(ADnEDStartParam, 0);
+    callParamCallbacks();
     
     while (acquire) {
 
