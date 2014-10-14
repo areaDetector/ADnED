@@ -38,7 +38,7 @@ namespace nEDChannel {
     
     void channelCreated(const Status& status, Channel::shared_pointer const & channel);
     void channelStateChange(Channel::shared_pointer const & channel, Channel::ConnectionState connectionState);
-    epics::pvData::boolean waitUntilConnected(double timeOut);
+    bool waitUntilConnected(double timeOut);
     std::string getRequesterName();
     void message(std::string const & message, MessageType messageType);
     

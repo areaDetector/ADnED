@@ -12,6 +12,7 @@
 #include "dirent.h"
 #include <sys/types.h>
 #include <syscall.h> 
+#include <stdexcept>
 
 //Epics headers
 #include <epicsTime.h>
@@ -30,6 +31,8 @@
 using std::cout;
 using std::cerr;
 using std::endl;
+
+///using std::runtime_error;
 
 using std::tr1::shared_ptr;
 using nEDChannel::nEDChannelRequester;
@@ -307,6 +310,8 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
     if (allocArray() != asynSuccess) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to allocate array.\n", functionName);
       setIntegerParam(ADnEDAllocSpaceStatusParam, s_ADNED_ALLOC_STATUS_FAIL);
+      setStringParam(ADStatusMessage, "allocArray Error");
+      setIntegerParam(ADStatus, ADStatusError);
       callParamCallbacks();
       return asynError;
     }
@@ -787,8 +792,8 @@ void ADnED::eventTask(void)
 {
   epicsEventWaitStatus eventStatus;
   epicsFloat64 timeout = 0.001;
-  int acquire = 0;
-  int status = 0;
+  bool acquire = 0;
+  bool error = true;
   char pvName[s_ADNED_MAX_STRING_SIZE] = {0};
   const char* functionName = "ADnED::eventTask";
  
@@ -798,7 +803,7 @@ void ADnED::eventTask(void)
   cout << "Event readout thread TID syscall(SYS_gettid): " << syscall(SYS_gettid) << endl;
   cout << "Event readout thread this pointed addr: " << std::hex << this << std::dec << endl;
   
-  
+  setStringParam(ADStatusMessage, "Startup");
 
   while (1) {
 
@@ -809,70 +814,89 @@ void ADnED::eventTask(void)
     }
 
     setIntegerParam(ADAcquire, 0);
+    if (!error) {
+      setStringParam(ADStatusMessage, "Idle");
+    }
     callParamCallbacks();
 
     eventStatus = epicsEventWait(m_startEvent);          
     if (eventStatus == epicsEventWaitOK) {
       cout << "Got start event" << endl;
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Start Event.\n", functionName);
-      acquire = 1;
+      acquire = true;
+      error = false;
       lock();
 	
       if (allocArray() != asynSuccess) {
+	setStringParam(ADStatusMessage, "allocArray Error");
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to allocate array.\n", functionName);
-	acquire = 0;
+	acquire = false;
+	error = true;
       } else {
       
-      //Clear arrays at start of acquire every time.
-      if (p_Data != NULL) {
-	memset(p_Data, 0, m_bufferMaxSize*sizeof(epicsUInt32));
-      }
+	//Clear arrays at start of acquire every time.
+	if (p_Data != NULL) {
+	  memset(p_Data, 0, m_bufferMaxSize*sizeof(epicsUInt32));
+	}
       
-      setIntegerParam(ADStatus, ADStatusAcquire);
-      setStringParam(ADStatusMessage, "Acquiring Events");
+	setIntegerParam(ADStatus, ADStatusAcquire);
+	setStringParam(ADStatusMessage, "Acquiring Events");
+	// Start frame thread
+	cout << "Send start frame" << endl;
+	epicsEventSignal(this->m_startFrame);
+	callParamCallbacks();
       
-      // Start frame thread
-      cout << "Send start frame" << endl;
-      epicsEventSignal(this->m_startFrame);
-      callParamCallbacks();
-      
-      //Read the PV name
-      getStringParam(ADnEDPVNameParam, sizeof(pvName), pvName);
+	//Read the PV name
+	getStringParam(ADnEDPVNameParam, sizeof(pvName), pvName);
 
-      //Connect channel here
-      try {
-	cout << "Starting ClientFactory::start() " << endl;
-	epics::pvAccess::ClientFactory::start();
-      } catch (std::exception &e)  {
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		  "%s: ERROR: Exception for ClientFactory::start(). Exception: %s\n", 
-		  functionName, e.what());
-      }
-      
-      epics::pvAccess::ChannelProvider::shared_pointer channelProvider = epics::pvAccess::getChannelProviderRegistry()->getProvider("pva");
-      if (!channelProvider) {
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: No Channel Provider.\n", functionName);
-      }
-      
-      if (pvName[0] != '0') {
+	//Connect channel here
 	try {
-	  std::string channelStr("ADnED Channel");
-	  shared_ptr<nEDChannelRequester> channelRequester(new nEDChannelRequester(channelStr));
-	  shared_ptr<epics::pvAccess::Channel> channel(channelProvider->createChannel(pvName, channelRequester, ADNED_PV_PRIORITY));
-	  channelRequester->waitUntilConnected(ADNED_PV_TIMEOUT);
-	  
-	  std::string monitorStr("ADnED Monitor");
-	  shared_ptr<epics::pvData::PVStructure> pvRequest = epics::pvData::CreateRequest::create()->createRequest(ADNED_PV_REQUEST);
-	  shared_ptr<nEDMonitorRequester> monitorRequester(new nEDMonitorRequester(monitorStr, this));
-	  
-	  shared_ptr<epics::pvData::Monitor> monitor = channel->createMonitor(monitorRequester, pvRequest);
+	  cout << "Starting ClientFactory::start() " << endl;
+	  epics::pvAccess::ClientFactory::start();
 	} catch (std::exception &e)  {
 	  asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		    "%s: ERROR: Problem creating monitor. Exception: %s\n", 
+		    "%s: ERROR: Exception for ClientFactory::start(). Exception: %s\n", 
 		    functionName, e.what());
+	  acquire = false;
+	  error = true;
 	}
-      }
-
+      
+	epics::pvAccess::ChannelProvider::shared_pointer channelProvider;
+	if (!error) {
+	  channelProvider = epics::pvAccess::getChannelProviderRegistry()->getProvider("pva");
+	  if (!channelProvider) {
+	    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: No Channel Provider.\n", functionName);
+	    acquire = false;
+	    error = true;
+	  }
+	}
+      
+	if ((pvName[0] != '0') && (!error)) {
+	  try {
+	    std::string channelStr("ADnED Channel");
+	    shared_ptr<nEDChannelRequester> channelRequester(new nEDChannelRequester(channelStr));
+	    shared_ptr<epics::pvAccess::Channel> channel(channelProvider->createChannel(pvName, channelRequester, ADNED_PV_PRIORITY));
+	    bool connectStatus = channelRequester->waitUntilConnected(ADNED_PV_TIMEOUT);
+	    if (!connectStatus) {
+	      throw std::runtime_error("Timeout connecting to PV");
+	    }
+	    
+	    std::string monitorStr("ADnED Monitor");
+	    shared_ptr<epics::pvData::PVStructure> pvRequest = epics::pvData::CreateRequest::create()->createRequest(ADNED_PV_REQUEST);
+	    shared_ptr<nEDMonitorRequester> monitorRequester(new nEDMonitorRequester(monitorStr, this));
+	    
+	    shared_ptr<epics::pvData::Monitor> monitor = channel->createMonitor(monitorRequester, pvRequest);
+	  } catch (std::exception &e)  {
+	    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		      "%s: ERROR: Problem creating monitor. Exception: %s\n", 
+		      functionName, e.what());
+	    setStringParam(ADStatusMessage, "Failed To Connect To PV.");
+	    setIntegerParam(ADStatus, ADStatusError);
+	    acquire = false;
+	    error = true;
+	  }
+	}
+	
       }
       //Call this if we want to block here forever.
       //monitorRequester->waitUntilDone();
@@ -880,6 +904,16 @@ void ADnED::eventTask(void)
       //epicsThreadSleep(10);
       
       unlock();
+    }
+    
+    //If we failed to connect or setup, clean up and notify error.
+    if (error) {
+      lock();
+      setIntegerParam(ADStatus, ADStatusError);
+      cout << "Error detected. Send stop frame." << endl;
+      epicsEventSignal(this->m_stopFrame);
+      unlock();
+      acquire = false;
     }
     
     while (acquire) {
@@ -890,13 +924,13 @@ void ADnED::eventTask(void)
       if (eventStatus == epicsEventWaitOK) {
 	cout << "Got stop event" << endl;
         asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Stop Event.\n", functionName);
-        acquire = 0;
+        acquire = false;
       }
 
       //if (acquire) {
       //	cout << "Reading Events!" << endl;
       //}
-      
+     
       if (!acquire) {
 	lock();
 	setIntegerParam(ADStatus, ADStatusIdle);
@@ -933,7 +967,7 @@ void ADnED::frameTask(void)
 {
   epicsEventWaitStatus eventStatus;
   epicsFloat64 timeout = 0.001;
-  int acquire = 0;
+  bool acquire = false;
   int status = 0;
   int arrayCounter = 0;
   bool frameUpdate = false;
@@ -962,7 +996,7 @@ void ADnED::frameTask(void)
     if (eventStatus == epicsEventWaitOK) {
       cout << "Got start frame" << endl;
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Start Frame Event.\n", functionName);
-      acquire = 1;
+      acquire = true;
       arrayCounter = 0;
       lock();
       setIntegerParam(NDArrayCounter, arrayCounter);
@@ -983,7 +1017,7 @@ void ADnED::frameTask(void)
       if (eventStatus == epicsEventWaitOK) {
 	cout << "Got stop frame" << endl;
         asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Stop Frame Event.\n", functionName);
-        acquire = 0;
+        acquire = false;
       }
 
       if (acquire) {
@@ -1000,7 +1034,7 @@ void ADnED::frameTask(void)
 	    //setStringParam(ADStatusMessage, "Memory Error. Check IOC Log.");
 	    //setIntegerParam(ADStatus, ADStatusError);
 	    //setIntegerParam(ADAcquire, ADAcquireFalse_);
-	    //acquire = 0;
+	    //acquire = false;
 	    //allocError = 1;
 	  } else {
 	    epicsTimeGetCurrent(&nowTime);

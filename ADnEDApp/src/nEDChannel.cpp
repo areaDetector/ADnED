@@ -57,7 +57,7 @@ namespace nEDChannel {
     }
   }
   
-  boolean nEDChannelRequester::waitUntilConnected(double timeOut) 
+  bool nEDChannelRequester::waitUntilConnected(double timeOut) 
   {
     cout << "Waiting for connection." << endl;
     return m_connectEvent.wait(timeOut);
