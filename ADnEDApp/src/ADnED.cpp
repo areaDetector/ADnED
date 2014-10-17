@@ -145,7 +145,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   //Initialize non static, non const, data members
   m_acquiring = 0;
   m_seqCounter = 0;
-  m_lastSeqID = 0;
+  m_lastSeqID = -1; //Init to -1 to catch packet trains stuck at zero
   m_pulseCounter = 0;
   m_pChargeInt = 0.0;
   m_nowTimeSecs = 0.0;
@@ -506,7 +506,9 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   ++m_seqCounter;  
   try {
     if (!m_PVTimeStamp.attach(pv_struct->getStructureField(ADNED_PV_TIMESTAMP))) {
-      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Failed to attach PVTimeStamp.\n", functionName);
+      if (eventUpdate) {
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Failed to attach PVTimeStamp.\n", functionName);
+      }
       unlock();
       return;
     }
@@ -515,7 +517,9 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
       newPulse = true;
     }
     if (m_TimeStampLast > m_TimeStamp) {
-      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Backwards timeStamp detected.\n", functionName);
+      if (eventUpdate) {
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Backwards timeStamp detected.\n", functionName);
+      }
       setIntegerParam(ADnEDBadTimeStampParam, 1);
       unlock();
       return;
@@ -523,7 +527,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     m_TimeStampLast.put(m_TimeStamp.getSecondsPastEpoch(), m_TimeStamp.getNanoseconds());
     seqID = static_cast<epicsUInt32>(m_TimeStamp.getUserTag());
     //Detect missing packets
-    if (m_lastSeqID != 0) {
+    if (m_lastSeqID != -1) {
       if (seqID != m_lastSeqID+1) {
 	setIntegerParam(ADnEDSeqIDMissingParam, m_lastSeqID+1);
 	getIntegerParam(ADnEDSeqIDNumMissingParam, &numMissingPackets);
@@ -532,9 +536,11 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     }
     m_lastSeqID = seqID;
   } catch (std::exception &e)  {
-    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-	      "%s: Failed to deal with time stamp objects. Exception: %s\n", 
-	      functionName, e.what());
+    if (eventUpdate) {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		"%s: Failed to deal with time stamp objects. Exception: %s\n", 
+		functionName, e.what());
+    }
     unlock();
     return;
   }
@@ -542,7 +548,9 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   
   epics::pvData::PVDoublePtr pChargePtr = pv_struct->getDoubleField(ADNED_PV_PCHARGE);
   if (!pChargePtr) {
-    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No valid pCharge found.\n", functionName);
+    if (eventUpdate) {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No valid pCharge found.\n", functionName);
+    }
     return;
   }
 
@@ -561,7 +569,9 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     epics::pvData::shared_vector<const epics::pvData::uint32> tofData = tofPtr->view();
 
     if (pixelsLength != tofLength) {
-      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s pixelsLength != tofLength.\n", functionName);
+      if (eventUpdate) {
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s pixelsLength != tofLength.\n", functionName);
+      }
       return;
     }
 
@@ -773,7 +783,7 @@ asynStatus ADnED::clearParams(void)
   m_pChargeInt = 0.0;
   m_seqCounter = 0;
   m_pulseCounter = 0;
-  m_lastSeqID = 0;
+  m_lastSeqID = -1;
   m_seqCounter = 0;
   m_TimeStamp.put(0,0);
   m_TimeStampLast.put(0,0);
