@@ -19,18 +19,18 @@
 # Build settings that are NOT module paths should appear in a
 # CONFIG_SITE file.
 
--include $(TOP)/../../setup_release
-SUPPORT=$(EPICS_SUPPORT)
+SUPPORT=/home/controls/epics
 
 BASEV4=		/home/controls/epics/basev4/master
 
 TEMPLATE_TOP=$(EPICS_BASE)/templates/makeBaseApp/top
 
-ASYN=		$(SUPPORT)/asyn
-AREADETECTOR=	$(SUPPORT)/areaDetector
+ASYN=		$(SUPPORT)/asyn/master
+AREADETECTOR=	$(SUPPORT)/ADCore/master
 
 include $(BASEV4)/RELEASE.local
 
+EPICS_BASE=/home/controls/epics/base/master
 
 # Set RULES here if you want to take build rules from somewhere
 # other than EPICS_BASE:
