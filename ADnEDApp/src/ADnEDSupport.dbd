@@ -1,0 +1,2 @@
+registrar("ADnEDRegister")
+registrar("ADnEDPixelROIRegister")

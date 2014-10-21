@@ -1,0 +1,126 @@
+
+#####################################################################
+#
+# areaDetector nED client template file. This is used to automatically
+# configure the plugin ROIs for a single detector. It copies the NDArray
+# index numbers published by the main driver into the ROI Min and Size records.
+# This works for both a detector and beam monitor. It assumes there is
+# a ROI plugin extracting the block of data for this detector for
+# both the pixel and the TOF data (2 ROI plugins).
+#
+# Matt Pearson
+# Oct 14
+#
+# Macros:
+# P,R - base PV name
+# DET - Detector number (1-based)
+# TOFROI - TOF ROI name
+# PIXROI - Pixel ROI name
+# TOFSIZE - Max size of TOF spectrum
+#
+#####################################################################
+
+# ///
+# /// Copy NDArray TOF Start Index to MinX of ROI plugin
+# ///
+record(calcout, "$(P)$(R)Det$(DET):ConfigTOFStart")
+{
+  field(INPA, "$(P)$(R)Det$(DET):NDArrayTOFStart_RBV")
+  field(CALC, "A")
+  field(OUT, "$(P)$(R)Det$(DET):$(TOFROI):MinX PP")
+  field(FLNK, "$(P)$(R)Det$(DET):ConfigTOFSize")
+}
+
+# ///
+# /// Copy NDArray TOF Size to SizeX of ROI plugin
+# ///
+record(calcout, "$(P)$(R)Det$(DET):ConfigTOFSize")
+{
+  field(INPA, "$(P)$(R)TOFMax_RBV")
+  field(CALC, "A")
+  field(OUT, "$(P)$(R)Det$(DET):$(TOFROI):SizeX PP")
+}
+
+# ///
+# /// Copy NDArray Pixel Data Start Index to MinX of ROI plugin
+# ///
+record(calcout, "$(P)$(R)Det$(DET):ConfigXYStart")
+{
+  field(INPA, "$(P)$(R)Det$(DET):NDArrayStart_RBV")
+  field(CALC, "A")
+  field(OUT, "$(P)$(R)Det$(DET):$(PIXROI):MinX PP")
+  field(FLNK, "$(P)$(R)Det$(DET):ConfigXYSize")
+}
+
+# ///
+# /// Copy NDArray Pixel Data Size to SizeX of ROI plugin
+# ///
+record(calcout, "$(P)$(R)Det$(DET):ConfigXYSize")
+{
+  field(INPA, "$(P)$(R)Det$(DET):NDArrayStart_RBV")
+  field(INPB, "$(P)$(R)Det$(DET):NDArrayEnd_RBV")
+  field(CALC, "(B-A)+1")
+  field(OUT, "$(P)$(R)Det$(DET):$(PIXROI):SizeX PP")
+}
+
+#####################################################################
+# Instantiate detector specific plugins here
+
+substitute "TIMEOUT=1"
+substitute "ADDR=0"
+substitute "NDARRAY_ADDR=0"
+
+# TOF Initial ROI
+
+substitute "R=ADnED:Det$(DET):TOF:"
+substitute "PORT=DET$(DET).TOF"
+substitute "NDARRAY_PORT=$(ADNED_PORT)"
+include "NDPluginBase.template"
+include "NDROI.template"
+
+# TOF Waveform
+substitute "R=ADnED:Det$(DET):TOF:Array:"
+substitute "PORT=DET$(DET).TOF.ARR"
+substitute "NDARRAY_PORT=DET$(DET).TOF"
+include "NDPluginBase.template"
+substitute "TYPE=Int32"
+substitute "FTVL=LONG"
+substitute "NELEMENTS=$(TOFSIZE)"
+include "NDStdArrays.template"
+
+# TOF Second ROI
+substitute "R=ADnED:Det$(DET):TOF:ROI1:"
+substitute "PORT=DET$(DET).TOF.ROI1"
+substitute "NDARRAY_PORT=DET$(DET).TOF"
+include "NDPluginBase.template"
+include "NDROI.template"
+
+# TOF Stats
+substitute "R=ADnED:Det$(DET):TOF:Stat1:"
+substitute "PORT=DET$(DET).TOF.STAT1"
+substitute "NDARRAY_PORT=DET$(DET).TOF.ROI1"
+include "NDPluginBase.template"
+substitute "NCHANS=1024"
+substitute "HIST_SIZE=1"
+substitute "XSIZE=1"
+substitute "YSIZE=1"
+include "NDStats.template"
+
+# Pixel Initial ROI and X/Y Mapping Plugin
+substitute "R=ADnED:Det$(DET):XY:"
+substitute "PORT=DET$(DET).XY"
+substitute "NDARRAY_PORT=$(ADNED_PORT)"
+include "NDPluginBase.template"
+include "NDROI.template"
+
+# Pixel X/Y Waveform
+
+
+# Pixel X/Y Second ROI
+
+
+# Pixel X/Y Stats
+
+
+
+

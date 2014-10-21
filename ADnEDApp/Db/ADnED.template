@@ -1,0 +1,401 @@
+
+#####################################################################
+#
+# areaDetector nED client template file. This is the top level
+# template file that may include other files or override default
+# areaDetector records.
+#
+# Matt Pearson
+# Sept 14
+#
+# Macros:
+# P - base PV name
+# PORT - Asyn port name
+# ADDR - Asyn address (set to zero)
+# TIMEOUT - Asyn timeout
+# TOFSIZE - The size of the waveforms for the TOF spectrums
+#
+#####################################################################
+
+substitute "R=ADnED:"
+
+include "ADBase.template" 
+
+# /// 
+# /// Reset the device.
+# ///
+record(bo, "$(P)$(R)Reset")
+{
+    field(DTYP,"asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_RESET")
+    field(ZNAM,"Done")  
+    field(ONAM,"Reset")
+}
+
+# /// 
+# /// Events debug (prints to stdout).
+# ///
+record(bo, "$(P)$(R)EventDebug")
+{
+    field(DTYP,"asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_EVENT_DEBUG")
+    field(ZNAM,"Off")  
+    field(ONAM,"On")
+}
+
+# ///
+# /// Number of V4 packets in current acquisition
+# ///
+record(longin, "$(P)$(R)SeqCounter_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_COUNTER")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Number of pulses detected by comparing seq timestamps.
+# ///
+record(longin, "$(P)$(R)PulseCounter_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PULSE_COUNTER")
+   field(SCAN, "I/O Intr")
+}
+record(calc, "$(P)$(R)PulseRate_RBV")
+{
+    field(INPA, "$(P)$(R)PulseRate_RBV.B NPP NMS") 
+    field(INPB, "$(P)$(R)PulseCounter_RBV NPP NMS")
+    field(INPC, "1.0")                         
+    field(CALC, "(B-A)/C")
+    field(PREC, "1")
+    field(SCAN, "1 second")
+    field(EGU, "Hz")
+}
+
+# ///
+# /// Event rate
+# ///
+record(longin, "$(P)$(R)EventRate_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_EVENT_RATE")
+   field(SCAN, "I/O Intr")
+   field(EGU, "e/s")
+}
+
+# ///
+# /// Sequence ID values (the timeStamp.userTag). This is not the pulse ID.
+# /// It is a unique ID sent by the server with every V4 packet. So there
+# /// may be multiple packets with the same ID. Note: the timeStamp NT
+# /// is used to delineate pulses.
+# ///
+record(longin, "$(P)$(R)SeqID_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_ID")
+   field(SCAN, "I/O Intr")
+}
+record(calc, "$(P)$(R)SeqIDRate_RBV")
+{
+    field(INPA, "$(P)$(R)SeqIDRate_RBV.B NPP NMS") 
+    field(INPB, "$(P)$(R)SeqID_RBV NPP NMS")
+    field(INPC, "1.0")                         
+    field(CALC, "(B-A)/C")
+    field(PREC, "1")
+    field(SCAN, "1 second")
+}
+
+
+# ///
+# /// This will be non-zero if any missing V4 packets are detected. This record
+# /// will be updated with the latest missing sequence ID.
+# ///
+record(longin, "$(P)$(R)SeqIDMissing_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_ID_MISSING")
+   field(SCAN, "I/O Intr")
+   field(LOLO, "-1")
+   field(HIHI, "1")
+   field(LLSV, "MAJOR")
+   field(HHSV, "MAJOR")
+}
+
+# ///
+# /// This is the number of missing V4 packets, if any have been detected.
+# ///
+record(longin, "$(P)$(R)SeqIDNumMissing_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_ID_NUM_MISSING")
+   field(SCAN, "I/O Intr")
+   field(LOLO, "-1")
+   field(HIHI, "1")
+   field(LLSV, "MAJOR")
+   field(HHSV, "MAJOR")
+}
+
+# ///
+# /// This is a flag to indicate I detected an out of order packet (with backwards timestamp).
+# ///
+record(bi, "$(P)$(R)BadTimeStamp_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_BAD_TIMESTAMP")
+   field(SCAN, "I/O Intr")
+   field(ZNAM, "Ok")
+   field(ONAM, "Error")
+   field(ZSV, "NO_ALARM")
+   field(OSV, "MAJOR")
+}
+
+# ///
+# /// Time between updates (ms) from the event thread.
+# ///
+record(ao, "$(P)$(R)EventUpdatePeriod")
+{
+   field(DESC, "Event Update Period")
+   field(DTYP, "asynFloat64")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_EVENT_UPDATE_PERIOD")
+   field(PREC, "0")
+   field(VAL, "100")
+   field(PINI, "YES")
+}
+
+# ///
+# /// Time between updates (ms) from the event thread (readback).
+# ///
+record(ai, "$(P)$(R)EventUpdatePeriod_RBV")
+{
+   field(DESC, "Event Update Period")
+   field(DTYP, "asynFloat64")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_EVENT_UPDATE_PERIOD")
+   field(PREC, "0")
+   field(SCAN, "I/O Intr")
+   field(EGU, "ms")	
+}
+
+# ///
+# /// The V4 pvAccess PV name
+# ///
+record(waveform, "$(P)$(R)PVName")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynOctetWrite")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME")
+    field(FTVL, "CHAR")
+    field(NELM, "256")
+}
+record(waveform, "$(P)$(R)PVName_RBV")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME")
+    field(FTVL, "CHAR")
+    field(NELM, "256")
+    field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Time between NDArray updates (ms) from the frame thread.
+# ///
+record(ao, "$(P)$(R)FrameUpdatePeriod")
+{
+   field(DESC, "Frame Update Period")
+   field(DTYP, "asynFloat64")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_FRAME_UPDATE_PERIOD")
+   field(PREC, "0")
+   field(VAL, "100")
+   field(PINI, "YES")
+}
+
+# ///
+# /// Time between NDArray updates (ms) from the frame thread (readback).
+# ///
+record(ai, "$(P)$(R)FrameUpdatePeriod_RBV")
+{
+   field(DESC, "Frame Update Period")
+   field(DTYP, "asynFloat64")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_FRAME_UPDATE_PERIOD")
+   field(PREC, "0")
+   field(SCAN, "I/O Intr")
+   field(EGU, "ms")	
+}
+
+# ///
+# /// Number of detectors. This cannot exceed a maximum number
+# /// hardcoded in the driver.
+# ///
+record(longout, "$(P)$(R)NumDetectors")
+{
+   field(DESC, "Num Detectors")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_NUM_DET")
+   field(VAL, "0")
+   field(PINI, "YES")
+}
+
+# ///
+# /// Number of detectors (readback)
+# ///
+record(longin, "$(P)$(R)NumDetectors_RBV")
+{
+   field(DESC, "Num Detectors")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_NUM_DET")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// TOF Max (eg. 160000 or 320000, in units of 100ns).
+# ///
+record(longout, "$(P)$(R)TOFMax")
+{
+   field(DESC, "Max TOF Value")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_TOF_MAX")
+   field(VAL, "$(TOFSIZE)")
+   field(PINI, "YES")
+   field(EGU, "100ns")
+}
+
+# ///
+# /// TOF Max (eg. 160000 or 320000, in units of 100ns). (readback)
+# ///
+record(longin, "$(P)$(R)TOFMax_RBV")
+{
+   field(DESC, "Max TOF Value")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_TOF_MAX")
+   field(SCAN, "I/O Intr")
+   field(EGU, "100ns")
+}
+
+# ///
+# /// The latest RTDL proton charge
+# ///
+record(ai, "$(P)$(R)PCharge_RBV")
+{
+   field(DESC, "Latest Proton Charge")
+   field(DTYP, "asynFloat64")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PCHARGE")
+   field(PREC, "4")
+   field(SCAN, "I/O Intr")
+   field(EGU, "pC")	
+}
+
+# ///
+# /// The integrated RTDL proton charge
+# ///
+record(ai, "$(P)$(R)PChargeIntegrated_RBV")
+{
+   field(DESC, "Integrated Proton Charge")
+   field(DTYP, "asynFloat64")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PCHARGE_INT")
+   field(PREC, "4")
+   field(SCAN, "I/O Intr")
+   field(EGU, "pC")	
+}
+
+# /// 
+# /// Allocate space for NDArray buffer. This can either be called by hand after
+# /// modifying the pixel ID ranges or max TOF. It's called automatically on
+# /// a start if any of those params have been changed, and the function hasn't already
+# /// been called.
+# ///
+record(bo, "$(P)$(R)AllocSpace")
+{
+    field(DTYP,"asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_ALLOC_SPACE")
+}
+record(mbbi, "$(P)$(R)AllocSpaceStatus_RBV")
+{
+    field(DTYP,"asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_ALLOC_SPACE_STATUS")
+    field(ZRST,"Ok")
+    field(ZRVL, "0")
+    field(ZRSV, "NO_ALARM")
+    field(ONST, "Required")
+    field(ONVL, "1")
+    field(ONSV, "NO_ALARM")
+    field(TWST, "Failed")
+    field(TWVL, "2")
+    field(TWSV, "MAJOR")
+    field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Disable this ADBase record scanning.
+# ///
+#record(ai, "$(P)$(R)PoolUsedMem")
+#{
+#   field(SCAN, "Passive")
+#}
+
+# ///
+# /// Use this Start record to do callback when we have completed
+# /// start process. The standard Acquire record blocks until we stop.
+# ///
+record(busy, "$(P)$(R)Start") {
+   field(DTYP, "asynInt32")
+   field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_START")
+   field(ZNAM, "Done")
+   field(ONAM, "Acquire")
+   field(VAL,  "0")
+}
+
+
+# ///
+# /// Add EGU field to ArrayRate_RBV
+# ///
+record(calc, "$(P)$(R)ArrayRate_RBV")
+{
+    field(EGU, "Hz")
+}
+
+
+
+##########################################################################
+# Include detector specific records (needs to be 1-based).
+
+substitute "DET=1"
+include "ADnEDDetector.template"
+
+substitute "DET=2"
+include "ADnEDDetector.template"
+
+substitute "DET=3"
+include "ADnEDDetector.template"
+
+substitute "DET=4"
+include "ADnEDDetector.template"
+
+substitute "R=ADnED:"
+substitute "DET=1"
+substitute "TOFROI=TOF"
+substitute "PIXROI=XY"
+include "ADnEDDetectorPlugin.template"
+
+substitute "R=ADnED:"
+substitute "DET=2"
+include "ADnEDDetectorPlugin.template"
+
+substitute "R=ADnED:"
+substitute "DET=3"
+include "ADnEDDetectorPlugin.template"
+
+substitute "R=ADnED:"
+substitute "DET=4"
+include "ADnEDDetectorPlugin.template"
+
+##########################################################################
+
+
+

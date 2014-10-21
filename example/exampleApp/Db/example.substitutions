@@ -1,0 +1,19 @@
+
+file ADnED.template
+{
+pattern {P, PORT, ADDR, TIMEOUT, TOFSIZE, ADNED_PORT}
+	{BL99:Det:, NED, 0, 5, 160000, NED}
+}
+
+file save_restoreStatus.db
+{
+pattern {P}
+        {BL99:CS:Det:ADnED:}
+}
+
+file ioc_sns.db
+{
+pattern {IOCNAME}
+        {BL99:CS:Det:ADnED}
+}
+

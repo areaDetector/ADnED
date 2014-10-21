@@ -1,0 +1,229 @@
+
+
+#####################################################################
+#
+# areaDetector nED client template file. This should be included by the
+# top level template file. It defines the records that are specific to
+# a single detector.
+#
+# Matt Pearson
+# Sept 14
+#
+# Macros:
+# P,R - base PV name
+# PORT - Asyn port name
+# DET - Asyn address (used to identify a detector, 1-based)
+# TIMEOUT - Asyn timeout
+#
+#####################################################################
+
+# ///
+# /// Set the description name for this detector
+# ///
+record(stringout, "$(P)$(R)Det$(DET):Description")
+{
+   field(DESC, "Description")
+   field(VAL, " ")
+   field(PINI, "YES")
+}
+
+
+#####################################################################
+# Set pixel ID ranges for this detector
+
+# ///
+# /// Set the start of the pixel range for this detector DET=$(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):PixelNumStart")
+{
+   field(DESC, "Pixel range start DET$(DET)")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_START")
+   field(VAL, "0")
+   field(PINI, "YES")
+}
+
+# ///
+# /// Get the start of the pixel range for this detector DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PixelNumStart_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_START")
+   field(SCAN, "I/O Intr")
+}
+
+
+# ///
+# /// Set the end of the pixel range for this detector DET=$(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):PixelNumEnd")
+{
+   field(DESC, "Pixel range end DET$(DET)")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_END")
+   field(VAL, "0")
+   field(PINI, "YES")
+}
+
+# ///
+# /// Get the end of the pixel range for this detector DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PixelNumEnd_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_END")
+   field(SCAN, "I/O Intr")
+}
+
+#####################################################################
+# These records are read only and are used to feed back the NDArray 
+# index values for this detector. This will be required for the 
+# plugins that extract the detector specific data.
+
+# ///
+# /// The NDArray detector data index start for DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):NDArrayStart_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_START")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// The NDArray detector data index end for DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):NDArrayEnd_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_END")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// The NDArray detector data index size for DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):NDArraySize_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_SIZE")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// The NDArray TOF index start for DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):NDArrayTOFStart_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_TOF_START")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// The NDArray TOF index end for DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):NDArrayTOFEnd_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_TOF_END")
+   field(SCAN, "I/O Intr")
+}
+
+#####################################################################
+# Detector specific data feedback
+
+# ///
+# /// Event rate
+# ///
+record(longin, "$(P)$(R)Det$(DET):EventRate_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_EVENT_RATE")
+   field(SCAN, "I/O Intr")
+   field(EGU, "e/s")
+}
+
+#####################################################################
+# Define a TOF ROI to pre-filter the events for this detector DET=$(DET)
+
+# ///
+# /// Set the TOF ROI start for DET $(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):PreTOFROIStart")
+{
+   field(DESC, "Pre TOF ROI Start")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_START")
+   field(VAL, "0")
+   field(PINI, "YES")
+}
+
+# ///
+# ///  Read the TOF ROI start for DET $(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PreTOFROIStart_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_START")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Set the TOF ROI end for DET $(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):PreTOFROIEnd")
+{
+   field(DESC, "Pre TOF ROI End")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_END")
+   field(VAL, "0")
+   field(PINI, "YES")
+}
+
+# ///
+# ///  Read the TOF ROI end for DET $(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PreTOFROIEnd_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_END")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Enable the use of this TOF ROI pre-filter for DET $(DET)
+# ///
+record(bo, "$(P)$(R)Det$(DET):PreTOFROIEnable")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_ENABLE")
+    field(ZNAM, "Disable")
+    field(ONAM, "Enable")
+}
+
+# ///
+# /// Enable the use of this TOF ROI pre-filter for DET $(DET) (Readback only)
+# ///
+record(bi, "$(P)$(R)Det$(DET):PreTOFROIEnable_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_ENABLE")
+    field(ZNAM, "Disable")
+    field(ONAM, "Enable")
+    field(SCAN, "I/O Intr")
+}
+
+
+
+
+
+
+
+
+
+
+
