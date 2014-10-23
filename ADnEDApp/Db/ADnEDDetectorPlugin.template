@@ -94,6 +94,8 @@ substitute "PORT=DET$(DET).TOF.ROI1"
 substitute "NDARRAY_PORT=DET$(DET).TOF"
 include "NDPluginBase.template"
 include "NDROI.template"
+substitute "DIM=X"
+include "NDROI_End.template"
 
 # TOF Stats
 substitute "R=ADnED:Det$(DET):TOF:Stat1:"

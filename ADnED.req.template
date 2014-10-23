@@ -20,7 +20,7 @@ $(P)Det1:TOF:Array:EnableCallbacks
 $(P)Det1:TOF:Array:MinCallbackTime
 $(P)Det1:TOF:ROI1:EnableCallbacks
 $(P)Det1:TOF:ROI1:MinX
-$(P)Det1:TOF:ROI1:SizeX
+$(P)Det1:TOF:ROI1:EndX
 $(P)Det1:TOF:Stat1:EnableCallbacks
 $(P)Det1:TOF:Stat1:BgdWidth
 $(P)Det1:XY:ROI1:EnableCallbacks
@@ -43,7 +43,7 @@ $(P)Det2:TOF:Array:EnableCallbacks
 $(P)Det2:TOF:Array:MinCallbackTime
 $(P)Det2:TOF:ROI1:EnableCallbacks
 $(P)Det2:TOF:ROI1:MinX
-$(P)Det2:TOF:ROI1:SizeX
+$(P)Det2:TOF:ROI1:EndX
 $(P)Det2:TOF:Stat1:EnableCallbacks
 $(P)Det2:TOF:Stat1:BgdWidth
 $(P)Det2:XY:ROI1:EnableCallbacks
@@ -66,7 +66,7 @@ $(P)Det3:TOF:Array:EnableCallbacks
 $(P)Det3:TOF:Array:MinCallbackTime
 $(P)Det3:TOF:ROI1:EnableCallbacks
 $(P)Det3:TOF:ROI1:MinX
-$(P)Det3:TOF:ROI1:SizeX
+$(P)Det3:TOF:ROI1:EndX
 $(P)Det3:TOF:Stat1:EnableCallbacks
 $(P)Det3:TOF:Stat1:BgdWidth
 $(P)Det3:XY:ROI1:EnableCallbacks
@@ -89,7 +89,7 @@ $(P)Det4:TOF:Array:EnableCallbacks
 $(P)Det4:TOF:Array:MinCallbackTime
 $(P)Det4:TOF:ROI1:EnableCallbacks
 $(P)Det4:TOF:ROI1:MinX
-$(P)Det4:TOF:ROI1:SizeX
+$(P)Det4:TOF:ROI1:EndX
 $(P)Det4:TOF:Stat1:EnableCallbacks
 $(P)Det4:TOF:Stat1:BgdWidth
 $(P)Det4:XY:ROI1:EnableCallbacks
