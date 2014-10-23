@@ -7,6 +7,9 @@ $(P)ArrayCallbacks
 $(P)Det1:Description
 $(P)Det1:PixelNumStart
 $(P)Det1:PixelNumEnd
+$(P)Det1:TOFROIFilterStart
+$(P)Det1:TOFROIFilterEnd
+$(P)Det1:TOFROIFilterEnable
 $(P)Det1:TOF:EnableCallbacks
 $(P)Det1:TOF:MinX
 $(P)Det1:TOF:SizeX
@@ -27,6 +30,9 @@ $(P)Det1:XY:ROI1:SizeX
 $(P)Det2:Description
 $(P)Det2:PixelNumStart
 $(P)Det2:PixelNumEnd
+$(P)Det2:TOFROIFilterStart
+$(P)Det2:TOFROIFilterEnd
+$(P)Det2:TOFROIFilterEnable
 $(P)Det2:TOF:EnableCallbacks
 $(P)Det2:TOF:MinX
 $(P)Det2:TOF:SizeX
@@ -47,6 +53,9 @@ $(P)Det2:XY:ROI1:SizeX
 $(P)Det3:Description
 $(P)Det3:PixelNumStart
 $(P)Det3:PixelNumEnd
+$(P)Det3:TOFROIFilterStart
+$(P)Det3:TOFROIFilterEnd
+$(P)Det3:TOFROIFilterEnable
 $(P)Det3:TOF:EnableCallbacks
 $(P)Det3:TOF:MinX
 $(P)Det3:TOF:SizeX
@@ -67,6 +76,9 @@ $(P)Det3:XY:ROI1:SizeX
 $(P)Det4:Description
 $(P)Det4:PixelNumStart
 $(P)Det4:PixelNumEnd
+$(P)Det4:TOFROIFilterStart
+$(P)Det4:TOFROIFilterEnd
+$(P)Det4:TOFROIFilterEnable
 $(P)Det4:TOF:EnableCallbacks
 $(P)Det4:TOF:MinX
 $(P)Det4:TOF:SizeX
