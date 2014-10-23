@@ -32,7 +32,7 @@ example_SRCS_vxWorks += -nil-
 #example_OBJS_vxWorks += $(EPICS_BASE_BIN)/vxComLibrary
 
 # Link in the code from the support library
-include $(AREADETECTOR)/ADApp/commonDriverMakefile
+include $(ADCORE)/ADApp/commonDriverMakefile
 example_LIBS += ADnEDSupport
 example_LIBS += pvDatabase
 example_LIBS += pvAccess
