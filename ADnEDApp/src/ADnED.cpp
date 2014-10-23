@@ -46,7 +46,7 @@ using nEDChannel::nEDMonitorRequester;
 #define ADNED_PV_TOF "time_of_flight.value" 
 #define ADNED_PV_TIMESTAMP "timeStamp"
 #define ADNED_PV_SEQ "timeStamp.userTag" 
-#define ADNED_PV_PCHARGE "protonCharge.value"
+#define ADNED_PV_PCHARGE "proton_charge.value"
 
 //Definitions of static class data members
 const epicsInt32 ADnED::s_ADNED_MAX_STRING_SIZE = ADNED_MAX_STRING_SIZE;
