@@ -31,6 +31,7 @@
 using std::cout;
 using std::cerr;
 using std::endl;
+using std::hex;
 
 ///using std::runtime_error;
 
@@ -50,7 +51,7 @@ using nEDChannel::nEDMonitorRequester;
 
 //Definitions of static class data members
 const epicsInt32 ADnED::s_ADNED_MAX_STRING_SIZE = ADNED_MAX_STRING_SIZE;
-const epicsInt32 ADnED::s_ADNED_MAX_DETS = 8;
+const epicsInt32 ADnED::s_ADNED_MAX_DETS = ADNED_MAX_DETS;
 const epicsUInt32 ADnED::s_ADNED_ALLOC_STATUS_OK = 0;
 const epicsUInt32 ADnED::s_ADNED_ALLOC_STATUS_REQ = 1;
 const epicsUInt32 ADnED::s_ADNED_ALLOC_STATUS_FAIL = 2;
@@ -137,6 +138,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDDetTOFROIStartParamString,    asynParamInt32,       &ADnEDDetTOFROIStartParam);
   createParam(ADnEDDetTOFROIEndParamString,    asynParamInt32,       &ADnEDDetTOFROIEndParam);
   createParam(ADnEDDetTOFROIEnableParamString,    asynParamInt32,       &ADnEDDetTOFROIEnableParam);
+  createParam(ADnEDDetTOFTransFileParamString,          asynParamOctet,       &ADnEDDetTOFTransFileParam);
+  createParam(ADnEDDetPixelMapFileParamString,          asynParamOctet,       &ADnEDDetPixelMapFileParam);
   createParam(ADnEDTOFMaxParamString,             asynParamInt32,       &ADnEDTOFMaxParam);
   createParam(ADnEDAllocSpaceParamString,         asynParamInt32,       &ADnEDAllocSpaceParam);
   createParam(ADnEDAllocSpaceStatusParamString,         asynParamInt32,       &ADnEDAllocSpaceStatusParam);
@@ -151,12 +154,19 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   m_nowTimeSecs = 0.0;
   m_lastTimeSecs = 0.0;
   p_Data = NULL;
+  m_TofTransSize = 0;
+  m_PixelMapSize = 0;
   m_dataAlloc = true;
   m_dataMaxSize = 0;
   m_bufferMaxSize = 0;
   m_tofMax = 0;
   m_TimeStamp.put(0,0);
   m_TimeStampLast.put(0,0);
+
+  for (int i=0; i<=s_ADNED_MAX_DETS; ++i) {
+    p_PixelMap[i] = NULL;
+    p_TofTrans[i] = NULL;
+  }
 
   //Create the thread that reads the data 
   status = (epicsThreadCreate("ADnEDEventTask",
@@ -209,6 +219,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIStartParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIEndParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIEnableParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setStringParam(ADnEDDetTOFTransFileParam, " ") == asynSuccess) && paramStatus);
+    paramStatus = ((setStringParam(ADnEDDetPixelMapFileParam, " ") == asynSuccess) && paramStatus);
     callParamCallbacks(det);
   }
   paramStatus = ((setIntegerParam(ADnEDTOFMaxParam, 0) == asynSuccess) && paramStatus);
@@ -404,23 +416,31 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
                                     size_t nChars, size_t *nActual)
 {
     int function = pasynUser->reason;
+    int addr = 0;
     asynStatus status = asynSuccess;
     const char *functionName = "ADnED::writeOctet";
 
     asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Entry.\n", functionName);
+   
+    //Read address (ie. det number).
+    status = getAddress(pasynUser, &addr); 
+    if (status!=asynSuccess) {
+      return(status);
+    }
+ 
+    if (function == ADnEDDetTOFTransFileParam) {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Set TOF Transformation File: %s.\n", functionName, value);
+      //status = setArrayFromFile(value, p_TofTrans);
+    } else if (function == ADnEDDetPixelMapFileParam) {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Set Pixel Map File: %s.\n", functionName, value);
+      status = setArrayFromFile(value, addr);
+    } else {
+      // If this parameter belongs to a base class call its method 
+      if (function < ADNED_FIRST_DRIVER_COMMAND) {
+        status = asynNDArrayDriver::writeOctet(pasynUser, value, nChars, nActual);
+      }
+    }
     
-    //if (function == xsp3ConfigPathParam) {
-    //  asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Set Config Path Param.\n", functionName);
-    //} else if (function == xsp3ConfigSavePathParam) {
-    //  asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Set Config Save Path Param.\n", functionName);
-    //  status = checkSaveDir(value);
-    //} else {
-    //    // If this parameter belongs to a base class call its method 
-    //  if (function < XSP3_FIRST_DRIVER_COMMAND) {
-    //    status = asynNDArrayDriver::writeOctet(pasynUser, value, nChars, nActual);
-    //  }
-    //}
-
     if (status != asynSuccess) {
       callParamCallbacks();
       return asynError;
@@ -440,6 +460,118 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
     *nActual = nChars;
     return status;
 }
+
+/**
+ * Read the text file and create a mapping/transformation 
+ * array from it. The file format is expected to be:
+ * 
+ * {number of array elements, uint_32}
+ * {value}
+ * {value}
+ * etc.
+ * 
+ * The pixel ID is assumed to be the line number (offset to zero).
+ * {value} is either a floating point factor, or an uint_32 array index.
+ * Any lines beyond the size specified in the first line are ignored.
+ * 
+ * @param fileName (full path and file name)
+ * @return asynStatus
+ */
+asynStatus ADnED::setArrayFromFile(const char *fileName, epicsUInt32 addr)
+{
+  FILE *fptr = NULL;
+  char line[s_ADNED_MAX_STRING_SIZE] = {0};
+  const char *whitespace = "# \n\t";
+  epicsUInt32 pixelIndex = 0;
+  epicsUInt32 index = 0;
+  char *end = NULL;
+  asynStatus status = asynSuccess;
+  const char* functionName = "ADnED::setArrayFromFile";
+
+  asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s fileName: %s.\n", functionName, fileName);
+
+  if (p_PixelMap[addr]) {
+    free(p_PixelMap[addr]);
+    p_PixelMap[addr] = NULL;
+  }
+
+  if (access(fileName, R_OK) != 0) {
+    perror(functionName);
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+              "%s ERROR: File could not be read. File: %s\n", functionName, fileName);
+    status = asynError;
+  }
+
+  if (status == asynSuccess) {
+    if ((fptr = fopen(fileName, "r")) == NULL) {
+      perror(functionName);
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+                "%s ERROR: File could not be read. File: %s\n", functionName, fileName);
+      status = asynError;
+    } else {
+
+      //Get size of array (1st line in file)
+      fgets(line, s_ADNED_MAX_STRING_SIZE-1, fptr);
+      m_PixelMapSize = strtol(line, &end, 10);
+      if ((errno != ERANGE) && (end != line)) {
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s array size: %d.\n", functionName, m_PixelMapSize);
+	if (p_PixelMap[addr] == NULL) {
+	  cout << "Allocate pArray[" << addr << "] of size: " << m_PixelMapSize << endl;
+	  p_PixelMap[addr] = static_cast<epicsUInt32 *>(calloc(m_PixelMapSize, sizeof(epicsUInt32)));
+	}
+      } else {
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: failed to get array size. line: %s\n", functionName, line);
+	status = asynError;
+      }
+
+      if (status != asynError) {
+	while (fgets(line, s_ADNED_MAX_STRING_SIZE-1, fptr)) {
+	  //Remove newline
+	  line[strlen(line)-1]='\0';
+	  //reject any whitespace
+	  if (strpbrk(line, whitespace) == NULL) {
+	    //printf("%s: %s\n", functionName, line);
+	    pixelIndex = strtol(line, &end, 10);
+	    //Populate array
+	    if ((errno != ERANGE) && (end != line)) {
+	      (p_PixelMap[addr])[index] = pixelIndex;
+	      ++index;
+	    } else {
+	      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		      "%s: Stopping due to bad reading in line: %s.\n", functionName, line);
+	      status = asynError;
+	    }
+	  } else {
+	    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		      "%s: Stopping due to whitespace in line: %s.\n", functionName, line);
+	    status = asynError;
+	    break;
+	  }
+	  memset(line, 0, sizeof(line));
+	}
+      }
+      
+      if (fptr) {
+	if (fclose(fptr)) {
+	  perror(functionName);
+	}
+      }
+      
+    }
+    
+  }
+
+  if ((m_PixelMapSize > 0) && (p_PixelMap[addr])) {
+    for (epicsUInt32 index=0; index<m_PixelMapSize; ++index) {
+      cout << "Pixel Map p_PixelMap[" << addr << "][" << index << "]: " << (p_PixelMap[addr])[index] << endl;
+    }
+  }
+
+
+  return status;
+}
+
+
 
 /**
  * Event handler callback for monitor

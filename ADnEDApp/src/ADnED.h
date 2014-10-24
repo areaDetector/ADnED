@@ -69,11 +69,14 @@
 #define ADnEDDetTOFROIStartParamString     "ADNED_DET_TOF_ROI_START"
 #define ADnEDDetTOFROIEndParamString       "ADNED_DET_TOF_ROI_END"
 #define ADnEDDetTOFROIEnableParamString    "ADNED_DET_TOF_ROI_ENABLE"
+#define ADnEDDetTOFTransFileParamString    "ADNED_DET_TOF_TRANS_FILE"
+#define ADnEDDetPixelMapFileParamString    "ADNED_DET_PIXEL_MAP_FILE"
 #define ADnEDTOFMaxParamString             "ADNED_TOF_MAX"
 #define ADnEDAllocSpaceParamString         "ADNED_ALLOC_SPACE"
 #define ADnEDAllocSpaceStatusParamString   "ADNED_ALLOC_SPACE_STATUS"
 
 #define ADNED_MAX_STRING_SIZE 256
+#define ADNED_MAX_DETS 4
 
 extern "C" {
   int ADnEDConfig(const char *portName, int maxBuffers, size_t maxMemory, int debug);
@@ -107,7 +110,9 @@ class ADnED : public ADDriver {
  private:
 
   //Put private functions here
-
+  //  asynStatus setArrayFromFile(const char *fileName);
+  asynStatus setArrayFromFile(const char *fileName, epicsUInt32 det);
+ 
   //Put private static data members here
   static const epicsInt32 s_ADNED_MAX_STRING_SIZE;
   static const epicsInt32 s_ADNED_MAX_DETS;
@@ -125,6 +130,10 @@ class ADnED : public ADDriver {
   double m_nowTimeSecs;
   double m_lastTimeSecs;
   epicsUInt32 *p_Data;
+  epicsFloat64 *p_TofTrans[ADNED_MAX_DETS+1];
+  epicsUInt32 m_TofTransSize;
+  epicsUInt32 *p_PixelMap[ADNED_MAX_DETS+1];
+  epicsUInt32 m_PixelMapSize;
   bool m_dataAlloc;
   epicsUInt32 m_dataMaxSize;
   epicsUInt32 m_bufferMaxSize;
@@ -171,6 +180,8 @@ class ADnED : public ADDriver {
   int ADnEDDetTOFROIStartParam;
   int ADnEDDetTOFROIEndParam;
   int ADnEDDetTOFROIEnableParam;
+  int ADnEDDetTOFTransFileParam;
+  int ADnEDDetPixelMapFileParam;
   int ADnEDTOFMaxParam;
   int ADnEDAllocSpaceParam;
   int ADnEDAllocSpaceStatusParam;

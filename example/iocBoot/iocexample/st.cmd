@@ -16,6 +16,9 @@ example_registerRecordDeviceDriver pdbbase
 
 < $(ADNED)/st.cmd.config
 
+#asynSetTraceIOMask("NED",0,0xFF)
+#asynSetTraceMask("NED",0,0xFF)
+
 #####################################################
 
 #################################################
@@ -48,6 +51,7 @@ iocInit
 # Create request file and start periodic 'save'
 epicsThreadSleep(5)
 create_monitor_set("$(IOCNAME).req", 5)
+
 
 
 
