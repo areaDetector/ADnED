@@ -430,33 +430,61 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
     }
  
     if (function == ADnEDDetTOFTransFileParam) {
-      asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Set TOF Transformation File: %s.\n", functionName, value);
-      //status = setArrayFromFile(value, p_TofTrans);
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
+		"%s Set Det %d TOF Transformation File: %s.\n", 
+		functionName, addr, value);
+      
+      if (p_TofTrans[addr]) {
+	free(p_TofTrans[addr]);
+	p_TofTrans[addr] = NULL;
+      }
+      
+      try {
+	ADnEDFile file = ADnEDFile(value);
+	m_TofTransSize = file.getSize();
+	if (p_TofTrans[addr] == NULL) {
+	  p_TofTrans[addr] = static_cast<epicsFloat64 *>(calloc(m_TofTransSize, sizeof(epicsFloat64)));
+	}
+	file.readDataIntoDoubleArray(&p_TofTrans[addr]);
+      } catch (std::exception &e) {
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		  "%s Error Parsing TOF Transformation File. %s\n", 
+		  functionName, e.what());
+      }
+      //if ((m_TofTransSize > 0) && (p_TofTrans[addr])) {
+      //	for (epicsUInt32 index=0; index<m_TofTransSize; ++index) {
+      //  cout << "TOF Trans p_TofTrans[" << addr << "][" << index << "]: " << (p_TofTrans[addr])[index] << endl;
+      //}
+      //}
     } else if (function == ADnEDDetPixelMapFileParam) {
-      asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Set Pixel Map File: %s.\n", functionName, value);
-
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
+		"%s Set Det %d Pixel Map File: %s.\n", 
+		functionName, addr, value);
+      
       if (p_PixelMap[addr]) {
 	free(p_PixelMap[addr]);
 	p_PixelMap[addr] = NULL;
       }
-  
-      ADnEDFile mappingFile = ADnEDFile(value);
-      m_PixelMapSize = mappingFile.getSize();
-      printf("Size: %d\n", m_PixelMapSize);
 
-      if (p_PixelMap[addr] == NULL) {
-	cout << "Allocate pArray[" << addr << "] of size: " << m_PixelMapSize << endl;
-	p_PixelMap[addr] = static_cast<epicsUInt32 *>(calloc(m_PixelMapSize, sizeof(epicsUInt32)));
+      try {
+	ADnEDFile file = ADnEDFile(value);
+	m_PixelMapSize = file.getSize();
+	if (p_PixelMap[addr] == NULL) {
+	  p_PixelMap[addr] = static_cast<epicsUInt32 *>(calloc(m_PixelMapSize, sizeof(epicsUInt32)));
+        }
+	file.readDataIntoIntArray(&p_PixelMap[addr]);
+      } catch (std::exception &e) {
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		  "%s Error parsing file. %s\n", 
+		  functionName, e.what());
       }
 
-      mappingFile.readDataIntoIntArray(&p_PixelMap[addr]);
-
-      if ((m_PixelMapSize > 0) && (p_PixelMap[addr])) {
-	for (epicsUInt32 index=0; index<m_PixelMapSize; ++index) {
-	  cout << "Pixel Map p_PixelMap[" << addr << "][" << index << "]: " << (p_PixelMap[addr])[index] << endl;
-	}
-      }
-      
+    //if ((m_PixelMapSize > 0) && (p_PixelMap[addr])) {
+    //	for (epicsUInt32 index=0; index<m_PixelMapSize; ++index) {
+    //	  cout << "Pixel Map p_PixelMap[" << addr << "][" << index << "]: " << (p_PixelMap[addr])[index] << endl;
+    //	}
+    //	}
+    
     } else {
       // If this parameter belongs to a base class call its method 
       if (function < ADNED_FIRST_DRIVER_COMMAND) {
@@ -570,7 +598,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     m_TimeStampLast.put(m_TimeStamp.getSecondsPastEpoch(), m_TimeStamp.getNanoseconds());
     seqID = static_cast<epicsUInt32>(m_TimeStamp.getUserTag());
     //Detect missing packets
-    if (m_lastSeqID != -1) {
+    if (static_cast<epicsInt32>(m_lastSeqID) != -1) {
       if (seqID != m_lastSeqID+1) {
 	setIntegerParam(ADnEDSeqIDMissingParam, m_lastSeqID+1);
 	getIntegerParam(ADnEDSeqIDNumMissingParam, &numMissingPackets);

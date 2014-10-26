@@ -20,7 +20,7 @@ class ADnEDFile {
   void readDataIntoDoubleArray(epicsFloat64 **pArray);
   
  private:
-  
+
   //Private dynamic
   epicsUInt32 m_Size;
   FILE *p_FILE;

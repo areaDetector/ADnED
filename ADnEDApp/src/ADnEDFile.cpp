@@ -55,7 +55,7 @@ ADnEDFile::ADnEDFile(const char *fileName)
     fprintf(stderr, "%s ERROR: File could not be read.\n", functionName);
     throw runtime_error("Failed to open file");
   }
-
+  
   if ((p_FILE = fopen(m_fileName, "r")) == NULL) {
     perror(functionName);
     fprintf(stderr, "%s ERROR: File could not be opened.\n", functionName);
@@ -69,15 +69,12 @@ ADnEDFile::ADnEDFile(const char *fileName)
   fgets(line, s_ADNEDFILE_MAX_STRING-1, p_FILE);
   long int size = strtol(line, &end, s_ADNEDFILE_STRTOL_BASE);
   m_Size = static_cast<epicsUInt32>(size);
-    if ((errno != ERANGE) && (end != line)) {
-    printf("%s array size: %d.\n", functionName, m_Size);
-    printf("point1\n");
+  if ((errno != ERANGE) && (end != line)) {
+    printf("%s. Expected number of lines: %d.\n", functionName, m_Size);
   } else {
     fprintf(stderr, "%s. ERROR: failed to get array size. line: %s\n", functionName, line);
     throw runtime_error("Failed to read size");
-    }
-
-  printf("%s. Lines: %d\n", functionName, m_Size);
+  }
   
 }
 
@@ -92,7 +89,8 @@ ADnEDFile::~ADnEDFile()
     if (fclose(p_FILE)) {
       perror(functionName);
     } else {
-      printf("%s. Closed File: %s\n", functionName, m_fileName);
+      //printf("%s. Closed File: %s\n", functionName, m_fileName);
+      p_FILE = NULL;
     }
   }
   
@@ -117,40 +115,101 @@ epicsUInt32 ADnEDFile::getSize()
  */
 void ADnEDFile::readDataIntoIntArray(epicsUInt32 **pArray)
 {
-  const char *functionName = "ADnEDFile::readDataIntoIntArray";
-
-  //Check array is not NULL
-  if (*pArray == NULL) {
-    fprintf(stderr, "%s. ERROR: Array pointer is NULL.\n", functionName);
-    throw runtime_error("Array pointer is NULL");
-  }
-  
   const char *whitespace = "# \n\t";
   char line[s_ADNEDFILE_MAX_STRING] = {0};
   char *end = NULL;
   epicsUInt32 index = 0;
+  const char *functionName = "ADnEDFile::readDataIntoIntArray";
+  
+  if (p_FILE == NULL) {
+    fprintf(stderr, "%s: p_FILE is NULL.\n", functionName);
+    throw runtime_error("p_FILE is NULL");
+  }
+
+  if (*pArray == NULL) {
+    fprintf(stderr, "%s. ERROR: Array pointer is NULL.\n", functionName);
+    throw runtime_error("Array pointer is NULL");
+  }
 
   while (fgets(line, s_ADNEDFILE_MAX_STRING-1, p_FILE)) {
+    if (index >= m_Size) {
+      fprintf(stderr, "%s. More lines than expected. Stopping.\n", functionName);
+      break;
+    }
     //Remove newline
     line[strlen(line)-1]='\0';
     //reject any whitespace
     if (strpbrk(line, whitespace) == NULL) {
-      //printf("%s: %s\n", functionName, line);
       long int new_index = strtol(line, &end, s_ADNEDFILE_STRTOL_BASE);
       //Populate array
       if ((errno != ERANGE) && (end != line)) {
-	((*pArray))[index] = static_cast<epicsUInt32>(new_index);
+	(*pArray)[index] = static_cast<epicsUInt32>(new_index);
 	++index;
       } else {
 	fprintf(stderr, "%s: Stopping due to bad reading in line: %s.\n", functionName, line);
-	throw runtime_error("Bad line");
+	throw runtime_error("Could not convert line to int.");
       }
     } else {
       fprintf(stderr, "%s: Stopping due to whitespace in line: %s.\n", functionName, line);
-      throw runtime_error("Whitespace");
+      throw runtime_error("Whitespace in file not allowed.");
     }
     memset(line, 0, sizeof(line));
   }
+  printf("%s. Read %d data lines.\n", functionName, index);
   
+}
+
+/**
+ * Read the rest of file line by line. Convert each
+ * number to an double, and populate array. It is expected that
+ * the array has already been allocated with at least
+ * a number of elements (returned by the ADnEDFile::getSize()
+ * function).
+ * @param Pointer to array of epicsFloat64.
+ */
+void ADnEDFile::readDataIntoDoubleArray(epicsFloat64 **pArray)
+{
+  const char *whitespace = "# \n\t";
+  char line[s_ADNEDFILE_MAX_STRING] = {0};
+  char *end = NULL;
+  epicsUInt32 index = 0;
+  const char *functionName = "ADnEDFile::readDataIntoDoubleArray";
+  
+  if (p_FILE == NULL) {
+    fprintf(stderr, "%s: p_FILE is NULL.\n", functionName);
+    throw runtime_error("p_FILE is NULL");
+  }
+
+  if (*pArray == NULL) {
+    fprintf(stderr, "%s. ERROR: Array pointer is NULL.\n", functionName);
+    throw runtime_error("Array pointer is NULL");
+  }
+
+  while (fgets(line, s_ADNEDFILE_MAX_STRING-1, p_FILE)) {
+    if (index >= m_Size) {
+      fprintf(stderr, "%s. More lines than expected. Stopping.\n", functionName);
+      break;
+    }
+    //Remove newline
+    line[strlen(line)-1]='\0';
+    //reject any whitespace
+    if (strpbrk(line, whitespace) == NULL) {
+      double factor = strtod(line, &end);
+      //Populate array
+      if ((errno != ERANGE) && (end != line)) {
+	(*pArray)[index] = static_cast<epicsFloat64>(factor);
+	++index;
+      } else {
+	fprintf(stderr, "%s: Stopping due to bad reading in line: %s.\n", functionName, line);
+	throw runtime_error("Could not convert line to double.");
+      }
+    } else {
+      fprintf(stderr, "%s: Stopping due to whitespace in line: %s.\n", functionName, line);
+      throw runtime_error("Whitespace in file not allowed.");
+    }
+    memset(line, 0, sizeof(line));
+  }
+  printf("%s. Read %d data lines.\n", functionName, index);
+
 }
 
