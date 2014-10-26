@@ -155,8 +155,6 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   m_nowTimeSecs = 0.0;
   m_lastTimeSecs = 0.0;
   p_Data = NULL;
-  m_TofTransSize = 0;
-  m_PixelMapSize = 0;
   m_dataAlloc = true;
   m_dataMaxSize = 0;
   m_bufferMaxSize = 0;
@@ -167,6 +165,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   for (int i=0; i<=s_ADNED_MAX_DETS; ++i) {
     p_PixelMap[i] = NULL;
     p_TofTrans[i] = NULL;
+    m_TofTransSize[i] = 0;
+    m_PixelMapSize[i] = 0;
   }
 
   //Create the thread that reads the data 
@@ -441,9 +441,9 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
       
       try {
 	ADnEDFile file = ADnEDFile(value);
-	m_TofTransSize = file.getSize();
+	m_TofTransSize[addr] = file.getSize();
 	if (p_TofTrans[addr] == NULL) {
-	  p_TofTrans[addr] = static_cast<epicsFloat64 *>(calloc(m_TofTransSize, sizeof(epicsFloat64)));
+	  p_TofTrans[addr] = static_cast<epicsFloat64 *>(calloc(m_TofTransSize[addr], sizeof(epicsFloat64)));
 	}
 	file.readDataIntoDoubleArray(&p_TofTrans[addr]);
       } catch (std::exception &e) {
@@ -451,8 +451,8 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
 		  "%s Error Parsing TOF Transformation File. %s\n", 
 		  functionName, e.what());
       }
-      //if ((m_TofTransSize > 0) && (p_TofTrans[addr])) {
-      //	for (epicsUInt32 index=0; index<m_TofTransSize; ++index) {
+      //if ((m_TofTransSize[addr] > 0) && (p_TofTrans[addr])) {
+      //	for (epicsUInt32 index=0; index<m_TofTransSize[addr]; ++index) {
       //  cout << "TOF Trans p_TofTrans[" << addr << "][" << index << "]: " << (p_TofTrans[addr])[index] << endl;
       //}
       //}
@@ -468,9 +468,9 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
 
       try {
 	ADnEDFile file = ADnEDFile(value);
-	m_PixelMapSize = file.getSize();
+	m_PixelMapSize[addr] = file.getSize();
 	if (p_PixelMap[addr] == NULL) {
-	  p_PixelMap[addr] = static_cast<epicsUInt32 *>(calloc(m_PixelMapSize, sizeof(epicsUInt32)));
+	  p_PixelMap[addr] = static_cast<epicsUInt32 *>(calloc(m_PixelMapSize[addr], sizeof(epicsUInt32)));
         }
 	file.readDataIntoIntArray(&p_PixelMap[addr]);
       } catch (std::exception &e) {
@@ -479,8 +479,8 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
 		  functionName, e.what());
       }
 
-    //if ((m_PixelMapSize > 0) && (p_PixelMap[addr])) {
-    //	for (epicsUInt32 index=0; index<m_PixelMapSize; ++index) {
+    //if ((m_PixelMapSize[addr] > 0) && (p_PixelMap[addr])) {
+    //	for (epicsUInt32 index=0; index<m_PixelMapSize[addr]; ++index) {
     //	  cout << "Pixel Map p_PixelMap[" << addr << "][" << index << "]: " << (p_PixelMap[addr])[index] << endl;
     //	}
     //	}

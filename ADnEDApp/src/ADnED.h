@@ -130,9 +130,9 @@ class ADnED : public ADDriver {
   double m_lastTimeSecs;
   epicsUInt32 *p_Data;
   epicsFloat64 *p_TofTrans[ADNED_MAX_DETS+1];
-  epicsUInt32 m_TofTransSize;
+  epicsUInt32 m_TofTransSize[ADNED_MAX_DETS+1];
   epicsUInt32 *p_PixelMap[ADNED_MAX_DETS+1];
-  epicsUInt32 m_PixelMapSize;
+  epicsUInt32 m_PixelMapSize[ADNED_MAX_DETS+1];
   bool m_dataAlloc;
   epicsUInt32 m_dataMaxSize;
   epicsUInt32 m_bufferMaxSize;
