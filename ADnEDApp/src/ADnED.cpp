@@ -26,6 +26,7 @@
 //ADnED
 #include "ADnED.h"
 #include "nEDChannel.h"
+#include "ADnEDFile.h"
 #include <pv/pvData.h>
 
 using std::cout;
@@ -433,7 +434,29 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
       //status = setArrayFromFile(value, p_TofTrans);
     } else if (function == ADnEDDetPixelMapFileParam) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Set Pixel Map File: %s.\n", functionName, value);
-      status = setArrayFromFile(value, addr);
+
+      if (p_PixelMap[addr]) {
+	free(p_PixelMap[addr]);
+	p_PixelMap[addr] = NULL;
+      }
+  
+      ADnEDFile mappingFile = ADnEDFile(value);
+      m_PixelMapSize = mappingFile.getSize();
+      printf("Size: %d\n", m_PixelMapSize);
+
+      if (p_PixelMap[addr] == NULL) {
+	cout << "Allocate pArray[" << addr << "] of size: " << m_PixelMapSize << endl;
+	p_PixelMap[addr] = static_cast<epicsUInt32 *>(calloc(m_PixelMapSize, sizeof(epicsUInt32)));
+      }
+
+      mappingFile.readDataIntoIntArray(&p_PixelMap[addr]);
+
+      if ((m_PixelMapSize > 0) && (p_PixelMap[addr])) {
+	for (epicsUInt32 index=0; index<m_PixelMapSize; ++index) {
+	  cout << "Pixel Map p_PixelMap[" << addr << "][" << index << "]: " << (p_PixelMap[addr])[index] << endl;
+	}
+      }
+      
     } else {
       // If this parameter belongs to a base class call its method 
       if (function < ADNED_FIRST_DRIVER_COMMAND) {
@@ -460,118 +483,6 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
     *nActual = nChars;
     return status;
 }
-
-/**
- * Read the text file and create a mapping/transformation 
- * array from it. The file format is expected to be:
- * 
- * {number of array elements, uint_32}
- * {value}
- * {value}
- * etc.
- * 
- * The pixel ID is assumed to be the line number (offset to zero).
- * {value} is either a floating point factor, or an uint_32 array index.
- * Any lines beyond the size specified in the first line are ignored.
- * 
- * @param fileName (full path and file name)
- * @return asynStatus
- */
-asynStatus ADnED::setArrayFromFile(const char *fileName, epicsUInt32 addr)
-{
-  FILE *fptr = NULL;
-  char line[s_ADNED_MAX_STRING_SIZE] = {0};
-  const char *whitespace = "# \n\t";
-  epicsUInt32 pixelIndex = 0;
-  epicsUInt32 index = 0;
-  char *end = NULL;
-  asynStatus status = asynSuccess;
-  const char* functionName = "ADnED::setArrayFromFile";
-
-  asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s fileName: %s.\n", functionName, fileName);
-
-  if (p_PixelMap[addr]) {
-    free(p_PixelMap[addr]);
-    p_PixelMap[addr] = NULL;
-  }
-
-  if (access(fileName, R_OK) != 0) {
-    perror(functionName);
-    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-              "%s ERROR: File could not be read. File: %s\n", functionName, fileName);
-    status = asynError;
-  }
-
-  if (status == asynSuccess) {
-    if ((fptr = fopen(fileName, "r")) == NULL) {
-      perror(functionName);
-      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-                "%s ERROR: File could not be read. File: %s\n", functionName, fileName);
-      status = asynError;
-    } else {
-
-      //Get size of array (1st line in file)
-      fgets(line, s_ADNED_MAX_STRING_SIZE-1, fptr);
-      m_PixelMapSize = strtol(line, &end, 10);
-      if ((errno != ERANGE) && (end != line)) {
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s array size: %d.\n", functionName, m_PixelMapSize);
-	if (p_PixelMap[addr] == NULL) {
-	  cout << "Allocate pArray[" << addr << "] of size: " << m_PixelMapSize << endl;
-	  p_PixelMap[addr] = static_cast<epicsUInt32 *>(calloc(m_PixelMapSize, sizeof(epicsUInt32)));
-	}
-      } else {
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: failed to get array size. line: %s\n", functionName, line);
-	status = asynError;
-      }
-
-      if (status != asynError) {
-	while (fgets(line, s_ADNED_MAX_STRING_SIZE-1, fptr)) {
-	  //Remove newline
-	  line[strlen(line)-1]='\0';
-	  //reject any whitespace
-	  if (strpbrk(line, whitespace) == NULL) {
-	    //printf("%s: %s\n", functionName, line);
-	    pixelIndex = strtol(line, &end, 10);
-	    //Populate array
-	    if ((errno != ERANGE) && (end != line)) {
-	      (p_PixelMap[addr])[index] = pixelIndex;
-	      ++index;
-	    } else {
-	      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		      "%s: Stopping due to bad reading in line: %s.\n", functionName, line);
-	      status = asynError;
-	    }
-	  } else {
-	    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		      "%s: Stopping due to whitespace in line: %s.\n", functionName, line);
-	    status = asynError;
-	    break;
-	  }
-	  memset(line, 0, sizeof(line));
-	}
-      }
-      
-      if (fptr) {
-	if (fclose(fptr)) {
-	  perror(functionName);
-	}
-      }
-      
-    }
-    
-  }
-
-  if ((m_PixelMapSize > 0) && (p_PixelMap[addr])) {
-    for (epicsUInt32 index=0; index<m_PixelMapSize; ++index) {
-      cout << "Pixel Map p_PixelMap[" << addr << "][" << index << "]: " << (p_PixelMap[addr])[index] << endl;
-    }
-  }
-
-
-  return status;
-}
-
-
 
 /**
  * Event handler callback for monitor

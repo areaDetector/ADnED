@@ -17,6 +17,7 @@ DBD += ADnEDSupport.dbd
 ADnEDSupport_SRCS += ADnED.cpp
 ADnEDSupport_SRCS += nEDChannel.cpp
 ADnEDSupport_SRCS += ADnEDPixelROI.cpp
+ADnEDSupport_SRCS += ADnEDFile.cpp
 
 ADnEDSupport_LIBS += $(EPICS_BASE_IOC_LIBS)
 

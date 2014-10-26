@@ -111,7 +111,6 @@ class ADnED : public ADDriver {
 
   //Put private functions here
   //  asynStatus setArrayFromFile(const char *fileName);
-  asynStatus setArrayFromFile(const char *fileName, epicsUInt32 det);
  
   //Put private static data members here
   static const epicsInt32 s_ADNED_MAX_STRING_SIZE;
