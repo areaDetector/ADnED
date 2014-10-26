@@ -656,11 +656,13 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
       for (int det=1; det<=numDet; det++) {
 
 	//Dtermine if this pixel is in this DET range.
-	if ((pixelsData[i] >= detStartValues[det]) && (pixelsData[i] <= detEndValues[det])) {
+	if ((pixelsData[i] >= static_cast<epicsUInt32>(detStartValues[det])) 
+	    && (pixelsData[i] <= static_cast<epicsUInt32>(detEndValues[det]))) {
   
 	  //Filter on TOF if the ROI is enabled
 	  if (detTOFROIEnabled[det]) {
-	    if ((tofData[i] >= detTOFROIStartValues[det]) && (tofData[i] <= detTOFROIEndValues[det])) {
+	    if ((tofData[i] >= static_cast<epicsUInt32>(detTOFROIStartValues[det])) 
+		&& (tofData[i] <= static_cast<epicsUInt32>(detTOFROIEndValues[det]))) {
 	      //Pixel ID Data (TOF filtered)
 	      offset = pixelsData[i]-detStartValues[det];
 	      p_Data[NDArrayStartValues[det]+offset]++;
@@ -1056,9 +1058,7 @@ void ADnED::frameTask(void)
   epicsEventWaitStatus eventStatus;
   epicsFloat64 timeout = 0.001;
   bool acquire = false;
-  int status = 0;
   int arrayCounter = 0;
-  bool frameUpdate = false;
   int arrayCallbacks = 0;
   epicsFloat64 updatePeriod = 0.0;
   epicsTimeStamp nowTime;
