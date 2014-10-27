@@ -22,7 +22,6 @@
  */
 
 #include "stdio.h"
-//#include "dirent.h"
 #include "stdlib.h"
 #include "string.h"
 #include "errno.h"
@@ -43,6 +42,7 @@ const epicsUInt32 ADnEDFile::s_ADNEDFILE_STRTOL_BASE = 10;
  */
 ADnEDFile::ADnEDFile(const char *fileName) 
 {
+  
   const char *functionName = "ADnEDFile::ADnEDFile";
 
   m_Size = 0;
@@ -52,14 +52,12 @@ ADnEDFile::ADnEDFile(const char *fileName)
 
   if (access(m_fileName, R_OK) != 0) {
     perror(functionName);
-    fprintf(stderr, "%s ERROR: File could not be read.\n", functionName);
-    throw runtime_error("Failed to open file");
+    throw runtime_error("File could not be read.");
   }
   
   if ((p_FILE = fopen(m_fileName, "r")) == NULL) {
     perror(functionName);
-    fprintf(stderr, "%s ERROR: File could not be opened.\n", functionName);
-    throw runtime_error("Failed to open file");
+    throw runtime_error("File could not be opened.");
   }
 
   char line[s_ADNEDFILE_MAX_STRING] = {0};
@@ -72,7 +70,7 @@ ADnEDFile::ADnEDFile(const char *fileName)
   if ((errno != ERANGE) && (end != line)) {
     printf("%s. Expected number of lines: %d.\n", functionName, m_Size);
   } else {
-    fprintf(stderr, "%s. ERROR: failed to get array size. line: %s\n", functionName, line);
+    fprintf(stderr, "%s. ERROR: Failed to get array size. line: %s\n", functionName, line);
     throw runtime_error("Failed to read size");
   }
   
@@ -122,13 +120,11 @@ void ADnEDFile::readDataIntoIntArray(epicsUInt32 **pArray)
   const char *functionName = "ADnEDFile::readDataIntoIntArray";
   
   if (p_FILE == NULL) {
-    fprintf(stderr, "%s: p_FILE is NULL.\n", functionName);
-    throw runtime_error("p_FILE is NULL");
+    throw runtime_error("p_FILE is NULL.");
   }
 
   if (*pArray == NULL) {
-    fprintf(stderr, "%s. ERROR: Array pointer is NULL.\n", functionName);
-    throw runtime_error("Array pointer is NULL");
+    throw runtime_error("Array pointer is NULL.");
   }
 
   while (fgets(line, s_ADNEDFILE_MAX_STRING-1, p_FILE)) {
@@ -176,13 +172,11 @@ void ADnEDFile::readDataIntoDoubleArray(epicsFloat64 **pArray)
   const char *functionName = "ADnEDFile::readDataIntoDoubleArray";
   
   if (p_FILE == NULL) {
-    fprintf(stderr, "%s: p_FILE is NULL.\n", functionName);
-    throw runtime_error("p_FILE is NULL");
+    throw runtime_error("p_FILE is NULL.");
   }
 
   if (*pArray == NULL) {
-    fprintf(stderr, "%s. ERROR: Array pointer is NULL.\n", functionName);
-    throw runtime_error("Array pointer is NULL");
+    throw runtime_error("Array pointer is NULL.");
   }
 
   while (fgets(line, s_ADNEDFILE_MAX_STRING-1, p_FILE)) {
