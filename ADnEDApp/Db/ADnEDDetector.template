@@ -219,7 +219,7 @@ record(bi, "$(P)$(R)Det$(DET):TOFROIFilterEnable_RBV")
 
 
 #####################################################################
-# Full path and filename of the TOF transformation file
+# TOF Transformation File & Control
 
 # ///
 # /// TOF Transformation File
@@ -254,6 +254,30 @@ record(bo, "$(P)$(R)Det$(DET):TOFTransPrint")
 {
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_PRINT")
+}
+
+# ///
+# /// Enable TOF transformation for DET $(DET)
+# ///
+record(bo, "$(P)$(R)Det$(DET):TOFTransEnable")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_ENABLE")
+    field(ZNAM, "Disable")
+    field(ONAM, "Enable")
+}
+
+# ///
+# /// Enable TOF Trans for DET $(DET) (Readback only)
+# ///
+record(bi, "$(P)$(R)Det$(DET):TOFTransEnable_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_ENABLE")
+    field(ZNAM, "Disable")
+    field(ONAM, "Enable")
+    field(SCAN, "I/O Intr")
 }
 
 #####################################################################
