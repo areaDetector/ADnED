@@ -257,7 +257,7 @@ record(bo, "$(P)$(R)Det$(DET):TOFTransPrint")
 }
 
 #####################################################################
-# Full path and filename of the pixel map file
+# Pixel mapping file & control
 
 # ///
 # /// Pixel Map File
@@ -291,6 +291,30 @@ record(bo, "$(P)$(R)Det$(DET):PixelMapPrint")
 {
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_MAP_PRINT")
+}
+
+# ///
+# /// Enable pixel mapping for DET $(DET)
+# ///
+record(bo, "$(P)$(R)Det$(DET):PixelMapEnable")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_MAP_ENABLE")
+    field(ZNAM, "Disable")
+    field(ONAM, "Enable")
+}
+
+# ///
+# /// Enable pixel mapping for DET $(DET) (Readback only)
+# ///
+record(bi, "$(P)$(R)Det$(DET):PixelMapEnable_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_MAP_ENABLE")
+    field(ZNAM, "Disable")
+    field(ONAM, "Enable")
+    field(SCAN, "I/O Intr")
 }
 
 

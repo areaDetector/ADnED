@@ -71,8 +71,9 @@
 #define ADnEDDetTOFROIEnableParamString    "ADNED_DET_TOF_ROI_ENABLE"
 #define ADnEDDetTOFTransFileParamString    "ADNED_DET_TOF_TRANS_FILE"
 #define ADnEDDetPixelMapFileParamString    "ADNED_DET_PIXEL_MAP_FILE"
-#define ADnEDDetTOFTransPrintParamString    "ADNED_DET_TOF_TRANS_PRINT"
-#define ADnEDDetPixelMapPrintParamString    "ADNED_DET_PIXEL_MAP_PRINT"
+#define ADnEDDetTOFTransPrintParamString   "ADNED_DET_TOF_TRANS_PRINT"
+#define ADnEDDetPixelMapPrintParamString   "ADNED_DET_PIXEL_MAP_PRINT"
+#define ADnEDDetPixelMapEnableParamString   "ADNED_DET_PIXEL_MAP_ENABLE"
 #define ADnEDTOFMaxParamString             "ADNED_TOF_MAX"
 #define ADnEDAllocSpaceParamString         "ADNED_ALLOC_SPACE"
 #define ADnEDAllocSpaceStatusParamString   "ADNED_ALLOC_SPACE_STATUS"
@@ -186,6 +187,7 @@ class ADnED : public ADDriver {
   int ADnEDDetPixelMapFileParam;
   int ADnEDDetTOFTransPrintParam;
   int ADnEDDetPixelMapPrintParam;
+  int ADnEDDetPixelMapEnableParam;
   int ADnEDTOFMaxParam;
   int ADnEDAllocSpaceParam;
   int ADnEDAllocSpaceStatusParam;

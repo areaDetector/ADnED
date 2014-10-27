@@ -143,6 +143,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDDetPixelMapFileParamString,          asynParamOctet,       &ADnEDDetPixelMapFileParam);
   createParam(ADnEDDetTOFTransPrintParamString,    asynParamInt32,       &ADnEDDetTOFTransPrintParam);
   createParam(ADnEDDetPixelMapPrintParamString,    asynParamInt32,       &ADnEDDetPixelMapPrintParam);
+  createParam(ADnEDDetPixelMapEnableParamString, asynParamInt32,       &ADnEDDetPixelMapEnableParam);
   createParam(ADnEDTOFMaxParamString,             asynParamInt32,       &ADnEDTOFMaxParam);
   createParam(ADnEDAllocSpaceParamString,         asynParamInt32,       &ADnEDAllocSpaceParam);
   createParam(ADnEDAllocSpaceStatusParamString,         asynParamInt32,       &ADnEDAllocSpaceStatusParam);
@@ -222,8 +223,9 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIStartParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIEndParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIEnableParam, 0) == asynSuccess) && paramStatus);
-    paramStatus = ((setStringParam(ADnEDDetTOFTransFileParam, " ") == asynSuccess) && paramStatus);
-    paramStatus = ((setStringParam(ADnEDDetPixelMapFileParam, " ") == asynSuccess) && paramStatus);
+    paramStatus = ((setStringParam(det, ADnEDDetTOFTransFileParam, " ") == asynSuccess) && paramStatus);
+    paramStatus = ((setStringParam(det, ADnEDDetPixelMapFileParam, " ") == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetPixelMapEnableParam, 0) == asynSuccess) && paramStatus);
     callParamCallbacks(det);
   }
   paramStatus = ((setIntegerParam(ADnEDTOFMaxParam, 0) == asynSuccess) && paramStatus);
