@@ -116,6 +116,7 @@ class ADnED : public ADDriver {
   //Put private functions here
   void printPixelMap(epicsUInt32 det);
   void printTofTrans(epicsUInt32 det);
+  asynStatus checkPixelMap(epicsUInt32 det);
  
   //Put private static data members here
   static const epicsInt32 s_ADNED_MAX_STRING_SIZE;

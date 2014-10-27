@@ -476,6 +476,7 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
 	p_PixelMap[addr] = static_cast<epicsUInt32 *>(calloc(m_PixelMapSize[addr], sizeof(epicsUInt32)));
       }
       file.readDataIntoIntArray(&p_PixelMap[addr]);
+      status = checkPixelMap(addr);
     } catch (std::exception &e) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
 		"%s Error parsing pixel mapping file. Det: %d. %s\n", functionName, addr, e.what());
@@ -514,12 +515,13 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
 void ADnED::printPixelMap(epicsUInt32 det)
 { 
   printf("ADnED::printPixelMap. Det: %d\n", det);
-
   if ((m_PixelMapSize[det] > 0) && (p_PixelMap[det])) {
     printf("m_PixelMapSize[%d]: %d\n", det, m_PixelMapSize[det]);
     for (epicsUInt32 index=0; index<m_PixelMapSize[det]; ++index) {
       printf("p_PixelMap[%d][%d]: %d\n", det, index, (p_PixelMap[det])[index]);
     }
+  } else {
+    printf("No pixel mapping loaded.\n");
   }
 }
 
@@ -530,13 +532,52 @@ void ADnED::printPixelMap(epicsUInt32 det)
 void ADnED::printTofTrans(epicsUInt32 det)
 { 
   printf("ADnED::printTofTrans. Det: %d\n", det);
-
   if ((m_TofTransSize[det] > 0) && (p_TofTrans[det])) {
     printf("m_TofTransSize[%d]: %d\n", det, m_TofTransSize[det]);
     for (epicsUInt32 index=0; index<m_TofTransSize[det]; ++index) {
       printf("p_TofTrans[%d][%d]: %f\n", det, index, (p_TofTrans[det])[index]);
     }
+  } else {
+    printf("No TOF transformation loaded.\n");
   }
+}
+
+/**
+ * Check the newly loaded pixel map array. If any of the values are
+ * outside the pre-defined range for that detector, then clear the array,
+ * and return asynError.
+ * @param det The detector number (1 based)
+ */
+asynStatus ADnED::checkPixelMap(epicsUInt32 det)
+{ 
+  asynStatus status = asynSuccess;
+  const char* functionName = "ADnED::checkPixelMap";
+
+  asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s\n", functionName);
+
+  int detStartValue = 0;
+  int detEndValue = 0;
+  getIntegerParam(det, ADnEDDetPixelNumStartParam, &detStartValue);
+  getIntegerParam(det, ADnEDDetPixelNumEndParam, &detEndValue);
+
+  if ((m_PixelMapSize[det] > 0) && (p_PixelMap[det])) {
+    for (epicsUInt32 index=0; index<m_PixelMapSize[det]; ++index) {
+      if (((p_PixelMap[det])[index] < static_cast<epicsUInt32>(detStartValue)) 
+	  || ((p_PixelMap[det])[index] > static_cast<epicsUInt32>(detEndValue))) {
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		  "%s Det: %d. Pixel ID %d in mapping array was out of allowed range. Must be between %d and %d.\n", 
+		  functionName, det, index, detStartValue, detEndValue);
+	memset(p_PixelMap[det], 0, m_PixelMapSize[det]);
+	m_PixelMapSize[det] = 0;
+	status = asynError;
+      }
+    }
+  } else {
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No pixel mapping loaded.\n", functionName);
+    status = asynError;
+  }
+
+  return status;
 }
 
 /**
@@ -578,6 +619,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   int detTOFROIStartValues[s_ADNED_MAX_DETS+1] = {0};
   int detTOFROIEndValues[s_ADNED_MAX_DETS+1] = {0};
   int detTOFROIEnabled[s_ADNED_MAX_DETS+1] = {0};
+  int detPixelMappingEnabled[s_ADNED_MAX_DETS+1] = {0};
   int numDet = 0;
   getIntegerParam(ADnEDNumDetParam, &numDet);
   getIntegerParam(ADnEDEventDebugParam, &eventDebug);
@@ -590,6 +632,8 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     getIntegerParam(det, ADnEDDetTOFROIStartParam, &detTOFROIStartValues[det]);
     getIntegerParam(det, ADnEDDetTOFROIEndParam, &detTOFROIEndValues[det]);
     getIntegerParam(det, ADnEDDetTOFROIEnableParam, &detTOFROIEnabled[det]);
+    //Pixel ID mapping
+    getIntegerParam(det, ADnEDDetPixelMapEnableParam, &detPixelMappingEnabled[det]);
   }
 
   //epics::pvData::PVIntPtr seqIDPtr = pv_struct->getIntField(ADNED_PV_SEQ);
@@ -677,11 +721,12 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 
     lock();
 
+    int mappedPixelIndex = 0;
     int offset = 0;
     for (size_t i=0; i<pixelsLength; ++i) {
       for (int det=1; det<=numDet; det++) {
 
-	//Dtermine if this pixel is in this DET range.
+	//Dtermine if this raw pixel ID is in this DET range.
 	if ((pixelsData[i] >= static_cast<epicsUInt32>(detStartValues[det])) 
 	    && (pixelsData[i] <= static_cast<epicsUInt32>(detEndValues[det]))) {
   
@@ -689,13 +734,30 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	  if (detTOFROIEnabled[det]) {
 	    if ((tofData[i] >= static_cast<epicsUInt32>(detTOFROIStartValues[det])) 
 		&& (tofData[i] <= static_cast<epicsUInt32>(detTOFROIEndValues[det]))) {
-	      //Pixel ID Data (TOF filtered)
-	      offset = pixelsData[i]-detStartValues[det];
+
+	      //Do pixel ID mapping if enabled
+	      if (detPixelMappingEnabled[det]) {
+		mappedPixelIndex = (p_PixelMap[det])[i];
+	      } else {
+		mappedPixelIndex = pixelsData[i];
+	      }
+
+	      //Integrate Pixel ID Data (TOF filtered)
+	      offset = mappedPixelIndex-detStartValues[det];
 	      p_Data[NDArrayStartValues[det]+offset]++;
 	    }
-	  } else {
-	    //Pixel ID Data
-	    offset = pixelsData[i]-detStartValues[det];
+
+	  } else { //No TOF filter enabled
+
+	    //Do pixel ID mapping if enabled
+	    if (detPixelMappingEnabled[det]) {
+	      mappedPixelIndex = (p_PixelMap[det])[i];
+	    } else {
+	      mappedPixelIndex = pixelsData[i];
+	    }
+	    
+	    //Integrate Pixel ID Data
+	    offset = mappedPixelIndex-detStartValues[det];
 	    p_Data[NDArrayStartValues[det]+offset]++;
 	  }
 
