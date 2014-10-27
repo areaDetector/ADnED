@@ -71,6 +71,8 @@
 #define ADnEDDetTOFROIEnableParamString    "ADNED_DET_TOF_ROI_ENABLE"
 #define ADnEDDetTOFTransFileParamString    "ADNED_DET_TOF_TRANS_FILE"
 #define ADnEDDetPixelMapFileParamString    "ADNED_DET_PIXEL_MAP_FILE"
+#define ADnEDDetTOFTransPrintParamString    "ADNED_DET_TOF_TRANS_PRINT"
+#define ADnEDDetPixelMapPrintParamString    "ADNED_DET_PIXEL_MAP_PRINT"
 #define ADnEDTOFMaxParamString             "ADNED_TOF_MAX"
 #define ADnEDAllocSpaceParamString         "ADNED_ALLOC_SPACE"
 #define ADnEDAllocSpaceStatusParamString   "ADNED_ALLOC_SPACE_STATUS"
@@ -110,7 +112,8 @@ class ADnED : public ADDriver {
  private:
 
   //Put private functions here
-  //  asynStatus setArrayFromFile(const char *fileName);
+  void printPixelMap(epicsUInt32 det);
+  void printTofTrans(epicsUInt32 det);
  
   //Put private static data members here
   static const epicsInt32 s_ADNED_MAX_STRING_SIZE;
@@ -181,6 +184,8 @@ class ADnED : public ADDriver {
   int ADnEDDetTOFROIEnableParam;
   int ADnEDDetTOFTransFileParam;
   int ADnEDDetPixelMapFileParam;
+  int ADnEDDetTOFTransPrintParam;
+  int ADnEDDetPixelMapPrintParam;
   int ADnEDTOFMaxParam;
   int ADnEDAllocSpaceParam;
   int ADnEDAllocSpaceStatusParam;

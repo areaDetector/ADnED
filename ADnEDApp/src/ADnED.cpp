@@ -141,6 +141,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDDetTOFROIEnableParamString,    asynParamInt32,       &ADnEDDetTOFROIEnableParam);
   createParam(ADnEDDetTOFTransFileParamString,          asynParamOctet,       &ADnEDDetTOFTransFileParam);
   createParam(ADnEDDetPixelMapFileParamString,          asynParamOctet,       &ADnEDDetPixelMapFileParam);
+  createParam(ADnEDDetTOFTransPrintParamString,    asynParamInt32,       &ADnEDDetTOFTransPrintParam);
+  createParam(ADnEDDetPixelMapPrintParamString,    asynParamInt32,       &ADnEDDetPixelMapPrintParam);
   createParam(ADnEDTOFMaxParamString,             asynParamInt32,       &ADnEDTOFMaxParam);
   createParam(ADnEDAllocSpaceParamString,         asynParamInt32,       &ADnEDAllocSpaceParam);
   createParam(ADnEDAllocSpaceStatusParamString,         asynParamInt32,       &ADnEDAllocSpaceStatusParam);
@@ -337,7 +339,11 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
 		functionName, s_ADNED_MAX_DETS);
       return asynError;
     }
-  }
+  } else if (function == ADnEDDetTOFTransPrintParam) {
+    printTofTrans(addr);
+  } else if (function == ADnEDDetPixelMapPrintParam) {
+    printPixelMap(addr);
+  } 
 
   if (m_dataAlloc) {
     setIntegerParam(ADnEDAllocSpaceStatusParam, s_ADNED_ALLOC_STATUS_REQ);
@@ -416,100 +422,117 @@ asynStatus ADnED::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
 asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value, 
                                     size_t nChars, size_t *nActual)
 {
-    int function = pasynUser->reason;
-    int addr = 0;
-    asynStatus status = asynSuccess;
-    const char *functionName = "ADnED::writeOctet";
+  int function = pasynUser->reason;
+  int addr = 0;
+  asynStatus status = asynSuccess;
+  const char *functionName = "ADnED::writeOctet";
 
-    asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Entry.\n", functionName);
+  asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Entry.\n", functionName);
    
-    //Read address (ie. det number).
-    status = getAddress(pasynUser, &addr); 
-    if (status!=asynSuccess) {
-      return(status);
-    }
+  //Read address (ie. det number).
+  status = getAddress(pasynUser, &addr); 
+  if (status!=asynSuccess) {
+    return(status);
+  }
  
-    if (function == ADnEDDetTOFTransFileParam) {
-      asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
-		"%s Set Det %d TOF Transformation File: %s.\n", 
-		functionName, addr, value);
+  if (function == ADnEDDetTOFTransFileParam) {
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
+	      "%s Set Det %d TOF Transformation File: %s.\n", functionName, addr, value);
+    
+    if (p_TofTrans[addr]) {
+      free(p_TofTrans[addr]);
+      p_TofTrans[addr] = NULL;
+    }
       
-      if (p_TofTrans[addr]) {
-	free(p_TofTrans[addr]);
-	p_TofTrans[addr] = NULL;
+    try {
+      ADnEDFile file = ADnEDFile(value);
+      m_TofTransSize[addr] = file.getSize();
+      if (p_TofTrans[addr] == NULL) {
+	p_TofTrans[addr] = static_cast<epicsFloat64 *>(calloc(m_TofTransSize[addr], sizeof(epicsFloat64)));
       }
-      
-      try {
-	ADnEDFile file = ADnEDFile(value);
-	m_TofTransSize[addr] = file.getSize();
-	if (p_TofTrans[addr] == NULL) {
-	  p_TofTrans[addr] = static_cast<epicsFloat64 *>(calloc(m_TofTransSize[addr], sizeof(epicsFloat64)));
-	}
-	file.readDataIntoDoubleArray(&p_TofTrans[addr]);
-      } catch (std::exception &e) {
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		  "%s Error Parsing TOF Transformation File. %s\n", 
-		  functionName, e.what());
-      }
-      //if ((m_TofTransSize[addr] > 0) && (p_TofTrans[addr])) {
-      //	for (epicsUInt32 index=0; index<m_TofTransSize[addr]; ++index) {
-      //  cout << "TOF Trans p_TofTrans[" << addr << "][" << index << "]: " << (p_TofTrans[addr])[index] << endl;
-      //}
-      //}
-    } else if (function == ADnEDDetPixelMapFileParam) {
-      asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
-		"%s Set Det %d Pixel Map File: %s.\n", 
-		functionName, addr, value);
-      
-      if (p_PixelMap[addr]) {
+      file.readDataIntoDoubleArray(&p_TofTrans[addr]);
+    } catch (std::exception &e) {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		"%s Error Parsing TOF Transformation File. Det: %d. %s\n", functionName, addr, e.what());
+    }
+
+  } else if (function == ADnEDDetPixelMapFileParam) {
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
+	      "%s Set Det %d Pixel Map File: %s.\n", functionName, addr, value);
+    
+    if (p_PixelMap[addr]) {
 	free(p_PixelMap[addr]);
 	p_PixelMap[addr] = NULL;
       }
 
-      try {
-	ADnEDFile file = ADnEDFile(value);
-	m_PixelMapSize[addr] = file.getSize();
-	if (p_PixelMap[addr] == NULL) {
-	  p_PixelMap[addr] = static_cast<epicsUInt32 *>(calloc(m_PixelMapSize[addr], sizeof(epicsUInt32)));
-        }
-	file.readDataIntoIntArray(&p_PixelMap[addr]);
-      } catch (std::exception &e) {
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		  "%s Error parsing file. %s\n", 
-		  functionName, e.what());
+    try {
+      ADnEDFile file = ADnEDFile(value);
+      m_PixelMapSize[addr] = file.getSize();
+      if (p_PixelMap[addr] == NULL) {
+	p_PixelMap[addr] = static_cast<epicsUInt32 *>(calloc(m_PixelMapSize[addr], sizeof(epicsUInt32)));
       }
-
-    //if ((m_PixelMapSize[addr] > 0) && (p_PixelMap[addr])) {
-    //	for (epicsUInt32 index=0; index<m_PixelMapSize[addr]; ++index) {
-    //	  cout << "Pixel Map p_PixelMap[" << addr << "][" << index << "]: " << (p_PixelMap[addr])[index] << endl;
-    //	}
-    //	}
-    
-    } else {
-      // If this parameter belongs to a base class call its method 
-      if (function < ADNED_FIRST_DRIVER_COMMAND) {
-        status = asynNDArrayDriver::writeOctet(pasynUser, value, nChars, nActual);
-      }
-    }
-    
-    if (status != asynSuccess) {
-      callParamCallbacks();
-      return asynError;
-    }
-    
-    // Set the parameter in the parameter library. 
-    status = (asynStatus)setStringParam(function, (char *)value);
-    // Do callbacks so higher layers see any changes 
-    status = (asynStatus)callParamCallbacks();
-    
-    if (status) {
+      file.readDataIntoIntArray(&p_PixelMap[addr]);
+    } catch (std::exception &e) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		"%s Error parsing pixel mapping file. Det: %d. %s\n", functionName, addr, e.what());
+    }
+  } else {
+    // If this parameter belongs to a base class call its method 
+    if (function < ADNED_FIRST_DRIVER_COMMAND) {
+      status = asynNDArrayDriver::writeOctet(pasynUser, value, nChars, nActual);
+    }
+  }
+  
+  if (status != asynSuccess) {
+    callParamCallbacks();
+    return asynError;
+  }
+  
+  // Set the parameter in the parameter library. 
+  status = (asynStatus)setStringParam(function, (char *)value);
+  // Do callbacks so higher layers see any changes 
+  status = (asynStatus)callParamCallbacks();
+  
+  if (status) {
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
               "%s Error Setting Parameter. asynUser->reason: %d\n", 
               functionName, function);
-    }
+  }
+  
+  *nActual = nChars;
+  return status;
+}
 
-    *nActual = nChars;
-    return status;
+/**
+ * For debug purposes, print pixel map array to stdout.
+ * @param det The detector number (1 based)
+ */
+void ADnED::printPixelMap(epicsUInt32 det)
+{ 
+  printf("ADnED::printPixelMap. Det: %d\n", det);
+
+  if ((m_PixelMapSize[det] > 0) && (p_PixelMap[det])) {
+    printf("m_PixelMapSize[%d]: %d\n", det, m_PixelMapSize[det]);
+    for (epicsUInt32 index=0; index<m_PixelMapSize[det]; ++index) {
+      printf("p_PixelMap[%d][%d]: %d\n", det, index, (p_PixelMap[det])[index]);
+    }
+  }
+}
+
+/**
+ * For debug purposes, print TOF transformation array to stdout.
+ * @param det The detector number (1 based)
+ */
+void ADnED::printTofTrans(epicsUInt32 det)
+{ 
+  printf("ADnED::printTofTrans. Det: %d\n", det);
+
+  if ((m_TofTransSize[det] > 0) && (p_TofTrans[det])) {
+    printf("m_TofTransSize[%d]: %d\n", det, m_TofTransSize[det]);
+    for (epicsUInt32 index=0; index<m_TofTransSize[det]; ++index) {
+      printf("p_TofTrans[%d][%d]: %f\n", det, index, (p_TofTrans[det])[index]);
+    }
+  }
 }
 
 /**
@@ -517,7 +540,6 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
  */
 void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct)
 {
-  
   int eventDebug = 0;
   bool eventUpdate = false;
   epicsUInt32 seqID = 0;

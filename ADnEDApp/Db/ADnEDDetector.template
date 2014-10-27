@@ -247,6 +247,15 @@ record(waveform, "$(P)$(R)Det$(DET):TOFTransFile_RBV")
     field(SCAN, "I/O Intr")
 }
 
+# ///
+# /// To aid debug, print TOF Transformation Array to IOC shell
+# ///
+record(bo, "$(P)$(R)Det$(DET):TOFTransPrint")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_PRINT")
+}
+
 #####################################################################
 # Full path and filename of the pixel map file
 
@@ -273,6 +282,15 @@ record(waveform, "$(P)$(R)Det$(DET):PixelMapFile_RBV")
     field(FTVL, "CHAR")
     field(NELM, "1024")
     field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// To aid debug, print pixel map array to IOC shell
+# ///
+record(bo, "$(P)$(R)Det$(DET):PixelMapPrint")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_MAP_PRINT")
 }
 
 
