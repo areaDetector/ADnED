@@ -322,25 +322,50 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
       }
     }
   } else if (function == ADnEDDetPixelNumStartParam) {
-    m_dataAlloc = true;
+    if (adStatus != ADStatusAcquire) {
+      m_dataAlloc = true;
+    } else {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s. Cannot configure during acqusition.\n", functionName);
+      return asynError;
+    }
   } else if (function == ADnEDDetPixelNumEndParam) {
-    m_dataAlloc = true;
+    if (adStatus != ADStatusAcquire) {
+      m_dataAlloc = true;
+    } else {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s. Cannot configure during acqusition.\n", functionName);
+      return asynError;
+    }
   } else if (function == ADnEDTOFMaxParam) {
-    m_dataAlloc = true;
+    if (adStatus != ADStatusAcquire) {
+      m_dataAlloc = true;
+    } else {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s. Cannot configure during acqusition.\n", functionName);
+      return asynError;
+    }
   } else if (function == ADnEDAllocSpaceParam) {
-    if (allocArray() != asynSuccess) {
-      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to allocate array.\n", functionName);
-      setIntegerParam(ADnEDAllocSpaceStatusParam, s_ADNED_ALLOC_STATUS_FAIL);
-      setStringParam(ADStatusMessage, "allocArray Error");
-      setIntegerParam(ADStatus, ADStatusError);
-      callParamCallbacks();
+    if (adStatus != ADStatusAcquire) {
+      if (allocArray() != asynSuccess) {
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to allocate array.\n", functionName);
+	setIntegerParam(ADnEDAllocSpaceStatusParam, s_ADNED_ALLOC_STATUS_FAIL);
+	setStringParam(ADStatusMessage, "allocArray Error");
+	setIntegerParam(ADStatus, ADStatusError);
+	callParamCallbacks();
+	return asynError;
+      } 
+    } else {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s. Cannot configure during acqusition.\n", functionName);
       return asynError;
     }
   } else if (function == ADnEDNumDetParam) {
-    if (value > s_ADNED_MAX_DETS) {
-      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		"%s Error Setting Number Of Detectors. Max: %d\n", 
-		functionName, s_ADNED_MAX_DETS);
+    if (adStatus != ADStatusAcquire) {
+      if (value > s_ADNED_MAX_DETS) {
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		  "%s Error Setting Number Of Detectors. Max: %d\n", 
+		  functionName, s_ADNED_MAX_DETS);
+	return asynError;
+      }
+    } else {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s. Cannot configure during acqusition.\n", functionName);
       return asynError;
     }
   } else if (function == ADnEDDetTOFTransPrintParam) {
