@@ -20,6 +20,11 @@ caput -c BL99:Det:ADnED:Det1:TOF:Stat1:EnableCallbacks 1
 caput -c BL99:Det:ADnED:Det1:TOF:Stat1:BgdWidth 0
 
 caput -c BL99:Det:ADnED:Det1:XY:EnableCallbacks 1
+caput -c BL99:Det:ADnED:Det1:XY:Array:EnableCallbacks 1
+
+caput -c BL99:Det:ADnED:Det1:XY:ROI1:EnableCallbacks 1
+caput -c BL99:Det:ADnED:Det1:XY:Stat1:EnableCallbacks 1
+caput -c BL99:Det:ADnED:Det1:XY:Stat1:BgdWidth 0
 
 echo "Det2..."
 
@@ -35,6 +40,11 @@ caput -c BL99:Det:ADnED:Det2:TOF:Stat1:EnableCallbacks 1
 caput -c BL99:Det:ADnED:Det2:TOF:Stat1:BgdWidth 0
  
 caput -c BL99:Det:ADnED:Det2:XY:EnableCallbacks 1
+caput -c BL99:Det:ADnED:Det2:XY:Array:EnableCallbacks 1
+
+caput -c BL99:Det:ADnED:Det2:XY:ROI1:EnableCallbacks 1
+caput -c BL99:Det:ADnED:Det2:XY:Stat1:EnableCallbacks 1
+caput -c BL99:Det:ADnED:Det2:XY:Stat1:BgdWidth 0
 
 echo "Allocate Space..."
 caput -c BL99:Det:ADnED:AllocSpace.PROC 1
