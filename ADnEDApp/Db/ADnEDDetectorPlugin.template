@@ -146,5 +146,27 @@ substitute "XSIZE=1"
 substitute "YSIZE=1"
 include "NDStats.template"
 
+# Pixel X/Y ROI for auto scaling
+substitute "R=ADnED:Det$(DET):XY:ROIScale:"
+substitute "PORT=DET$(DET).XY.ROI.SCALE"
+substitute "NDARRAY_PORT=DET$(DET).XY"
+include "NDPluginBase.template"
+include "NDROI.template"
+substitute "DIM=X"
+include "NDROI_End.template"
+substitute "DIM=Y"
+include "NDROI_End.template"
+
+# Pixel X/Y Stats for auto scaling
+substitute "R=ADnED:Det$(DET):XY:StatScale:"
+substitute "PORT=DET$(DET).XY.STAT.SCALE"
+substitute "NDARRAY_PORT=DET$(DET).XY.ROI.SCALE"
+include "NDPluginBase.template"
+substitute "NCHANS=1024"
+substitute "HIST_SIZE=1"
+substitute "XSIZE=1"
+substitute "YSIZE=1"
+include "NDStats.template"
+
 
 
