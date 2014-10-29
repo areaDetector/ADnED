@@ -181,6 +181,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     m_detTOFROIEndValues[i] = 0;
     m_detTOFROIEnabled[i] = 0;
     m_detPixelMappingEnabled[i] = 0;
+    m_detTOFTransEnabled[i] = 0;
   }
 
   //Create the thread that reads the data 
@@ -661,6 +662,8 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     getIntegerParam(det, ADnEDDetTOFROIEnableParam, &m_detTOFROIEnabled[det]);
     //Pixel ID mapping
     getIntegerParam(det, ADnEDDetPixelMapEnableParam, &m_detPixelMappingEnabled[det]);
+    //TOF Transformation
+    getIntegerParam(det, ADnEDDetTOFTransEnableParam, &m_detTOFTransEnabled[det]);
   }
 
   //epics::pvData::PVIntPtr seqIDPtr = pv_struct->getIntField(ADNED_PV_SEQ);
@@ -749,6 +752,8 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     lock();
 
     int mappedPixelIndex = 0;
+    epicsFloat64 tof = 0.0;
+    epicsUInt32 tofInt = 0;
     int offset = 0;
     for (size_t i=0; i<pixelsLength; ++i) {
       for (int det=1; det<=numDet; det++) {
@@ -757,10 +762,19 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	if ((pixelsData[i] >= static_cast<epicsUInt32>(m_detStartValues[det])) 
 	    && (pixelsData[i] <= static_cast<epicsUInt32>(m_detEndValues[det]))) {
   
+	  tof = static_cast<epicsFloat64>(tofData[i]);
+
+	  //If enabled, do TOF tranformation (to d-space for example).
+	  if (m_detTOFTransEnabled[det]) {
+	    if (p_TofTrans[det]) {
+	      tof = tofData[i] * (p_TofTrans[det])[pixelsData[i]];
+	    }
+	  }
+
 	  //Filter on TOF ROI if the ROI is enabled
 	  if (m_detTOFROIEnabled[det]) {
-	    if ((tofData[i] >= static_cast<epicsUInt32>(m_detTOFROIStartValues[det])) 
-		&& (tofData[i] <= static_cast<epicsUInt32>(m_detTOFROIEndValues[det]))) {
+	    if ((tof >= static_cast<epicsFloat64>(m_detTOFROIStartValues[det])) 
+		&& (tof <= static_cast<epicsFloat64>(m_detTOFROIEndValues[det]))) {
 
 	      //Do pixel ID mapping if enabled
 	      if (m_detPixelMappingEnabled[det]) {
@@ -793,9 +807,11 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	  }
 
 	  //TOF Data
-	  if (tofData[i] <= m_tofMax) {
-	    p_Data[m_NDArrayTOFStartValues[det]+tofData[i]]++;
+	  tofInt = static_cast<epicsUInt32>(floor(tof));
+	  if (tof <= m_tofMax) {
+	    p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
 	  }
+
 	  //Count events to calculate event rate
 	  detEventsSinceLastUpdate[det]++;
 	}

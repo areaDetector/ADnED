@@ -154,6 +154,7 @@ class ADnED : public ADDriver {
   int m_detTOFROIEndValues[ADNED_MAX_DETS+1];
   int m_detTOFROIEnabled[ADNED_MAX_DETS+1];
   int m_detPixelMappingEnabled[ADNED_MAX_DETS+1];
+  int m_detTOFTransEnabled[ADNED_MAX_DETS+1];
 
   //Constructor parameters.
   const epicsUInt32 m_debug;
