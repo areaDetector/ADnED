@@ -1,10 +1,5 @@
 /**
- * Originally based on the ROI plugin.
- * Modified to remove Z dimension and to convert
- * from 1-D to 2-D data.
- *
- * Matt Pearson
- * Oct 2014
+ * See .cpp file for more documentation.
  */
 
 #ifndef ADNED_PIXEL_ROI_H
@@ -16,19 +11,21 @@
 #include "NDPluginDriver.h"
 
 /* ROI general parameters */
-#define ADnEDPixelROINameString               "PIXELROI_NAME"                /* Name of this ROI */
+#define ADnEDPixelROINameString               "PIXELROI_NAME"              /* Name of this ROI */
 
 /* ROI definition */
-#define ADnEDPixelROIDim0MinString            "PIXELROI_DIM0_MIN"          /* Starting element of ROI in each dimension */
-#define ADnEDPixelROIDim1MinString            "PIXELROI_DIM1_MIN"          /* Starting element of ROI in each dimension */
-#define ADnEDPixelROIDim2MinString            "PIXELROI_DIM2_MIN"          /* Starting element of ROI in each dimension */
-#define ADnEDPixelROIDim0SizeString           "PIXELROI_DIM0_SIZE"         /* Size of ROI in each dimension */
-#define ADnEDPixelROIDim1SizeString           "PIXELROI_DIM1_SIZE"         /* Size of ROI in each dimension */
-#define ADnEDPixelROIDim2SizeString           "PIXELROI_DIM2_SIZE"         /* Size of ROI in each dimension */
-#define ADnEDPixelROIDim0MaxSizeString        "PIXELROI_DIM0_MAX_SIZE"     /* Maximum size of ROI in each dimension */
-#define ADnEDPixelROIDim1MaxSizeString        "PIXELROI_DIM1_MAX_SIZE"     /* Maximum size of ROI in each dimension */
-#define ADnEDPixelROIDim2MaxSizeString        "PIXELROI_DIM2_MAX_SIZE"     /* Maximum size of ROI in each dimension */
+#define ADnEDPixelROIDim0MinString            "PIXELROI_DIM0_MIN"          /* Starting element of 1-D input aray */
+#define ADnEDPixelROIDim1MinString            "PIXELROI_DIM1_MIN"          /* Starting element of 2-D X output array */
+#define ADnEDPixelROIDim2MinString            "PIXELROI_DIM2_MIN"          /* Starting element of 2-D Y output array */
+#define ADnEDPixelROIDim0SizeString           "PIXELROI_DIM0_SIZE"         /* Size of ROI in 1-D input array */
+#define ADnEDPixelROIDim1SizeString           "PIXELROI_DIM1_SIZE"         /* Size of ROI in 2-D X output array */
+#define ADnEDPixelROIDim2SizeString           "PIXELROI_DIM2_SIZE"         /* Size of ROI in 2-D Y output array */
+#define ADnEDPixelROIDim0MaxSizeString        "PIXELROI_DIM0_MAX_SIZE"     /* Maximum size of 1-D input ROI */
+#define ADnEDPixelROIDim1MaxSizeString        "PIXELROI_DIM1_MAX_SIZE"     /* Maximum size of 2-D X output ROI */
+#define ADnEDPixelROIDim2MaxSizeString        "PIXELROI_DIM2_MAX_SIZE"     /* Maximum size of 2-D Y output ROI */
 #define ADnEDPixelROIDataTypeString           "PIXELROI_ROI_DATA_TYPE"     /* Data type for ROI.  -1 means automatic. */
+
+#define ADNED_PIXELROI_MAX_DIMS 3
 
 /** Extract Regions-Of-Interest (ROI) from NDArray data; the plugin can be a source of NDArray callbacks for
   * other plugins, passing these sub-arrays. 

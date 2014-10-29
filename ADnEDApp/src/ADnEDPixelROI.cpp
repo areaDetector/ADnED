@@ -3,23 +3,21 @@
  *
  * ROI plugin for the pixel event data.
  * It extracts the 1-D array for a specific detector and converts 
- * to a 2-D NDArray. Some of the original ROI features have been removed.
+ * to a 2-D NDArray. 
  * 
- * Dim0 is used to extract the 1-D data from the large 1-D NDArray input.
- * Dim1 and Dim2 are used to specify X/Y sizes to create a 2-D NDArray.
+ * Dim0 offset and size is used to extract the 1-D data from the large 1-D NDArray input.
+ * Dim1 and Dim2 are used to specify X/Y sizes/offsets to create a 2-D NDArray.
  *
- * Originally based on standard ROI plugin written by Mark Rivers.
+ * Originally based on standard ROI plugin written by Mark Rivers. However, many 
+ * of the original features have been removed (binning and scaling, color conversion).
  * 
  * Matt Pearson
  * Oct 2014
  */
 
 #include <stdlib.h>
-#include <string.h>
 #include <stdio.h>
-#include <math.h>
 
-#include <epicsString.h>
 #include <epicsMutex.h>
 #include <iocsh.h>
 
@@ -30,11 +28,8 @@
 #define MAX(A,B) (A)>(B)?(A):(B)
 #define MIN(A,B) (A)<(B)?(A):(B)
 
-
 /** Callback function that is called by the NDArray driver with new NDArray data.
   * Extracts the NthrDArray data into each of the ROIs that are being used.
-  * Computes statistics on the ROI if ADnEDPixelROIComputeStatistics is 1.
-  * Computes the histogram of ROI values if ADnEDPixelROIComputeHistogram is 1.
   * \param[in] pArray  The NDArray from the callback.
   */
 void ADnEDPixelROI::processCallbacks(NDArray *pArray)
@@ -44,21 +39,14 @@ void ADnEDPixelROI::processCallbacks(NDArray *pArray)
      * structures don't need to be protected.
      */
 
-    int dataType;
-    int dim;
-    int itemp;
-    NDDimension_t dims[ND_ARRAY_MAX_DIMS], *pDim;
-    size_t userDims[ND_ARRAY_MAX_DIMS];
-    NDArrayInfo arrayInfo, scratchInfo;
-    NDArray *pScratch, *pOutput;
-    double *pData;
-    int enableScale, enableDim[3], autoSize[3];
-    size_t i;
-    double scale;
-    
-    //const char* functionName = "processCallbacks";
-    
-    memset(dims, 0, sizeof(NDDimension_t) * ND_ARRAY_MAX_DIMS);
+    int dataType = 0;
+    int dim = 0;
+    int itemp = 0;
+    NDDimension_t dims[ADNED_PIXELROI_MAX_DIMS];
+    NDDimension_t *pDim = NULL;
+    NDArray *pOutput = NULL; 
+
+    memset(dims, 0, sizeof(NDDimension_t) * ADNED_PIXELROI_MAX_DIMS);
 
     /* Get all parameters while we have the mutex */
     getIntegerParam(ADnEDPixelROIDim0Min,      &itemp); dims[0].offset = itemp;
@@ -69,14 +57,6 @@ void ADnEDPixelROI::processCallbacks(NDArray *pArray)
     getIntegerParam(ADnEDPixelROIDim2Size,     &itemp); dims[2].size = itemp;
     getIntegerParam(ADnEDPixelROIDataType,     &dataType);
 
-    /* printf(" ND_ARRAY_MAX_DIMS: %d\n", ND_ARRAY_MAX_DIMS);
-    printf(" dims[0].offset: %d\n",  dims[0].offset);
-    printf(" dims[1].offset: %d\n",  dims[1].offset);
-    printf(" dims[2].offset: %d\n",  dims[2].offset);
-    printf(" dims[0].size: %d\n",  dims[0].size);
-    printf(" dims[1].size: %d\n",  dims[1].size);
-    printf(" dims[2].size: %d\n",  dims[2].size);*/
-
     /* Call the base class method */
     NDPluginDriver::processCallbacks(pArray);
 
@@ -86,9 +66,6 @@ void ADnEDPixelROI::processCallbacks(NDArray *pArray)
         this->pArrays[0]->release();
         this->pArrays[0] = NULL;
     }
-    
-    /* Get information about the array */
-    pArray->getInfo(&arrayInfo);
 
     /* Make sure dimensions are valid, fix them if they are not */
     for (dim=0; dim<3; dim++) {
@@ -100,7 +77,7 @@ void ADnEDPixelROI::processCallbacks(NDArray *pArray)
       pDim->binning = MAX(pDim->binning, 1);
     }
 
-    /* Update the parameters that may have changed */
+    /* Update the parameters that may have have been fixed */
     setIntegerParam(ADnEDPixelROIDim0MaxSize, 0);
     setIntegerParam(ADnEDPixelROIDim1MaxSize, 0);
     setIntegerParam(ADnEDPixelROIDim2MaxSize, 0);
@@ -117,30 +94,6 @@ void ADnEDPixelROI::processCallbacks(NDArray *pArray)
     pDim = &dims[2];
     setIntegerParam(ADnEDPixelROIDim1Min,  (int)pDim->offset);
     setIntegerParam(ADnEDPixelROIDim1Size, (int)pDim->size);
-
-    //printf(" Dim 0\n");
-    //printf(" pDim->dims[0].size: %d\n", pArray->dims[0].size);
-    //printf(" pDim->dims[0].binning: %d\n", pArray->dims[0].binning);
-    //printf(" pDim->offset: %d\n", pDim->offset);
-    //printf(" pDim->size: %d\n", pDim->size);
-
-    
-
-    //printf(" Dim 1\n");
-    //printf(" pDim->dims[1].size: %d\n", pArray->dims[1].size);
-    //printf(" pDim->dims[1].binning: %d\n", pArray->dims[1].binning);
-    //printf(" pDim->offset: %d\n", pDim->offset);
-    //printf(" pDim->size: %d\n", pDim->size);
-
-    //pDim = &dims[2];
-    //setIntegerParam(ADnEDPixelROIDim2MaxSize, (int)pArray->dims[userDims[0]].size);
-    //setIntegerParam(ADnEDPixelROIDim2Min,  (int)pDim->offset);
-    //setIntegerParam(ADnEDPixelROIDim2Size, (int)pDim->size);
-
-    //printf(" Dim 2\n");
-    //printf(" pDim->dims[2].size: %d\n", pArray->dims[2].size);
-    //printf(" pDim->offset: %d\n", pDim->offset);
-    //printf(" pDim->size: %d\n", pDim->size);
     
     /* This function is called with the lock taken, and it must be set when we exit.
      * The following code can be exected without the mutex because we are not accessing memory
@@ -152,31 +105,18 @@ void ADnEDPixelROI::processCallbacks(NDArray *pArray)
     if (dataType == -1) {
       dataType = (int)pArray->dataType;
     }
-   
-    //First extract 1-D block
-    //NDDimension_t new_dims[1] = {0};
-    //new_dims[0].size = dims[0].size;
-    //new_dims[0].offset = dims[0].offset;
-    //new_dims[0].binning = 1;
-
+ 
     //Extract 1-D, but using a 2-D NDDimension_t, with the 2nd dimension set to 0 for now.
-    NDDimension_t new_dims[2] = {0};
+    NDDimension_t new_dims[2] = {{0}};
     new_dims[0].size = dims[0].size;
     new_dims[0].offset = dims[0].offset;
     new_dims[0].binning = 1;
     new_dims[1].binning = 1;
  
-    //printf(" Before this->pNDArrayPool->convert...\n");
-    //printf("  pArray->ndims: %d\n", pArray->ndims);
-    //printf("  pArray->dims[0].size: %d\n", pArray->dims[0].size);
-    //printf("  pArray->dims[1].size: %d\n", pArray->dims[1].size);
-    //printf("  pArray->dims[2].size: %d\n", pArray->dims[2].size);
-    //printf("  new_dims[0].size: %d\n", new_dims[0].size);
-    //printf("  new_dims[1].size: %d\n", new_dims[1].size);
-    this->pNDArrayPool->convert(pArray, &this->pArrays[0], (NDDataType_t)dataType, new_dims);
-    //printf(" After this->pNDArrayPool->convert.\n");
+    this->pNDArrayPool->convert(pArray, &this->pArrays[0], (NDDataType_t)dataType, new_dims); 
     pOutput = this->pArrays[0];
-    //Now we have extraced the 1-D ROI, set the 2-D dims
+ 
+   //Now we have extraced the 1-D ROI, set the 2-D dims
     pOutput->ndims = 2;
     pOutput->dims[0].size = dims[1].size;
     pOutput->dims[1].size = dims[2].size;
