@@ -762,7 +762,9 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 
 	      //Do pixel ID mapping if enabled
 	      if (detPixelMappingEnabled[det]) {
-		mappedPixelIndex = (p_PixelMap[det])[i];
+		if (p_PixelMap[det]) {
+		  mappedPixelIndex = (p_PixelMap[det])[pixelsData[i]];
+		}
 	      } else {
 		mappedPixelIndex = pixelsData[i];
 	      }
@@ -776,7 +778,9 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 
 	    //Do pixel ID mapping if enabled
 	    if (detPixelMappingEnabled[det]) {
-	      mappedPixelIndex = (p_PixelMap[det])[i];
+	      if (p_PixelMap[det]) {
+		mappedPixelIndex = (p_PixelMap[det])[pixelsData[i]];
+	      }
 	    } else {
 	      mappedPixelIndex = pixelsData[i];
 	    }
