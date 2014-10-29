@@ -169,8 +169,18 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   for (int i=0; i<=s_ADNED_MAX_DETS; ++i) {
     p_PixelMap[i] = NULL;
     p_TofTrans[i] = NULL;
+   
     m_TofTransSize[i] = 0;
     m_PixelMapSize[i] = 0;
+    
+    m_detStartValues[i] = 0;
+    m_detEndValues[i] = 0;
+    m_NDArrayStartValues[i] = 0;
+    m_NDArrayTOFStartValues[i] = 0;
+    m_detTOFROIStartValues[i] = 0;
+    m_detTOFROIEndValues[i] = 0;
+    m_detTOFROIEnabled[i] = 0;
+    m_detPixelMappingEnabled[i] = 0;
   }
 
   //Create the thread that reads the data 
@@ -637,28 +647,20 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   }
   unlock();
 
-  int detStartValues[s_ADNED_MAX_DETS+1] = {0};
-  int detEndValues[s_ADNED_MAX_DETS+1] = {0};
-  int NDArrayStartValues[s_ADNED_MAX_DETS+1] = {0};
-  int NDArrayTOFStartValues[s_ADNED_MAX_DETS+1] = {0};
-  int detTOFROIStartValues[s_ADNED_MAX_DETS+1] = {0};
-  int detTOFROIEndValues[s_ADNED_MAX_DETS+1] = {0};
-  int detTOFROIEnabled[s_ADNED_MAX_DETS+1] = {0};
-  int detPixelMappingEnabled[s_ADNED_MAX_DETS+1] = {0};
   int numDet = 0;
   getIntegerParam(ADnEDNumDetParam, &numDet);
   getIntegerParam(ADnEDEventDebugParam, &eventDebug);
   for (int det=1; det<=numDet; det++) {
-    getIntegerParam(det, ADnEDDetPixelNumStartParam, &detStartValues[det]);
-    getIntegerParam(det, ADnEDDetPixelNumEndParam, &detEndValues[det]);
-    getIntegerParam(det, ADnEDDetNDArrayStartParam, &NDArrayStartValues[det]);
-    getIntegerParam(det, ADnEDDetNDArrayTOFStartParam, &NDArrayTOFStartValues[det]);
+    getIntegerParam(det, ADnEDDetPixelNumStartParam, &m_detStartValues[det]);
+    getIntegerParam(det, ADnEDDetPixelNumEndParam, &m_detEndValues[det]);
+    getIntegerParam(det, ADnEDDetNDArrayStartParam, &m_NDArrayStartValues[det]);
+    getIntegerParam(det, ADnEDDetNDArrayTOFStartParam, &m_NDArrayTOFStartValues[det]);
     //These two params are used to filter events based on a TOF ROI
-    getIntegerParam(det, ADnEDDetTOFROIStartParam, &detTOFROIStartValues[det]);
-    getIntegerParam(det, ADnEDDetTOFROIEndParam, &detTOFROIEndValues[det]);
-    getIntegerParam(det, ADnEDDetTOFROIEnableParam, &detTOFROIEnabled[det]);
+    getIntegerParam(det, ADnEDDetTOFROIStartParam, &m_detTOFROIStartValues[det]);
+    getIntegerParam(det, ADnEDDetTOFROIEndParam, &m_detTOFROIEndValues[det]);
+    getIntegerParam(det, ADnEDDetTOFROIEnableParam, &m_detTOFROIEnabled[det]);
     //Pixel ID mapping
-    getIntegerParam(det, ADnEDDetPixelMapEnableParam, &detPixelMappingEnabled[det]);
+    getIntegerParam(det, ADnEDDetPixelMapEnableParam, &m_detPixelMappingEnabled[det]);
   }
 
   //epics::pvData::PVIntPtr seqIDPtr = pv_struct->getIntField(ADNED_PV_SEQ);
@@ -752,16 +754,16 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
       for (int det=1; det<=numDet; det++) {
 
 	//Dtermine if this raw pixel ID is in this DET range.
-	if ((pixelsData[i] >= static_cast<epicsUInt32>(detStartValues[det])) 
-	    && (pixelsData[i] <= static_cast<epicsUInt32>(detEndValues[det]))) {
+	if ((pixelsData[i] >= static_cast<epicsUInt32>(m_detStartValues[det])) 
+	    && (pixelsData[i] <= static_cast<epicsUInt32>(m_detEndValues[det]))) {
   
-	  //Filter on TOF if the ROI is enabled
-	  if (detTOFROIEnabled[det]) {
-	    if ((tofData[i] >= static_cast<epicsUInt32>(detTOFROIStartValues[det])) 
-		&& (tofData[i] <= static_cast<epicsUInt32>(detTOFROIEndValues[det]))) {
+	  //Filter on TOF ROI if the ROI is enabled
+	  if (m_detTOFROIEnabled[det]) {
+	    if ((tofData[i] >= static_cast<epicsUInt32>(m_detTOFROIStartValues[det])) 
+		&& (tofData[i] <= static_cast<epicsUInt32>(m_detTOFROIEndValues[det]))) {
 
 	      //Do pixel ID mapping if enabled
-	      if (detPixelMappingEnabled[det]) {
+	      if (m_detPixelMappingEnabled[det]) {
 		if (p_PixelMap[det]) {
 		  mappedPixelIndex = (p_PixelMap[det])[pixelsData[i]];
 		}
@@ -770,14 +772,14 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	      }
 
 	      //Integrate Pixel ID Data (TOF filtered)
-	      offset = mappedPixelIndex-detStartValues[det];
-	      p_Data[NDArrayStartValues[det]+offset]++;
+	      offset = mappedPixelIndex-m_detStartValues[det];
+	      p_Data[m_NDArrayStartValues[det]+offset]++;
 	    }
 
-	  } else { //No TOF filter enabled
+	  } else { //No TOF ROI filter enabled
 
 	    //Do pixel ID mapping if enabled
-	    if (detPixelMappingEnabled[det]) {
+	    if (m_detPixelMappingEnabled[det]) {
 	      if (p_PixelMap[det]) {
 		mappedPixelIndex = (p_PixelMap[det])[pixelsData[i]];
 	      }
@@ -786,13 +788,13 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	    }
 	    
 	    //Integrate Pixel ID Data
-	    offset = mappedPixelIndex-detStartValues[det];
-	    p_Data[NDArrayStartValues[det]+offset]++;
+	    offset = mappedPixelIndex-m_detStartValues[det];
+	    p_Data[m_NDArrayStartValues[det]+offset]++;
 	  }
 
 	  //TOF Data
 	  if (tofData[i] <= m_tofMax) {
-	    p_Data[NDArrayTOFStartValues[det]+tofData[i]]++;
+	    p_Data[m_NDArrayTOFStartValues[det]+tofData[i]]++;
 	  }
 	  //Count events to calculate event rate
 	  detEventsSinceLastUpdate[det]++;

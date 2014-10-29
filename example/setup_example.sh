@@ -20,6 +20,10 @@ caput -c BL99:Det:ADnED:Det1:TOF:Stat1:EnableCallbacks 1
 caput -c BL99:Det:ADnED:Det1:TOF:Stat1:BgdWidth 0
 
 caput -c BL99:Det:ADnED:Det1:XY:EnableCallbacks 1
+caput -c BL99:Det:ADnED:Det1:XY:Min1 0
+caput -c BL99:Det:ADnED:Det1:XY:Min2 0
+caput -c BL99:Det:ADnED:Det1:XY:Size1 32
+caput -c BL99:Det:ADnED:Det1:XY:Size2 32
 caput -c BL99:Det:ADnED:Det1:XY:Array:EnableCallbacks 1
 
 caput -c BL99:Det:ADnED:Det1:XY:ROI1:EnableCallbacks 1
@@ -43,6 +47,10 @@ caput -c BL99:Det:ADnED:Det2:TOF:Stat1:EnableCallbacks 1
 caput -c BL99:Det:ADnED:Det2:TOF:Stat1:BgdWidth 0
  
 caput -c BL99:Det:ADnED:Det2:XY:EnableCallbacks 1
+caput -c BL99:Det:ADnED:Det2:XY:Min1 0
+caput -c BL99:Det:ADnED:Det2:XY:Min2 0
+caput -c BL99:Det:ADnED:Det2:XY:Size1 32
+caput -c BL99:Det:ADnED:Det2:XY:Size2 32
 caput -c BL99:Det:ADnED:Det2:XY:Array:EnableCallbacks 1
 
 caput -c BL99:Det:ADnED:Det2:XY:ROI1:EnableCallbacks 1

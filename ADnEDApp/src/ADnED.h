@@ -146,6 +146,14 @@ class ADnED : public ADDriver {
   epics::pvData::PVTimeStamp m_PVTimeStamp;
   epics::pvData::TimeStamp m_TimeStamp;
   epics::pvData::TimeStamp m_TimeStampLast;
+  int m_detStartValues[ADNED_MAX_DETS+1];
+  int m_detEndValues[ADNED_MAX_DETS+1];
+  int m_NDArrayStartValues[ADNED_MAX_DETS+1];
+  int m_NDArrayTOFStartValues[ADNED_MAX_DETS+1];
+  int m_detTOFROIStartValues[ADNED_MAX_DETS+1];
+  int m_detTOFROIEndValues[ADNED_MAX_DETS+1];
+  int m_detTOFROIEnabled[ADNED_MAX_DETS+1];
+  int m_detPixelMappingEnabled[ADNED_MAX_DETS+1];
 
   //Constructor parameters.
   const epicsUInt32 m_debug;
