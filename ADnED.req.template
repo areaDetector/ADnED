@@ -3,6 +3,7 @@ $(P)EventDebug
 $(P)TOFMax
 $(P)NumDetectors
 $(P)ArrayCallbacks
+$(P)FrameUpdatePeriod
 
 
 
