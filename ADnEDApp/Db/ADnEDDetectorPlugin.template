@@ -48,7 +48,7 @@ record(calcout, "$(P)$(R)Det$(DET):ConfigXYStart")
 {
   field(INPA, "$(P)$(R)Det$(DET):NDArrayStart_RBV")
   field(CALC, "A")
-  field(OUT, "$(P)$(R)Det$(DET):$(PIXROI):MinX PP")
+  field(OUT, "$(P)$(R)Det$(DET):$(PIXROI):Min0 PP")
   field(FLNK, "$(P)$(R)Det$(DET):ConfigXYSize")
 }
 
@@ -60,7 +60,7 @@ record(calcout, "$(P)$(R)Det$(DET):ConfigXYSize")
   field(INPA, "$(P)$(R)Det$(DET):NDArrayStart_RBV")
   field(INPB, "$(P)$(R)Det$(DET):NDArrayEnd_RBV")
   field(CALC, "(B-A)+1")
-  field(OUT, "$(P)$(R)Det$(DET):$(PIXROI):SizeX PP")
+  field(OUT, "$(P)$(R)Det$(DET):$(PIXROI):Size0 PP")
 }
 
 #####################################################################
@@ -107,12 +107,12 @@ substitute "XSIZE=1"
 substitute "YSIZE=1"
 include "NDStats.template"
 
-# Pixel Initial ROI and X/Y Mapping Plugin
+# Pixel Initial ROI to convert from 1-D to 2-D NDArray
 substitute "R=ADnED:Det$(DET):XY:"
 substitute "PORT=DET$(DET).XY"
 substitute "NDARRAY_PORT=$(ADNED_PORT)"
 include "NDPluginBase.template"
-include "NDROI.template"
+include "ADnEDPixelROI.template"
 
 # Pixel X/Y Waveform
 substitute "R=ADnED:Det$(DET):XY:Array:"

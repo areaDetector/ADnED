@@ -28,11 +28,13 @@ $(P)Det1:TOF:ROI1:EndX
 $(P)Det1:TOF:Stat1:EnableCallbacks
 $(P)Det1:TOF:Stat1:BgdWidth
 
-$(P)Det1:XY:MinX
-$(P)Det1:XY:SizeX
-$(P)Det1:XY:BinX
-$(P)Det1:XY:EnableScale
-$(P)Det1:XY:Scale
+$(P)Det1:XY:EnableCallbacks
+$(P)Det1:XY:Min0
+$(P)Det1:XY:Size0
+$(P)Det1:XY:Min1
+$(P)Det1:XY:Size1
+$(P)Det1:XY:Min2
+$(P)Det1:XY:Size2
 $(P)Det1:XY:Array:EnableCallbacks
 $(P)Det1:XY:Array:MinCallbackTime
 $(P)Det1:XY:ROI1:EnableCallbacks
@@ -73,11 +75,13 @@ $(P)Det2:TOF:ROI1:EndX
 $(P)Det2:TOF:Stat1:EnableCallbacks
 $(P)Det2:TOF:Stat1:BgdWidth
 
-$(P)Det2:XY:MinX
-$(P)Det2:XY:SizeX
-$(P)Det2:XY:BinX
-$(P)Det2:XY:EnableScale
-$(P)Det2:XY:Scale
+$(P)Det2:XY:EnableCallbacks
+$(P)Det2:XY:Min0
+$(P)Det2:XY:Size0
+$(P)Det2:XY:Min1
+$(P)Det2:XY:Size1
+$(P)Det2:XY:Min2
+$(P)Det2:XY:Size2
 $(P)Det2:XY:Array:EnableCallbacks
 $(P)Det2:XY:Array:MinCallbackTime
 $(P)Det2:XY:ROI1:EnableCallbacks
@@ -118,11 +122,13 @@ $(P)Det3:TOF:ROI1:EndX
 $(P)Det3:TOF:Stat1:EnableCallbacks
 $(P)Det3:TOF:Stat1:BgdWidth
 
-$(P)Det3:XY:MinX
-$(P)Det3:XY:SizeX
-$(P)Det3:XY:BinX
-$(P)Det3:XY:EnableScale
-$(P)Det3:XY:Scale
+$(P)Det3:XY:EnableCallbacks
+$(P)Det3:XY:Min0
+$(P)Det3:XY:Size0
+$(P)Det3:XY:Min1
+$(P)Det3:XY:Size1
+$(P)Det3:XY:Min2
+$(P)Det3:XY:Size2
 $(P)Det3:XY:Array:EnableCallbacks
 $(P)Det3:XY:Array:MinCallbackTime
 $(P)Det3:XY:ROI1:EnableCallbacks
@@ -163,11 +169,13 @@ $(P)Det4:TOF:ROI1:EndX
 $(P)Det4:TOF:Stat1:EnableCallbacks
 $(P)Det4:TOF:Stat1:BgdWidth
 
-$(P)Det4:XY:MinX
-$(P)Det4:XY:SizeX
-$(P)Det4:XY:BinX
-$(P)Det4:XY:EnableScale
-$(P)Det4:XY:Scale
+$(P)Det4:XY:EnableCallbacks
+$(P)Det4:XY:Min0
+$(P)Det4:XY:Size0
+$(P)Det4:XY:Min1
+$(P)Det4:XY:Size1
+$(P)Det4:XY:Min2
+$(P)Det4:XY:Size2
 $(P)Det4:XY:Array:EnableCallbacks
 $(P)Det4:XY:Array:MinCallbackTime
 $(P)Det4:XY:ROI1:EnableCallbacks
