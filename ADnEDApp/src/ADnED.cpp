@@ -525,14 +525,14 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
   }
   
   if (status != asynSuccess) {
-    callParamCallbacks();
+    callParamCallbacks(addr);
     return asynError;
   }
   
   // Set the parameter in the parameter library. 
-  status = (asynStatus)setStringParam(function, (char *)value);
+  status = (asynStatus)setStringParam(addr, function, (char *)value);
   // Do callbacks so higher layers see any changes 
-  status = (asynStatus)callParamCallbacks();
+  status = (asynStatus)callParamCallbacks(addr);
   
   if (status) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
