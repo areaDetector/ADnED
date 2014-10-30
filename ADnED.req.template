@@ -50,7 +50,9 @@ $(P)Det1:XY:StatScale:EnableCallbacks
 $(P)Det1:XY:StatScale:BgdWidth
 
 $(P)Det1:TOFTransFile
+$(P)Det1:TOFTransEnable
 $(P)Det1:PixelMapFile
+$(P)Det1:PixelMapEnable
 
 
 
@@ -97,7 +99,9 @@ $(P)Det2:XY:StatScale:EnableCallbacks
 $(P)Det2:XY:StatScale:BgdWidth
 
 $(P)Det2:TOFTransFile
+$(P)Det2:TOFTransEnable
 $(P)Det2:PixelMapFile
+$(P)Det2:PixelMapEnable
 
 
 
@@ -144,7 +148,9 @@ $(P)Det3:XY:StatScale:EnableCallbacks
 $(P)Det3:XY:StatScale:BgdWidth
 
 $(P)Det3:TOFTransFile
+$(P)Det3:TOFTransEnable
 $(P)Det3:PixelMapFile
+$(P)Det3:PixelMapEnable
 
 
 
@@ -191,4 +197,6 @@ $(P)Det4:XY:StatScale:EnableCallbacks
 $(P)Det4:XY:StatScale:BgdWidth
 
 $(P)Det4:TOFTransFile
+$(P)Det4:TOFTransEnable
 $(P)Det4:PixelMapFile
+$(P)Det4:PixelMapEnable
