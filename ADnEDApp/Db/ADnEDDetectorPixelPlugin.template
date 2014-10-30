@@ -1,0 +1,84 @@
+
+#####################################################################
+#
+# areaDetector nED client template file. This is used to automatically
+# configure the plugins for the pixel XY array for a single detector.
+#
+# Matt Pearson
+# Oct 14
+#
+# Macros:
+# P,R - base PV name
+# DET - Detector number (1-based)
+# TOFROI - TOF ROI name
+# PIXROI - Pixel ROI name
+# TOFSIZE - Max size of TOF spectrum
+#
+#####################################################################
+
+substitute "TIMEOUT=1"
+substitute "ADDR=0"
+substitute "NDARRAY_ADDR=0"
+
+# Pixel Initial ROI to convert from 1-D to 2-D NDArray
+substitute "R=ADnED:Det$(DET):XY:"
+substitute "PORT=DET$(DET).XY"
+substitute "NDARRAY_PORT=$(ADNED_PORT)"
+include "NDPluginBase.template"
+include "ADnEDPixelROI.template"
+
+# Pixel X/Y Waveform
+substitute "R=ADnED:Det$(DET):XY:Array:"
+substitute "PORT=DET$(DET).XY.ARR"
+substitute "NDARRAY_PORT=DET$(DET).XY"
+include "NDPluginBase.template"
+substitute "TYPE=Int32"
+substitute "FTVL=LONG"
+include "NDStdArrays.template"
+
+# Pixel X/Y Second ROI
+substitute "R=ADnED:Det$(DET):XY:ROI1:"
+substitute "PORT=DET$(DET).XY.ROI1"
+substitute "NDARRAY_PORT=DET$(DET).XY"
+include "NDPluginBase.template"
+include "NDROI.template"
+substitute "DIM=X"
+include "NDROI_End.template"
+substitute "DIM=Y"
+include "NDROI_End.template"
+
+# Pixel X/Y Stats
+substitute "R=ADnED:Det$(DET):XY:Stat1:"
+substitute "PORT=DET$(DET).XY.STAT1"
+substitute "NDARRAY_PORT=DET$(DET).XY.ROI1"
+include "NDPluginBase.template"
+substitute "NCHANS=1024"
+substitute "HIST_SIZE=1"
+substitute "XSIZE=1"
+substitute "YSIZE=1"
+include "NDStats.template"
+
+# Pixel X/Y ROI for auto scaling
+substitute "R=ADnED:Det$(DET):XY:ROIScale:"
+substitute "PORT=DET$(DET).XY.ROI.SCALE"
+substitute "NDARRAY_PORT=DET$(DET).XY"
+include "NDPluginBase.template"
+include "NDROI.template"
+substitute "DIM=X"
+include "NDROI_End.template"
+substitute "DIM=Y"
+include "NDROI_End.template"
+
+# Pixel X/Y Stats for auto scaling
+substitute "R=ADnED:Det$(DET):XY:StatScale:"
+substitute "PORT=DET$(DET).XY.STAT.SCALE"
+substitute "NDARRAY_PORT=DET$(DET).XY.ROI.SCALE"
+include "NDPluginBase.template"
+substitute "NCHANS=1024"
+substitute "HIST_SIZE=1"
+substitute "XSIZE=1"
+substitute "YSIZE=1"
+include "NDStats.template"
+
+
+

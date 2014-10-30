@@ -1,8 +1,8 @@
 
 file ADnED.template
 {
-pattern {P, PORT, ADDR, TIMEOUT, TOFSIZE, ADNED_PORT}
-	{BL99:Det:, NED, 0, 5, 160000, NED}
+pattern {P, PORT, ADDR, TIMEOUT, TOFSIZE, ADNED_PORT, DET1SIZE, DET2SIZE, DET3SIZE, DET4SIZE}
+	{BL99:Det:, NED, 0, 5, 160000, NED, 1024, 1024, 0, 0}
 }
 
 file save_restoreStatus.db
