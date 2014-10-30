@@ -229,6 +229,7 @@ record(bi, "$(P)$(R)Det$(DET):TOFROIFilterEnable_RBV")
 # ///
 record(waveform, "$(P)$(R)Det$(DET):TOFTransFile")
 {
+    field(PINI, "YES")
     field(DTYP, "asynOctetWrite")
     field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_FILE")
     field(FTVL, "CHAR")
@@ -290,6 +291,7 @@ record(bi, "$(P)$(R)Det$(DET):TOFTransEnable_RBV")
 # ///
 record(waveform, "$(P)$(R)Det$(DET):PixelMapFile")
 {
+    field(PINI, "YES")
     field(DTYP, "asynOctetWrite")
     field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_MAP_FILE")
     field(FTVL, "CHAR")
