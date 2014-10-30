@@ -512,10 +512,15 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
 	p_PixelMap[addr] = static_cast<epicsUInt32 *>(calloc(m_PixelMapSize[addr], sizeof(epicsUInt32)));
       }
       file.readDataIntoIntArray(&p_PixelMap[addr]);
-      status = checkPixelMap(addr);
+      if ((status = checkPixelMap(addr)) == asynError) {
+	free(p_PixelMap[addr]);
+	p_PixelMap[addr] = NULL;
+      }
     } catch (std::exception &e) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
 		"%s Error parsing pixel mapping file. Det: %d. %s\n", functionName, addr, e.what());
+      free(p_PixelMap[addr]);
+      p_PixelMap[addr] = NULL;
     }
   } else {
     // If this parameter belongs to a base class call its method 
@@ -776,13 +781,12 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	    if ((tof >= static_cast<epicsFloat64>(m_detTOFROIStartValues[det])) 
 		&& (tof <= static_cast<epicsFloat64>(m_detTOFROIEndValues[det]))) {
 
+	      mappedPixelIndex = pixelsData[i];
 	      //Do pixel ID mapping if enabled
 	      if (m_detPixelMappingEnabled[det]) {
 		if (p_PixelMap[det]) {
 		  mappedPixelIndex = (p_PixelMap[det])[pixelsData[i]];
 		}
-	      } else {
-		mappedPixelIndex = pixelsData[i];
 	      }
 
 	      //Integrate Pixel ID Data (TOF filtered)
@@ -792,13 +796,13 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 
 	  } else { //No TOF ROI filter enabled
 
+	    mappedPixelIndex = pixelsData[i];
 	    //Do pixel ID mapping if enabled
 	    if (m_detPixelMappingEnabled[det]) {
-	      if (p_PixelMap[det]) {
+	      if ((m_PixelMapSize[det] > 0) && (p_PixelMap[det])) {
 		mappedPixelIndex = (p_PixelMap[det])[pixelsData[i]];
-	      }
-	    } else {
-	      mappedPixelIndex = pixelsData[i];
+		
+	      } 
 	    }
 	    
 	    //Integrate Pixel ID Data
