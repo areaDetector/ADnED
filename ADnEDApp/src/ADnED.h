@@ -73,8 +73,10 @@
 #define ADnEDDetPixelMapFileParamString    "ADNED_DET_PIXEL_MAP_FILE"
 #define ADnEDDetTOFTransPrintParamString   "ADNED_DET_TOF_TRANS_PRINT"
 #define ADnEDDetPixelMapPrintParamString   "ADNED_DET_PIXEL_MAP_PRINT"
-#define ADnEDDetPixelMapEnableParamString   "ADNED_DET_PIXEL_MAP_ENABLE"
-#define ADnEDDetTOFTransEnableParamString   "ADNED_DET_TOF_TRANS_ENABLE"
+#define ADnEDDetPixelMapEnableParamString  "ADNED_DET_PIXEL_MAP_ENABLE"
+#define ADnEDDetTOFTransEnableParamString  "ADNED_DET_TOF_TRANS_ENABLE"
+#define ADnEDDetTOFTransOffsetParamString  "ADNED_DET_TOF_TRANS_OFFSET"
+#define ADnEDDetTOFTransScaleParamString   "ADNED_DET_TOF_TRANS_SCALE"
 #define ADnEDTOFMaxParamString             "ADNED_TOF_MAX"
 #define ADnEDAllocSpaceParamString         "ADNED_ALLOC_SPACE"
 #define ADnEDAllocSpaceStatusParamString   "ADNED_ALLOC_SPACE_STATUS"
@@ -155,6 +157,8 @@ class ADnED : public ADDriver {
   int m_detTOFROIEnabled[ADNED_MAX_DETS+1];
   int m_detPixelMappingEnabled[ADNED_MAX_DETS+1];
   int m_detTOFTransEnabled[ADNED_MAX_DETS+1];
+  double m_detTOFTransScale[ADNED_MAX_DETS+1];
+  double m_detTOFTransOffset[ADNED_MAX_DETS+1];
 
   //Constructor parameters.
   const epicsUInt32 m_debug;
@@ -200,6 +204,8 @@ class ADnED : public ADDriver {
   int ADnEDDetPixelMapPrintParam;
   int ADnEDDetPixelMapEnableParam;
   int ADnEDDetTOFTransEnableParam;
+  int ADnEDDetTOFTransOffsetParam;
+  int ADnEDDetTOFTransScaleParam;
   int ADnEDTOFMaxParam;
   int ADnEDAllocSpaceParam;
   int ADnEDAllocSpaceStatusParam;

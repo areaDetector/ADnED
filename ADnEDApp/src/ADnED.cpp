@@ -145,6 +145,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDDetPixelMapPrintParamString,    asynParamInt32,       &ADnEDDetPixelMapPrintParam);
   createParam(ADnEDDetPixelMapEnableParamString, asynParamInt32,       &ADnEDDetPixelMapEnableParam);
   createParam(ADnEDDetTOFTransEnableParamString, asynParamInt32,       &ADnEDDetTOFTransEnableParam);
+  createParam(ADnEDDetTOFTransOffsetParamString, asynParamFloat64,       &ADnEDDetTOFTransOffsetParam);
+  createParam(ADnEDDetTOFTransScaleParamString, asynParamFloat64,       &ADnEDDetTOFTransScaleParam);
   createParam(ADnEDTOFMaxParamString,             asynParamInt32,       &ADnEDTOFMaxParam);
   createParam(ADnEDAllocSpaceParamString,         asynParamInt32,       &ADnEDAllocSpaceParam);
   createParam(ADnEDAllocSpaceStatusParamString,         asynParamInt32,       &ADnEDAllocSpaceStatusParam);
@@ -182,6 +184,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     m_detTOFROIEnabled[i] = 0;
     m_detPixelMappingEnabled[i] = 0;
     m_detTOFTransEnabled[i] = 0;
+    m_detTOFTransOffset[i] = 0;
+    m_detTOFTransScale[i] = 0;
   }
 
   //Create the thread that reads the data 
@@ -669,6 +673,8 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     getIntegerParam(det, ADnEDDetPixelMapEnableParam, &m_detPixelMappingEnabled[det]);
     //TOF Transformation
     getIntegerParam(det, ADnEDDetTOFTransEnableParam, &m_detTOFTransEnabled[det]);
+    getDoubleParam(det, ADnEDDetTOFTransOffsetParam, &m_detTOFTransOffset[det]);
+    getDoubleParam(det, ADnEDDetTOFTransScaleParam, &m_detTOFTransScale[det]);
   }
 
   //epics::pvData::PVIntPtr seqIDPtr = pv_struct->getIntField(ADNED_PV_SEQ);
@@ -773,6 +779,8 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	  if (m_detTOFTransEnabled[det]) {
 	    if (p_TofTrans[det]) {
 	      tof = tofData[i] * (p_TofTrans[det])[pixelsData[i]];
+	      //Apply scale and offset
+	      tof = (tof * m_detTOFTransScale[det]) + m_detTOFTransOffset[det];
 	    }
 	  }
 
@@ -801,7 +809,6 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	    if (m_detPixelMappingEnabled[det]) {
 	      if ((m_PixelMapSize[det] > 0) && (p_PixelMap[det])) {
 		mappedPixelIndex = (p_PixelMap[det])[pixelsData[i]];
-		
 	      } 
 	    }
 	    

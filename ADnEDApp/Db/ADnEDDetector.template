@@ -282,6 +282,64 @@ record(bi, "$(P)$(R)Det$(DET):TOFTransEnable_RBV")
 }
 
 #####################################################################
+# Scale factor and offset (in horizontal direction) for TOF spectrum
+# This can be useful for binning the TOF spectrum, particulary after
+# a TOF transformation. These records have no effect if there is
+# no transformation enabled or loaded.
+
+# ///
+# /// Set the TOF offset
+# /// For no offset, set this to 0
+# /// If no transformation is done, this has no effect.
+# ///
+record(ao, "$(P)$(R)Det$(DET):TOFTransOffset")
+{
+   field(DESC, "TOF Filter Offset")
+   field(DTYP, "asynFloat64")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_OFFSET")
+   field(VAL, "0")
+   field(PREC, "2")
+   field(PINI, "YES")
+}
+
+# ///
+# /// Readback of the TOF offset
+# ///
+record(ai, "$(P)$(R)Det$(DET):TOFTransOffset_RBV")
+{
+   field(DTYP, "asynFloat64")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_OFFSET")
+   field(SCAN, "I/O Intr")
+   field(PREC, "2")	
+}
+
+# ///
+# /// Set the TOF scale factor
+# /// Set this to 1 for no scaling.
+# /// If no transformation is done, this has no effect.
+# ///
+record(ao, "$(P)$(R)Det$(DET):TOFTransScale")
+{
+   field(DESC, "TOF Filter Scale")
+   field(DTYP, "asynFloat64")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_SCALE")
+   field(VAL, "1")
+   field(PREC, "2")	
+   field(PINI, "YES")
+}
+
+# ///
+# /// Readback of the TOF scale factor
+# ///
+record(ai, "$(P)$(R)Det$(DET):TOFTransScale_RBV")
+{
+   field(DTYP, "asynFloat64")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_SCALE")
+   field(SCAN, "I/O Intr")
+   field(PREC, "2")	
+}
+
+#####################################################################
 # Pixel mapping file & control
 
 # ///
