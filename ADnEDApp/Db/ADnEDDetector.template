@@ -148,6 +148,7 @@ record(longin, "$(P)$(R)Det$(DET):EventRate_RBV")
 
 #####################################################################
 # Define a TOF ROI to pre-filter the events for this detector DET=$(DET)
+# This is automatically disabled if the pixel ROI filter is enabled (and visa-versa)
 
 # ///
 # /// Set the TOF ROI start for DET $(DET)
@@ -401,7 +402,172 @@ record(bi, "$(P)$(R)Det$(DET):PixelMapEnable_RBV")
     field(SCAN, "I/O Intr")
 }
 
+#####################################################################
+# Define a Pixel X/Y ROI to pre-filter the events for this detector DET=$(DET)
+# This is automatically disabled if the TOF ROI filter is enabled (and visa-versa)
+# The filter is applied after the pixel mapping is done. If there is no 
+# pixel mapping enabled, or defined, then the ROI filter is still applied (but
+# it might not make much sense).
 
+# ///
+# /// Set the Pixel XY ROI start X for DET $(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):PixelROIFilterStartX")
+{
+   field(DESC, "Pre Pixel ROI Start X")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_START_X")
+   field(VAL, "0")
+   field(PINI, "YES")
+}
+
+# ///
+# /// Read the Pixel XY ROI start X for DET $(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PixelROIFilterStartX_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_START_X")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Set the Pixel XY ROI end X for DET $(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):PixelROIFilterEndX")
+{
+   field(DESC, "Pre Pixel ROI End X")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_END_X")
+   field(VAL, "0")
+   field(PINI, "YES")
+}
+
+# ///
+# /// Read the Pixel XY ROI end X for DET $(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PixelROIFilterEndX_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_END_X")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Set the Pixel XY ROI start Y for DET $(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):PixelROIFilterStartY")
+{
+   field(DESC, "Pre Pixel ROI Start Y")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_START_Y")
+   field(VAL, "0")
+   field(PINI, "YES")
+}
+
+# ///
+# /// Read the Pixel XY ROI start Y for DET $(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PixelROIFilterStartY_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_START_Y")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Set the Pixel XY ROI end Y for DET $(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):PixelROIFilterEndY")
+{
+   field(DESC, "Pre Pixel ROI End Y")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_END_Y")
+   field(VAL, "0")
+   field(PINI, "YES")
+}
+
+# ///
+# /// Read the Pixel XY ROI end Y for DET $(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PixelROIFilterEndY_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_END_Y")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Set the pixel ID X size for DET $(DET). This should match
+# /// the value used for the initial ROI plugin that converts
+# /// from 1-D to 2-D, but I need the value here to apply the ROI filter.
+# ///
+record(longout, "$(P)$(R)Det$(DET):PixelSizeX")
+{
+   field(DESC, "Pixel Size X")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_SIZE_X")
+   field(VAL, "0")
+   field(PINI, "YES")
+}
+
+# ///
+# /// Read the pixel ID X size for DET $(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PixelSizeX_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_SIZE_X")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Set the pixel ID Y size for DET $(DET). This should match
+# /// the value used for the initial ROI plugin that converts
+# /// from 1-D to 2-D, but I need the value here to apply the ROI filter.
+# ///
+record(longout, "$(P)$(R)Det$(DET):PixelSizeY")
+{
+   field(DESC, "Pixel Size Y")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_SIZE_Y")
+   field(VAL, "0")
+   field(PINI, "YES")
+}
+
+# ///
+# /// Read the pixel ID Y size for DET $(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PixelSizeY_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_SIZE_Y")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Enable the use of this Pixel XY ROI pre-filter for DET $(DET)
+# ///
+record(bo, "$(P)$(R)Det$(DET):PixelROIFilterEnable")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_ENABLE")
+    field(ZNAM, "Disable")
+    field(ONAM, "Enable")
+}
+
+# ///
+# /// Enable the use of this Pixel XY ROI pre-filter for DET $(DET) (Readback only)
+# ///
+record(bi, "$(P)$(R)Det$(DET):PixelROIFilterEnable_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_ENABLE")
+    field(ZNAM, "Disable")
+    field(ONAM, "Enable")
+    field(SCAN, "I/O Intr")
+}
 
 
 

@@ -147,6 +147,13 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDDetTOFTransEnableParamString, asynParamInt32,       &ADnEDDetTOFTransEnableParam);
   createParam(ADnEDDetTOFTransOffsetParamString, asynParamFloat64,       &ADnEDDetTOFTransOffsetParam);
   createParam(ADnEDDetTOFTransScaleParamString, asynParamFloat64,       &ADnEDDetTOFTransScaleParam);
+  createParam(ADnEDDetPixelROIStartXParamString, asynParamInt32,       &ADnEDDetPixelROIStartXParam);
+  createParam(ADnEDDetPixelROIEndXParamString, asynParamInt32,       &ADnEDDetPixelROIEndXParam);
+  createParam(ADnEDDetPixelROIStartYParamString, asynParamInt32,       &ADnEDDetPixelROIStartYParam);
+  createParam(ADnEDDetPixelROIEndYParamString, asynParamInt32,       &ADnEDDetPixelROIEndYParam);
+  createParam(ADnEDDetPixelROISizeXParamString, asynParamInt32,       &ADnEDDetPixelROISizeXParam);
+  createParam(ADnEDDetPixelROISizeYParamString, asynParamInt32,       &ADnEDDetPixelROISizeYParam);
+  createParam(ADnEDDetPixelROIEnableParamString, asynParamInt32,       &ADnEDDetPixelROIEnableParam);
   createParam(ADnEDTOFMaxParamString,             asynParamInt32,       &ADnEDTOFMaxParam);
   createParam(ADnEDAllocSpaceParamString,         asynParamInt32,       &ADnEDAllocSpaceParam);
   createParam(ADnEDAllocSpaceStatusParamString,         asynParamInt32,       &ADnEDAllocSpaceStatusParam);
@@ -186,6 +193,14 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     m_detTOFTransEnabled[i] = 0;
     m_detTOFTransOffset[i] = 0;
     m_detTOFTransScale[i] = 0;
+
+    m_detPixelROIStartX[i] = 0;
+    m_detPixelROIEndX[i] = 0;
+    m_detPixelROIStartY[i] = 0;
+    m_detPixelROIEndY[i] = 0;
+    m_detPixelROISizeX[i] = 0;
+    m_detPixelROISizeY[i] = 0;
+    m_detPixelROIEnable[i] = 0;
   }
 
   //Create the thread that reads the data 

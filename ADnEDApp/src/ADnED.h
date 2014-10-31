@@ -77,6 +77,13 @@
 #define ADnEDDetTOFTransEnableParamString  "ADNED_DET_TOF_TRANS_ENABLE"
 #define ADnEDDetTOFTransOffsetParamString  "ADNED_DET_TOF_TRANS_OFFSET"
 #define ADnEDDetTOFTransScaleParamString   "ADNED_DET_TOF_TRANS_SCALE"
+#define ADnEDDetPixelROIStartXParamString   "ADNED_DET_PIXEL_ROI_START_X"
+#define ADnEDDetPixelROIEndXParamString   "ADNED_DET_PIXEL_ROI_END_X"
+#define ADnEDDetPixelROIStartYParamString   "ADNED_DET_PIXEL_ROI_START_Y"
+#define ADnEDDetPixelROIEndYParamString   "ADNED_DET_PIXEL_ROI_END_Y"
+#define ADnEDDetPixelROISizeXParamString   "ADNED_DET_PIXEL_SIZE_X"
+#define ADnEDDetPixelROISizeYParamString   "ADNED_DET_PIXEL_SIZE_Y"
+#define ADnEDDetPixelROIEnableParamString   "ADNED_DET_PIXEL_ROI_ENABLE"
 #define ADnEDTOFMaxParamString             "ADNED_TOF_MAX"
 #define ADnEDAllocSpaceParamString         "ADNED_ALLOC_SPACE"
 #define ADnEDAllocSpaceStatusParamString   "ADNED_ALLOC_SPACE_STATUS"
@@ -159,6 +166,13 @@ class ADnED : public ADDriver {
   int m_detTOFTransEnabled[ADNED_MAX_DETS+1];
   double m_detTOFTransScale[ADNED_MAX_DETS+1];
   double m_detTOFTransOffset[ADNED_MAX_DETS+1];
+  int m_detPixelROIStartX[ADNED_MAX_DETS+1];
+  int m_detPixelROIStartY[ADNED_MAX_DETS+1];
+  int m_detPixelROIEndX[ADNED_MAX_DETS+1];
+  int m_detPixelROIEndY[ADNED_MAX_DETS+1];
+  int m_detPixelROISizeX[ADNED_MAX_DETS+1];
+  int m_detPixelROISizeY[ADNED_MAX_DETS+1];
+  int m_detPixelROIEnable[ADNED_MAX_DETS+1];
 
   //Constructor parameters.
   const epicsUInt32 m_debug;
@@ -206,6 +220,13 @@ class ADnED : public ADDriver {
   int ADnEDDetTOFTransEnableParam;
   int ADnEDDetTOFTransOffsetParam;
   int ADnEDDetTOFTransScaleParam;
+  int ADnEDDetPixelROIStartXParam;
+  int ADnEDDetPixelROIEndXParam;
+  int ADnEDDetPixelROIStartYParam;
+  int ADnEDDetPixelROIEndYParam;
+  int ADnEDDetPixelROISizeXParam;
+  int ADnEDDetPixelROISizeYParam;
+  int ADnEDDetPixelROIEnableParam;
   int ADnEDTOFMaxParam;
   int ADnEDAllocSpaceParam;
   int ADnEDAllocSpaceStatusParam;
