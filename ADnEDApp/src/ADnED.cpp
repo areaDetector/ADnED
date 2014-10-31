@@ -768,13 +768,12 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     int offset = 0;
     for (size_t i=0; i<pixelsLength; ++i) {
       for (int det=1; det<=numDet; det++) {
-
+	
 	//Dtermine if this raw pixel ID is in this DET range.
 	if ((pixelsData[i] >= static_cast<epicsUInt32>(m_detStartValues[det])) 
 	    && (pixelsData[i] <= static_cast<epicsUInt32>(m_detEndValues[det]))) {
-  
+	  
 	  tof = static_cast<epicsFloat64>(tofData[i]);
-
 	  //If enabled, do TOF tranformation (to d-space for example).
 	  if (m_detTOFTransEnabled[det]) {
 	    if (p_TofTrans[det]) {
@@ -784,40 +783,27 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	    }
 	  }
 
-	  //Filter on TOF ROI if the ROI is enabled
+	  mappedPixelIndex = pixelsData[i];
+	  //Do pixel ID mapping if enabled
+	  if (m_detPixelMappingEnabled[det]) {
+	    if ((m_PixelMapSize[det] > 0) && (p_PixelMap[det])) {
+	      mappedPixelIndex = (p_PixelMap[det])[pixelsData[i]];
+	    }
+	  }
+	  
+	  //Integrate Pixel ID Data, optionally filtering on TOF ROI filter.
 	  if (m_detTOFROIEnabled[det]) {
 	    if ((tof >= static_cast<epicsFloat64>(m_detTOFROIStartValues[det])) 
 		&& (tof <= static_cast<epicsFloat64>(m_detTOFROIEndValues[det]))) {
-
-	      mappedPixelIndex = pixelsData[i];
-	      //Do pixel ID mapping if enabled
-	      if (m_detPixelMappingEnabled[det]) {
-		if (p_PixelMap[det]) {
-		  mappedPixelIndex = (p_PixelMap[det])[pixelsData[i]];
-		}
-	      }
-
-	      //Integrate Pixel ID Data (TOF filtered)
 	      offset = mappedPixelIndex-m_detStartValues[det];
 	      p_Data[m_NDArrayStartValues[det]+offset]++;
 	    }
-
 	  } else { //No TOF ROI filter enabled
-
-	    mappedPixelIndex = pixelsData[i];
-	    //Do pixel ID mapping if enabled
-	    if (m_detPixelMappingEnabled[det]) {
-	      if ((m_PixelMapSize[det] > 0) && (p_PixelMap[det])) {
-		mappedPixelIndex = (p_PixelMap[det])[pixelsData[i]];
-	      } 
-	    }
-	    
-	    //Integrate Pixel ID Data
 	    offset = mappedPixelIndex-m_detStartValues[det];
 	    p_Data[m_NDArrayStartValues[det]+offset]++;
 	  }
 
-	  //TOF Data
+	  //Integrate TOF/D-Space
 	  tofInt = static_cast<epicsUInt32>(floor(tof));
 	  if (tof <= m_tofMax) {
 	    p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
