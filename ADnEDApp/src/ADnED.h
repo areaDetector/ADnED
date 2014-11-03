@@ -82,7 +82,6 @@
 #define ADnEDDetPixelROIStartYParamString   "ADNED_DET_PIXEL_ROI_START_Y"
 #define ADnEDDetPixelROIEndYParamString   "ADNED_DET_PIXEL_ROI_END_Y"
 #define ADnEDDetPixelROISizeXParamString   "ADNED_DET_PIXEL_SIZE_X"
-#define ADnEDDetPixelROISizeYParamString   "ADNED_DET_PIXEL_SIZE_Y"
 #define ADnEDDetPixelROIEnableParamString   "ADNED_DET_PIXEL_ROI_ENABLE"
 #define ADnEDTOFMaxParamString             "ADNED_TOF_MAX"
 #define ADnEDAllocSpaceParamString         "ADNED_ALLOC_SPACE"
@@ -171,7 +170,6 @@ class ADnED : public ADDriver {
   int m_detPixelROIEndX[ADNED_MAX_DETS+1];
   int m_detPixelROIEndY[ADNED_MAX_DETS+1];
   int m_detPixelROISizeX[ADNED_MAX_DETS+1];
-  int m_detPixelROISizeY[ADNED_MAX_DETS+1];
   int m_detPixelROIEnable[ADNED_MAX_DETS+1];
 
   //Constructor parameters.
@@ -225,7 +223,6 @@ class ADnED : public ADDriver {
   int ADnEDDetPixelROIStartYParam;
   int ADnEDDetPixelROIEndYParam;
   int ADnEDDetPixelROISizeXParam;
-  int ADnEDDetPixelROISizeYParam;
   int ADnEDDetPixelROIEnableParam;
   int ADnEDTOFMaxParam;
   int ADnEDAllocSpaceParam;

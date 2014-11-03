@@ -152,7 +152,6 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDDetPixelROIStartYParamString, asynParamInt32,       &ADnEDDetPixelROIStartYParam);
   createParam(ADnEDDetPixelROIEndYParamString, asynParamInt32,       &ADnEDDetPixelROIEndYParam);
   createParam(ADnEDDetPixelROISizeXParamString, asynParamInt32,       &ADnEDDetPixelROISizeXParam);
-  createParam(ADnEDDetPixelROISizeYParamString, asynParamInt32,       &ADnEDDetPixelROISizeYParam);
   createParam(ADnEDDetPixelROIEnableParamString, asynParamInt32,       &ADnEDDetPixelROIEnableParam);
   createParam(ADnEDTOFMaxParamString,             asynParamInt32,       &ADnEDTOFMaxParam);
   createParam(ADnEDAllocSpaceParamString,         asynParamInt32,       &ADnEDAllocSpaceParam);
@@ -199,7 +198,6 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     m_detPixelROIStartY[i] = 0;
     m_detPixelROIEndY[i] = 0;
     m_detPixelROISizeX[i] = 0;
-    m_detPixelROISizeY[i] = 0;
     m_detPixelROIEnable[i] = 0;
   }
 
@@ -696,7 +694,6 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     getIntegerParam(det, ADnEDDetPixelROIEndXParam, &m_detPixelROIEndX[det]);
     getIntegerParam(det, ADnEDDetPixelROIEndYParam, &m_detPixelROIEndY[det]);
     getIntegerParam(det, ADnEDDetPixelROISizeXParam, &m_detPixelROISizeX[det]);
-    getIntegerParam(det, ADnEDDetPixelROISizeYParam, &m_detPixelROISizeY[det]);
     getIntegerParam(det, ADnEDDetPixelROIEnableParam, &m_detPixelROIEnable[det]);
   }
 

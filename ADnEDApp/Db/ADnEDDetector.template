@@ -501,6 +501,7 @@ record(longin, "$(P)$(R)Det$(DET):PixelROIFilterEndY_RBV")
 # /// Set the pixel ID X size for DET $(DET). This should match
 # /// the value used for the initial ROI plugin that converts
 # /// from 1-D to 2-D, but I need the value here to apply the ROI filter.
+# /// This is not the ROI X size, but the detector X size.
 # ///
 record(longout, "$(P)$(R)Det$(DET):PixelSizeX")
 {
@@ -513,35 +514,12 @@ record(longout, "$(P)$(R)Det$(DET):PixelSizeX")
 
 # ///
 # /// Read the pixel ID X size for DET $(DET)
+# /// This is not the ROI X size, but the detector X size.
 # ///
 record(longin, "$(P)$(R)Det$(DET):PixelSizeX_RBV")
 {
    field(DTYP, "asynInt32")
    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_SIZE_X")
-   field(SCAN, "I/O Intr")
-}
-
-# ///
-# /// Set the pixel ID Y size for DET $(DET). This should match
-# /// the value used for the initial ROI plugin that converts
-# /// from 1-D to 2-D, but I need the value here to apply the ROI filter.
-# ///
-record(longout, "$(P)$(R)Det$(DET):PixelSizeY")
-{
-   field(DESC, "Pixel Size Y")
-   field(DTYP, "asynInt32")
-   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_SIZE_Y")
-   field(VAL, "0")
-   field(PINI, "YES")
-}
-
-# ///
-# /// Read the pixel ID Y size for DET $(DET)
-# ///
-record(longin, "$(P)$(R)Det$(DET):PixelSizeY_RBV")
-{
-   field(DTYP, "asynInt32")
-   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_SIZE_Y")
    field(SCAN, "I/O Intr")
 }
 
