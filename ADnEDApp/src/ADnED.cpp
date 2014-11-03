@@ -690,6 +690,14 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     getIntegerParam(det, ADnEDDetTOFTransEnableParam, &m_detTOFTransEnabled[det]);
     getDoubleParam(det, ADnEDDetTOFTransOffsetParam, &m_detTOFTransOffset[det]);
     getDoubleParam(det, ADnEDDetTOFTransScaleParam, &m_detTOFTransScale[det]);
+    //Pixel ID XY filter
+    getIntegerParam(det, ADnEDDetPixelROIStartXParam, &m_detPixelROIStartX[det]);
+    getIntegerParam(det, ADnEDDetPixelROIStartYParam, &m_detPixelROIStartY[det]);
+    getIntegerParam(det, ADnEDDetPixelROIEndXParam, &m_detPixelROIEndX[det]);
+    getIntegerParam(det, ADnEDDetPixelROIEndYParam, &m_detPixelROIEndY[det]);
+    getIntegerParam(det, ADnEDDetPixelROISizeXParam, &m_detPixelROISizeX[det]);
+    getIntegerParam(det, ADnEDDetPixelROISizeYParam, &m_detPixelROISizeY[det]);
+    getIntegerParam(det, ADnEDDetPixelROIEnableParam, &m_detPixelROIEnable[det]);
   }
 
   //epics::pvData::PVIntPtr seqIDPtr = pv_struct->getIntField(ADNED_PV_SEQ);
@@ -778,6 +786,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     lock();
 
     int mappedPixelIndex = 0;
+    int calcIndex = 0; 
     epicsFloat64 tof = 0.0;
     epicsUInt32 tofInt = 0;
     int offset = 0;
@@ -818,10 +827,28 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	    p_Data[m_NDArrayStartValues[det]+offset]++;
 	  }
 
-	  //Integrate TOF/D-Space
+	  //Integrate TOF/D-Space, optionally filtering on Pixel ID X/Y ROI
 	  tofInt = static_cast<epicsUInt32>(floor(tof));
 	  if (tof <= m_tofMax) {
-	    p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
+	    if (m_detPixelROIEnable[det]) {
+	      //If pixel mapping is not enabled, this is meaningless, so just integrate as normal.
+	      if (!m_detPixelMappingEnabled[det]) { 
+		p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
+	      } else {
+		//Only integrate TOF if we are inside pixel ID XY ROI.
+		//ROI is assumed to start from 0,0 (not from whatever is the pixel ID range. So we need to offset.
+		calcIndex = mappedPixelIndex - m_detStartValues[det];
+		if (((calcIndex % m_detPixelROISizeX[det]) >= m_detPixelROIStartX[det]) && 
+		    ((calcIndex % m_detPixelROISizeX[det]) <= m_detPixelROIEndX[det])) {
+		  if ((calcIndex >= (m_detPixelROIStartY[det] * m_detPixelROISizeX[det])) &&
+		      ((calcIndex <= (m_detPixelROIEndY[det] * m_detPixelROISizeX[det]) + m_detPixelROISizeX[det]))) {
+		    p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
+		  }
+		}
+	      }
+	    } else {
+	      p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
+	    }
 	  }
 
 	  //Count events to calculate event rate
