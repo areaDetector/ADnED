@@ -404,6 +404,16 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
     if (value <= 0) {
       value = 1;
     }
+  } else if (function == ADnEDDetPixelROIEnableParam) {
+    //If we enable Pixel ROI Filter, disable the TOF ROI Filter
+    if (value == 1) {
+      setIntegerParam(addr, ADnEDDetTOFROIEnableParam, 0);
+    }
+  } else if (function == ADnEDDetTOFROIEnableParam) {
+    //If we enable TOF ROI Filter, disable the Pixel ROI Filter
+    if (value == 1) {
+      setIntegerParam(addr, ADnEDDetPixelROIEnableParam, 0);
+    }
   }
 
   if (m_dataAlloc) {
