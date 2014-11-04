@@ -29,6 +29,12 @@ $(P)Det1:TOF:ROI1:EndX
 $(P)Det1:TOF:Stat1:EnableCallbacks
 $(P)Det1:TOF:Stat1:BgdWidth
 
+$(P)Det1:PixelROIFilterStartX
+$(P)Det1:PixelROIFilterStartY
+$(P)Det1:PixelROIFilterEndX
+$(P)Det1:PixelROIFilterEndY
+$(P)Det1:PixelROIFilterSizeX
+$(P)Det1:PixelROIFilterEnable
 $(P)Det1:XY:EnableCallbacks
 $(P)Det1:XY:Min0
 $(P)Det1:XY:Size0
@@ -80,6 +86,12 @@ $(P)Det2:TOF:ROI1:EndX
 $(P)Det2:TOF:Stat1:EnableCallbacks
 $(P)Det2:TOF:Stat1:BgdWidth
 
+$(P)Det2:PixelROIFilterStartX
+$(P)Det2:PixelROIFilterStartY
+$(P)Det2:PixelROIFilterEndX
+$(P)Det2:PixelROIFilterEndY
+$(P)Det2:PixelROIFilterSizeX
+$(P)Det2:PixelROIFilterEnable
 $(P)Det2:XY:EnableCallbacks
 $(P)Det2:XY:Min0
 $(P)Det2:XY:Size0
@@ -131,6 +143,12 @@ $(P)Det3:TOF:ROI1:EndX
 $(P)Det3:TOF:Stat1:EnableCallbacks
 $(P)Det3:TOF:Stat1:BgdWidth
 
+$(P)Det3:PixelROIFilterStartX
+$(P)Det3:PixelROIFilterStartY
+$(P)Det3:PixelROIFilterEndX
+$(P)Det3:PixelROIFilterEndY
+$(P)Det3:PixelROIFilterSizeX
+$(P)Det3:PixelROIFilterEnable
 $(P)Det3:XY:EnableCallbacks
 $(P)Det3:XY:Min0
 $(P)Det3:XY:Size0
@@ -182,6 +200,12 @@ $(P)Det4:TOF:ROI1:EndX
 $(P)Det4:TOF:Stat1:EnableCallbacks
 $(P)Det4:TOF:Stat1:BgdWidth
 
+$(P)Det4:PixelROIFilterStartX
+$(P)Det4:PixelROIFilterStartY
+$(P)Det4:PixelROIFilterEndX
+$(P)Det4:PixelROIFilterEndY
+$(P)Det4:PixelROIFilterSizeX
+$(P)Det4:PixelROIFilterEnable
 $(P)Det4:XY:EnableCallbacks
 $(P)Det4:XY:Min0
 $(P)Det4:XY:Size0
