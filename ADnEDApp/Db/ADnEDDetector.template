@@ -25,6 +25,7 @@ record(stringout, "$(P)$(R)Det$(DET):Description")
    field(DESC, "Description")
    field(VAL, " ")
    field(PINI, "YES")
+   info(autosaveFields, "VAL")
 }
 
 
@@ -41,6 +42,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelNumStart")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_START")
    field(VAL, "0")
    field(PINI, "YES")
+   info(autosaveFields, "VAL")
 }
 
 # ///
@@ -64,6 +66,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelNumEnd")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_END")
    field(VAL, "0")
    field(PINI, "YES")
+   info(autosaveFields, "VAL")
 }
 
 # ///
@@ -159,7 +162,8 @@ record(longout, "$(P)$(R)Det$(DET):TOFROIFilterStart")
    field(DTYP, "asynInt32")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_START")
    field(VAL, "0")
-   field(PINI, "YES")
+   field(PINI, "YES"
+   info(autosaveFields, "VAL")
 }
 
 # ///
@@ -182,6 +186,7 @@ record(longout, "$(P)$(R)Det$(DET):TOFROIFilterEnd")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_END")
    field(VAL, "0")
    field(PINI, "YES")
+   info(autosaveFields, "VAL")
 }
 
 # ///
@@ -204,6 +209,7 @@ record(bo, "$(P)$(R)Det$(DET):TOFROIFilterEnable")
     field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_ENABLE")
     field(ZNAM, "Disable")
     field(ONAM, "Enable")
+    info(autosaveFields, "VAL")
 }
 
 # ///
@@ -234,7 +240,8 @@ record(waveform, "$(P)$(R)Det$(DET):TOFTransFile")
     field(DTYP, "asynOctetWrite")
     field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_FILE")
     field(FTVL, "CHAR")
-    field(NELM, "1024") 
+    field(NELM, "1024")
+    info(autosaveFields, "VAL") 
 }
 
 # ///
@@ -268,6 +275,7 @@ record(bo, "$(P)$(R)Det$(DET):TOFTransEnable")
     field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_ENABLE")
     field(ZNAM, "Disable")
     field(ONAM, "Enable")
+    info(autosaveFields, "VAL")
 }
 
 # ///
@@ -301,6 +309,7 @@ record(ao, "$(P)$(R)Det$(DET):TOFTransOffset")
    field(VAL, "0")
    field(PREC, "2")
    field(PINI, "YES")
+   info(autosaveFields, "VAL")
 }
 
 # ///
@@ -327,6 +336,7 @@ record(ao, "$(P)$(R)Det$(DET):TOFTransScale")
    field(VAL, "1")
    field(PREC, "2")	
    field(PINI, "YES")
+   info(autosaveFields, "VAL")
 }
 
 # ///
@@ -355,6 +365,7 @@ record(waveform, "$(P)$(R)Det$(DET):PixelMapFile")
     field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_MAP_FILE")
     field(FTVL, "CHAR")
     field(NELM, "1024")
+    info(autosaveFields, "VAL")
 }
 
 # ///
@@ -388,6 +399,7 @@ record(bo, "$(P)$(R)Det$(DET):PixelMapEnable")
     field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_MAP_ENABLE")
     field(ZNAM, "Disable")
     field(ONAM, "Enable")
+    info(autosaveFields, "VAL")
 }
 
 # ///
@@ -419,6 +431,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelROIFilterStartX")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_START_X")
    field(VAL, "0")
    field(PINI, "YES")
+   info(autosaveFields, "VAL")
 }
 
 # ///
@@ -441,6 +454,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelROIFilterEndX")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_END_X")
    field(VAL, "0")
    field(PINI, "YES")
+   info(autosaveFields, "VAL")
 }
 
 # ///
@@ -463,6 +477,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelROIFilterStartY")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_START_Y")
    field(VAL, "0")
    field(PINI, "YES")
+   info(autosaveFields, "VAL")
 }
 
 # ///
@@ -485,6 +500,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelROIFilterEndY")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_END_Y")
    field(VAL, "0")
    field(PINI, "YES")
+   info(autosaveFields, "VAL")
 }
 
 # ///
@@ -510,6 +526,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelSizeX")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_SIZE_X")
    field(VAL, "1")
    field(PINI, "YES")
+   info(autosaveFields, "VAL")
 }
 
 # ///
@@ -533,6 +550,7 @@ record(bo, "$(P)$(R)Det$(DET):PixelROIFilterEnable")
     field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_ENABLE")
     field(ZNAM, "Disable")
     field(ONAM, "Enable")
+    info(autosaveFields, "VAL")
 }
 
 # ///
