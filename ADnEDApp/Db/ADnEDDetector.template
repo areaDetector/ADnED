@@ -508,7 +508,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelSizeX")
    field(DESC, "Pixel Size X")
    field(DTYP, "asynInt32")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_SIZE_X")
-   field(VAL, "0")
+   field(VAL, "1")
    field(PINI, "YES")
 }
 

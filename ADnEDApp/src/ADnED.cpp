@@ -400,7 +400,11 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
     printTofTrans(addr);
   } else if (function == ADnEDDetPixelMapPrintParam) {
     printPixelMap(addr);
-  } 
+  } else if (function == ADnEDDetPixelROISizeXParam) {
+    if (value <= 0) {
+      value = 1;
+    }
+  }
 
   if (m_dataAlloc) {
     setIntegerParam(ADnEDAllocSpaceStatusParam, s_ADNED_ALLOC_STATUS_REQ);
@@ -695,6 +699,14 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     getIntegerParam(det, ADnEDDetPixelROIEndYParam, &m_detPixelROIEndY[det]);
     getIntegerParam(det, ADnEDDetPixelROISizeXParam, &m_detPixelROISizeX[det]);
     getIntegerParam(det, ADnEDDetPixelROIEnableParam, &m_detPixelROIEnable[det]);
+
+    if (m_detPixelROISizeX[det] <= 0) {
+      if (eventUpdate) {
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Invalid Pixel ROI Size X.\n", functionName);
+      }
+      return;
+    }
+    
   }
 
   //epics::pvData::PVIntPtr seqIDPtr = pv_struct->getIntField(ADNED_PV_SEQ);
