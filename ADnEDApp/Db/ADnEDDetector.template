@@ -162,7 +162,7 @@ record(longout, "$(P)$(R)Det$(DET):TOFROIFilterStart")
    field(DTYP, "asynInt32")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_START")
    field(VAL, "0")
-   field(PINI, "YES"
+   field(PINI, "YES")
    info(autosaveFields, "VAL")
 }
 
@@ -525,6 +525,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelSizeX")
    field(DTYP, "asynInt32")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_SIZE_X")
    field(VAL, "1")
+   field(LOPR, "1")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
 }
