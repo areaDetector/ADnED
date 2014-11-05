@@ -63,3 +63,49 @@ record(calcout, "$(P)$(R)Det$(DET):ConfigXYSize")
   field(OUT, "$(P)$(R)Det$(DET):$(PIXROI):Size0 PP")
 }
 
+
+
+#####################################################################
+# Records to provide scale and offset for auto image max scaling.
+
+# ///
+# /// The scale factor to use for auto scaling
+# ///
+record(longout, "$(P)$(R)Det$(DET):XY:Scale:Scale")
+{
+   field(VAL, "1")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+}
+
+# ///
+# /// The offset to use for auto scaling
+# ///
+record(longout, "$(P)$(R)Det$(DET):XY:Scale:Offset")
+{
+   field(VAL, "0")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+}
+
+# ///
+# /// Calculate the image max using the mean intensity from the auto scaling stats plugin
+# ///
+record(calc, "$(P)$(R)Det$(DET):XY:Scale:Result")
+{
+   field(INPA, "$(P)$(R)Det$(DET):XY:StatScale:MeanValue_RBV CP MS")
+   field(INPB, "$(P)$(R)Det$(DET):XY:Scale:Scale.VAL CP MS")
+   field(INPC, "$(P)$(R)Det$(DET):XY:Scale:Offset.VAL CP MS")
+   field(CALC, "(A*B)+C")
+}
+
+# ///
+# /// Default max value for the manual scale slider and image max.
+# ///
+record(longout, "$(P)$(R)Det$(DET):XY:Scale:ManualMax")
+{
+   field(VAL, "4092")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+}
+
