@@ -64,10 +64,6 @@ substitute "PORT=DET$(DET).XY.ROI.SCALE"
 substitute "NDARRAY_PORT=DET$(DET).XY"
 include "NDPluginBase.template"
 include "NDROI.template"
-substitute "DIM=X"
-include "NDROI_End.template"
-substitute "DIM=Y"
-include "NDROI_End.template"
 
 # Pixel X/Y Stats for auto scaling
 substitute "R=ADnED:Det$(DET):XY:StatScale:"
