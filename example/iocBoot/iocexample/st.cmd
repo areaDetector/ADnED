@@ -50,7 +50,9 @@ iocInit
 
 # Create request file and start periodic 'save'
 epicsThreadSleep(5)
-create_monitor_set("$(IOCNAME).req", 5)
+makeAutosaveFileFromDbInfo("$(SAVE_DIR)/$(IOCNAME).req", "autosaveFields")
+create_monitor_set("$(IOCNAME).req", 10)
+
 
 
 

@@ -51,8 +51,8 @@ include $(TOP)/configure/RULES
 #----------------------------------------
 #  ADD RULES AFTER THIS LINE
 
-EXAMPLE_REQ:
-	-mv /home/controls/var/ADnED/example.req /home/controls/var/ADnED/example.req.old
-	-sed 's/$$(P)/BL99:Det:ADnED:/g' $(ADNED)/ADnED.req.template > /home/controls/var/ADnED/example.req
+#EXAMPLE_REQ:
+#	-mv /home/controls/var/ADnED/example.req /home/controls/var/ADnED/example.req.old
+#	-sed 's/$$(P)/BL99:Det:ADnED:/g' $(ADNED)/ADnED.req.template > /home/controls/var/ADnED/example.req
 
-buildInstall: EXAMPLE_REQ
+#buildInstall: EXAMPLE_REQ
