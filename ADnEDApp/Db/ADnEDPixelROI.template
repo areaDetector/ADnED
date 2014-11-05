@@ -25,6 +25,7 @@ record(stringout, "$(P)$(R)Name")
    field(PINI, "YES")
    field(DTYP, "asynOctetWrite")
    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_NAME")
+   info(autosaveFields, "VAL")
 }
 
 record(stringin, "$(P)$(R)Name_RBV")
@@ -47,6 +48,7 @@ record(longout, "$(P)$(R)Min0")
    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM0_MIN")
    field(LOPR, "0")
    field(VAL,  "0")
+   info(autosaveFields, "VAL")
 }
 
 record(longin, "$(P)$(R)Min0_RBV")
@@ -63,6 +65,7 @@ record(longout, "$(P)$(R)Min1")
    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM1_MIN")
    field(LOPR, "0")
    field(VAL,  "0")
+   info(autosaveFields, "VAL")
 }
 
 record(longin, "$(P)$(R)Min1_RBV")
@@ -79,6 +82,7 @@ record(longout, "$(P)$(R)Min2")
    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM2_MIN")
    field(LOPR, "0")
    field(VAL,  "0")
+   info(autosaveFields, "VAL")
 }
 
 record(longin, "$(P)$(R)Min2_RBV")
@@ -94,6 +98,7 @@ record(longout, "$(P)$(R)Size0")
    field(DTYP, "asynInt32")
    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM0_SIZE")
    field(VAL,  "1000000")
+   info(autosaveFields, "VAL")
 }
 
 record(longin, "$(P)$(R)Size0_RBV")
@@ -109,6 +114,7 @@ record(longout, "$(P)$(R)Size1")
    field(DTYP, "asynInt32")
    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM1_SIZE")
    field(VAL,  "1000000")
+   info(autosaveFields, "VAL")
 }
 
 record(longin, "$(P)$(R)Size1_RBV")
@@ -124,6 +130,7 @@ record(longout, "$(P)$(R)Size2")
    field(DTYP, "asynInt32")
    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM2_SIZE")
    field(VAL,  "1000000")
+   info(autosaveFields, "VAL")
 }
 
 record(longin, "$(P)$(R)Size2_RBV")
@@ -205,6 +212,7 @@ record(mbbo, "$(P)$(R)DataTypeOut")
    field(EIST, "Automatic")
    field(EIVL, "-1")
    field(VAL,  "8")
+   info(autosaveFields, "VAL")
 }
 
 record(mbbi, "$(P)$(R)DataTypeOut_RBV")
