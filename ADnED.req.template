@@ -55,6 +55,10 @@ $(P)Det1:XY:ROIScale:EndX
 $(P)Det1:XY:StatScale:EnableCallbacks
 $(P)Det1:XY:StatScale:BgdWidth
 
+$(P)Det1:XY:Scale:Scale
+$(P)Det1:XY:Scale:Offset
+$(P)Det1:XY:Scale:ManualMax
+
 $(P)Det1:TOFTransFile
 $(P)Det1:TOFTransEnable
 $(P)Det1:TOFTransOffset
@@ -111,6 +115,10 @@ $(P)Det2:XY:ROIScale:MinX
 $(P)Det2:XY:ROIScale:EndX
 $(P)Det2:XY:StatScale:EnableCallbacks
 $(P)Det2:XY:StatScale:BgdWidth
+
+$(P)Det2:XY:Scale:Scale
+$(P)Det2:XY:Scale:Offset
+$(P)Det2:XY:Scale:ManualMax
 
 $(P)Det2:TOFTransFile
 $(P)Det2:TOFTransEnable
@@ -169,6 +177,10 @@ $(P)Det3:XY:ROIScale:EndX
 $(P)Det3:XY:StatScale:EnableCallbacks
 $(P)Det3:XY:StatScale:BgdWidth
 
+$(P)Det3:XY:Scale:Scale
+$(P)Det3:XY:Scale:Offset
+$(P)Det3:XY:Scale:ManualMax
+
 $(P)Det3:TOFTransFile
 $(P)Det3:TOFTransEnable
 $(P)Det3:TOFTransOffset
@@ -225,6 +237,10 @@ $(P)Det4:XY:ROIScale:MinX
 $(P)Det4:XY:ROIScale:EndX
 $(P)Det4:XY:StatScale:EnableCallbacks
 $(P)Det4:XY:StatScale:BgdWidth
+
+$(P)Det4:XY:Scale:Scale
+$(P)Det4:XY:Scale:Offset
+$(P)Det4:XY:Scale:ManualMax
 
 $(P)Det4:TOFTransFile
 $(P)Det4:TOFTransEnable
