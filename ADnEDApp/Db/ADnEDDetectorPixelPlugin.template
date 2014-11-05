@@ -36,7 +36,9 @@ substitute "TYPE=Int32"
 substitute "FTVL=LONG"
 include "NDStdArrays.template"
 
-# Pixel X/Y Second ROI
+# Normal ROI and Stats (multiple)
+
+# Pixel X/Y ROI1
 substitute "R=ADnED:Det$(DET):XY:ROI1:"
 substitute "PORT=DET$(DET).XY.ROI1"
 substitute "NDARRAY_PORT=DET$(DET).XY"
@@ -47,7 +49,7 @@ include "NDROI_End.template"
 substitute "DIM=Y"
 include "NDROI_End.template"
 
-# Pixel X/Y Stats
+# Pixel X/Y Stats1
 substitute "R=ADnED:Det$(DET):XY:Stat1:"
 substitute "PORT=DET$(DET).XY.STAT1"
 substitute "NDARRAY_PORT=DET$(DET).XY.ROI1"
@@ -57,6 +59,74 @@ substitute "HIST_SIZE=1"
 substitute "XSIZE=1"
 substitute "YSIZE=1"
 include "NDStats.template"
+
+# Pixel X/Y ROI2
+substitute "R=ADnED:Det$(DET):XY:ROI2:"
+substitute "PORT=DET$(DET).XY.ROI2"
+substitute "NDARRAY_PORT=DET$(DET).XY"
+include "NDPluginBase.template"
+include "NDROI.template"
+substitute "DIM=X"
+include "NDROI_End.template"
+substitute "DIM=Y"
+include "NDROI_End.template"
+
+# Pixel X/Y Stats2
+substitute "R=ADnED:Det$(DET):XY:Stat2:"
+substitute "PORT=DET$(DET).XY.STAT2"
+substitute "NDARRAY_PORT=DET$(DET).XY.ROI2"
+include "NDPluginBase.template"
+substitute "NCHANS=1024"
+substitute "HIST_SIZE=1"
+substitute "XSIZE=1"
+substitute "YSIZE=1"
+include "NDStats.template"
+
+# Pixel X/Y ROI3
+substitute "R=ADnED:Det$(DET):XY:ROI3:"
+substitute "PORT=DET$(DET).XY.ROI3"
+substitute "NDARRAY_PORT=DET$(DET).XY"
+include "NDPluginBase.template"
+include "NDROI.template"
+substitute "DIM=X"
+include "NDROI_End.template"
+substitute "DIM=Y"
+include "NDROI_End.template"
+
+# Pixel X/Y Stats3
+substitute "R=ADnED:Det$(DET):XY:Stat3:"
+substitute "PORT=DET$(DET).XY.STAT3"
+substitute "NDARRAY_PORT=DET$(DET).XY.ROI3"
+include "NDPluginBase.template"
+substitute "NCHANS=1024"
+substitute "HIST_SIZE=1"
+substitute "XSIZE=1"
+substitute "YSIZE=1"
+include "NDStats.template"
+
+# Pixel X/Y ROI4
+substitute "R=ADnED:Det$(DET):XY:ROI4:"
+substitute "PORT=DET$(DET).XY.ROI4"
+substitute "NDARRAY_PORT=DET$(DET).XY"
+include "NDPluginBase.template"
+include "NDROI.template"
+substitute "DIM=X"
+include "NDROI_End.template"
+substitute "DIM=Y"
+include "NDROI_End.template"
+
+# Pixel X/Y Stats4
+substitute "R=ADnED:Det$(DET):XY:Stat4:"
+substitute "PORT=DET$(DET).XY.STAT4"
+substitute "NDARRAY_PORT=DET$(DET).XY.ROI4"
+include "NDPluginBase.template"
+substitute "NCHANS=1024"
+substitute "HIST_SIZE=1"
+substitute "XSIZE=1"
+substitute "YSIZE=1"
+include "NDStats.template"
+
+# Scaling ROI and Stats
 
 # Pixel X/Y ROI for auto scaling
 substitute "R=ADnED:Det$(DET):XY:ROIScale:"
