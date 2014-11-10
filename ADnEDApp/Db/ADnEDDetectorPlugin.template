@@ -66,7 +66,7 @@ record(calcout, "$(P)$(R)Det$(DET):ConfigXYSize")
 
 
 #####################################################################
-# Records to provide scale and offset for auto image max scaling.
+# Records to provide scale and offset for auto image max scaling using ROI:0
 
 # ///
 # /// The scale factor to use for auto scaling
@@ -93,16 +93,26 @@ record(longout, "$(P)$(R)Det$(DET):XY:Scale:Offset")
 # ///
 record(calc, "$(P)$(R)Det$(DET):XY:Scale:Result")
 {
-   field(INPA, "$(P)$(R)Det$(DET):XY:StatScale:MeanValue_RBV CP MS")
+   field(INPA, "$(P)$(R)Det$(DET):XY:ROI:0:MeanValue_RBV CP MS")
    field(INPB, "$(P)$(R)Det$(DET):XY:Scale:Scale.VAL CP MS")
    field(INPC, "$(P)$(R)Det$(DET):XY:Scale:Offset.VAL CP MS")
-   field(CALC, "(A*B)+C")
+   field(CALC, "FLOOR((A*B)+C)")
 }
 
 # ///
 # /// Default max value for the manual scale slider and image max.
 # ///
 record(longout, "$(P)$(R)Det$(DET):XY:Scale:ManualMax")
+{
+   field(VAL, "4092")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+}
+
+# ///
+# /// Slide max value for the manual control.
+# ///
+record(longout, "$(P)$(R)Det$(DET):XY:Scale:SlideMax")
 {
    field(VAL, "4092")
    field(PINI, "YES")
