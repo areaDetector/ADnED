@@ -14,8 +14,6 @@
 # Macros:
 # P,R - base PV name
 # DET - Detector number (1-based)
-# TOFROI - TOF ROI name
-# PIXROI - Pixel ROI name
 # TOFSIZE - Max size of TOF spectrum
 #
 #####################################################################
@@ -27,7 +25,7 @@ record(calcout, "$(P)$(R)Det$(DET):ConfigTOFStart")
 {
   field(INPA, "$(P)$(R)Det$(DET):NDArrayTOFStart_RBV")
   field(CALC, "A")
-  field(OUT, "$(P)$(R)Det$(DET):$(TOFROI):MinX PP")
+  field(OUT, "$(P)$(R)Det$(DET):TOF:MinX PP")
   field(FLNK, "$(P)$(R)Det$(DET):ConfigTOFSize")
 }
 
@@ -38,7 +36,7 @@ record(calcout, "$(P)$(R)Det$(DET):ConfigTOFSize")
 {
   field(INPA, "$(P)$(R)TOFMax_RBV")
   field(CALC, "A")
-  field(OUT, "$(P)$(R)Det$(DET):$(TOFROI):SizeX PP")
+  field(OUT, "$(P)$(R)Det$(DET):TOF:SizeX PP")
 }
 
 # ///
@@ -48,7 +46,7 @@ record(calcout, "$(P)$(R)Det$(DET):ConfigXYStart")
 {
   field(INPA, "$(P)$(R)Det$(DET):NDArrayStart_RBV")
   field(CALC, "A")
-  field(OUT, "$(P)$(R)Det$(DET):$(PIXROI):Min0 PP")
+  field(OUT, "$(P)$(R)Det$(DET):XY:Min0 PP")
   field(FLNK, "$(P)$(R)Det$(DET):ConfigXYSize")
 }
 
@@ -60,7 +58,7 @@ record(calcout, "$(P)$(R)Det$(DET):ConfigXYSize")
   field(INPA, "$(P)$(R)Det$(DET):NDArrayStart_RBV")
   field(INPB, "$(P)$(R)Det$(DET):NDArrayEnd_RBV")
   field(CALC, "(B-A)+1")
-  field(OUT, "$(P)$(R)Det$(DET):$(PIXROI):Size0 PP")
+  field(OUT, "$(P)$(R)Det$(DET):XY:Size0 PP")
 }
 
 

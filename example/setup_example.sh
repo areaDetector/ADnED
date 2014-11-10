@@ -15,9 +15,8 @@ caput -c BL99:Det:ADnED:Det1:PixelNumEnd 1023
 caput -c BL99:Det:ADnED:Det1:TOF:EnableCallbacks 1
 caput -c BL99:Det:ADnED:Det1:TOF:Array:EnableCallbacks 1
 
-caput -c BL99:Det:ADnED:Det1:TOF:ROI1:EnableCallbacks 1
-caput -c BL99:Det:ADnED:Det1:TOF:Stat1:EnableCallbacks 1
-caput -c BL99:Det:ADnED:Det1:TOF:Stat1:BgdWidth 0
+caput -c BL99:Det:ADnED:Det1:TOF:ROI:EnableCallbacks 1
+caput -c BL99:Det:ADnED:Det1:TOF:ROI:1:Use 1
 
 caput -c BL99:Det:ADnED:Det1:XY:EnableCallbacks 1
 caput -c BL99:Det:ADnED:Det1:XY:Min1 0
@@ -44,9 +43,8 @@ caput -c BL99:Det:ADnED:Det2:PixelNumEnd 3072
 caput -c BL99:Det:ADnED:Det2:TOF:EnableCallbacks 1
 caput -c BL99:Det:ADnED:Det2:TOF:Array:EnableCallbacks 1
 
-caput -c BL99:Det:ADnED:Det2:TOF:ROI1:EnableCallbacks 1
-caput -c BL99:Det:ADnED:Det2:TOF:Stat1:EnableCallbacks 1
-caput -c BL99:Det:ADnED:Det2:TOF:Stat1:BgdWidth 0
+caput -c BL99:Det:ADnED:Det2:TOF:ROI:EnableCallbacks 1
+caput -c BL99:Det:ADnED:Det2:TOF:ROI:1:Use 1
  
 caput -c BL99:Det:ADnED:Det2:XY:EnableCallbacks 1
 caput -c BL99:Det:ADnED:Det2:XY:Min1 0

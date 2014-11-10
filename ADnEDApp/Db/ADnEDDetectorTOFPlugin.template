@@ -10,8 +10,6 @@
 # Macros:
 # P,R - base PV name
 # DET - Detector number (1-based)
-# TOFROI - TOF ROI name
-# PIXROI - Pixel ROI name
 # TOFSIZE - Max size of TOF spectrum
 #
 #####################################################################
@@ -20,7 +18,7 @@ substitute "TIMEOUT=1"
 substitute "ADDR=0"
 substitute "NDARRAY_ADDR=0"
 
-# TOF Initial ROI
+# TOF Initial ROI (to extract the 1-D TOF spectrum)
 substitute "R=ADnED:Det$(DET):TOF:"
 substitute "PORT=DET$(DET).TOF"
 substitute "NDARRAY_PORT=$(ADNED_PORT)"
@@ -36,25 +34,13 @@ substitute "TYPE=Int32"
 substitute "FTVL=LONG"
 include "NDStdArrays.template"
 
-# TOF Second ROI
-substitute "R=ADnED:Det$(DET):TOF:ROI1:"
-substitute "PORT=DET$(DET).TOF.ROI1"
+# Normal TOF ROIs amd Stats
+substitute "R=ADnED:Det$(DET):TOF:ROI:"
+substitute "PORT=DET$(DET).TOF.ROI"
 substitute "NDARRAY_PORT=DET$(DET).TOF"
 include "NDPluginBase.template"
-include "NDROI.template"
-substitute "DIM=X"
-include "NDROI_End.template"
+include "NDROIStat8.template"
 
-# TOF Stats
-substitute "R=ADnED:Det$(DET):TOF:Stat1:"
-substitute "PORT=DET$(DET).TOF.STAT1"
-substitute "NDARRAY_PORT=DET$(DET).TOF.ROI1"
-include "NDPluginBase.template"
-substitute "NCHANS=1024"
-substitute "HIST_SIZE=1"
-substitute "XSIZE=1"
-substitute "YSIZE=1"
-include "NDStats.template"
 
 
 
