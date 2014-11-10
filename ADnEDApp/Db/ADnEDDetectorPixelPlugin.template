@@ -10,8 +10,6 @@
 # Macros:
 # P,R - base PV name
 # DET - Detector number (1-based)
-# TOFROI - TOF ROI name
-# PIXROI - Pixel ROI name
 # TOFSIZE - Max size of TOF spectrum
 #
 #####################################################################
@@ -43,55 +41,6 @@ substitute "PORT=DET$(DET).XY.ROI"
 substitute "NDARRAY_PORT=DET$(DET).XY"
 include "NDPluginBase.template"
 include "NDROIStat8.template"
-
-substitute "R=ADnED:Det$(DET):XY:ROI:0:"
-substitute "DIM=X"
-include "NDROI_End.template"
-substitute "DIM=Y"
-include "NDROI_End.template"
-
-substitute "R=ADnED:Det$(DET):XY:ROI:1:"
-substitute "DIM=X"
-include "NDROI_End.template"
-substitute "DIM=Y"
-include "NDROI_End.template"
-
-substitute "R=ADnED:Det$(DET):XY:ROI:2:"
-substitute "DIM=X"
-include "NDROI_End.template"
-substitute "DIM=Y"
-include "NDROI_End.template"
-
-substitute "R=ADnED:Det$(DET):XY:ROI:3:"
-substitute "DIM=X"
-include "NDROI_End.template"
-substitute "DIM=Y"
-include "NDROI_End.template"
-
-substitute "R=ADnED:Det$(DET):XY:ROI:4:"
-substitute "DIM=X"
-include "NDROI_End.template"
-substitute "DIM=Y"
-include "NDROI_End.template"
-
-substitute "R=ADnED:Det$(DET):XY:ROI:5:"
-substitute "DIM=X"
-include "NDROI_End.template"
-substitute "DIM=Y"
-include "NDROI_End.template"
-
-substitute "R=ADnED:Det$(DET):XY:ROI:6:"
-substitute "DIM=X"
-include "NDROI_End.template"
-substitute "DIM=Y"
-include "NDROI_End.template"
-
-substitute "R=ADnED:Det$(DET):XY:ROI:7:"
-substitute "DIM=X"
-include "NDROI_End.template"
-substitute "DIM=Y"
-include "NDROI_End.template"
-
 
 
 

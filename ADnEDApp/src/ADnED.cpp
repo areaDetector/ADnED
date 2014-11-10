@@ -137,7 +137,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDDetNDArrayTOFEndParamString,    asynParamInt32,       &ADnEDDetNDArrayTOFEndParam);
   createParam(ADnEDDetEventRateParamString,    asynParamInt32,       &ADnEDDetEventRateParam);
   createParam(ADnEDDetTOFROIStartParamString,    asynParamInt32,       &ADnEDDetTOFROIStartParam);
-  createParam(ADnEDDetTOFROIEndParamString,    asynParamInt32,       &ADnEDDetTOFROIEndParam);
+  createParam(ADnEDDetTOFROISizeParamString,    asynParamInt32,       &ADnEDDetTOFROISizeParam);
   createParam(ADnEDDetTOFROIEnableParamString,    asynParamInt32,       &ADnEDDetTOFROIEnableParam);
   createParam(ADnEDDetTOFTransFileParamString,          asynParamOctet,       &ADnEDDetTOFTransFileParam);
   createParam(ADnEDDetPixelMapFileParamString,          asynParamOctet,       &ADnEDDetPixelMapFileParam);
@@ -148,10 +148,10 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDDetTOFTransOffsetParamString, asynParamFloat64,       &ADnEDDetTOFTransOffsetParam);
   createParam(ADnEDDetTOFTransScaleParamString, asynParamFloat64,       &ADnEDDetTOFTransScaleParam);
   createParam(ADnEDDetPixelROIStartXParamString, asynParamInt32,       &ADnEDDetPixelROIStartXParam);
-  createParam(ADnEDDetPixelROIEndXParamString, asynParamInt32,       &ADnEDDetPixelROIEndXParam);
-  createParam(ADnEDDetPixelROIStartYParamString, asynParamInt32,       &ADnEDDetPixelROIStartYParam);
-  createParam(ADnEDDetPixelROIEndYParamString, asynParamInt32,       &ADnEDDetPixelROIEndYParam);
   createParam(ADnEDDetPixelROISizeXParamString, asynParamInt32,       &ADnEDDetPixelROISizeXParam);
+  createParam(ADnEDDetPixelROIStartYParamString, asynParamInt32,       &ADnEDDetPixelROIStartYParam);
+  createParam(ADnEDDetPixelROISizeYParamString, asynParamInt32,       &ADnEDDetPixelROISizeYParam);
+  createParam(ADnEDDetPixelSizeXParamString, asynParamInt32,       &ADnEDDetPixelSizeXParam);
   createParam(ADnEDDetPixelROIEnableParamString, asynParamInt32,       &ADnEDDetPixelROIEnableParam);
   createParam(ADnEDTOFMaxParamString,             asynParamInt32,       &ADnEDTOFMaxParam);
   createParam(ADnEDAllocSpaceParamString,         asynParamInt32,       &ADnEDAllocSpaceParam);
@@ -186,7 +186,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     m_NDArrayStartValues[i] = 0;
     m_NDArrayTOFStartValues[i] = 0;
     m_detTOFROIStartValues[i] = 0;
-    m_detTOFROIEndValues[i] = 0;
+    m_detTOFROISizeValues[i] = 0;
     m_detTOFROIEnabled[i] = 0;
     m_detPixelMappingEnabled[i] = 0;
     m_detTOFTransEnabled[i] = 0;
@@ -194,10 +194,10 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     m_detTOFTransScale[i] = 0;
 
     m_detPixelROIStartX[i] = 0;
-    m_detPixelROIEndX[i] = 0;
-    m_detPixelROIStartY[i] = 0;
-    m_detPixelROIEndY[i] = 0;
     m_detPixelROISizeX[i] = 0;
+    m_detPixelROIStartY[i] = 0;
+    m_detPixelROISizeY[i] = 0;
+    m_detPixelSizeX[i] = 0;
     m_detPixelROIEnable[i] = 0;
   }
 
@@ -250,7 +250,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArrayTOFEndParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetEventRateParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIStartParam, 0) == asynSuccess) && paramStatus);
-    paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIEndParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetTOFROISizeParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIEnableParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setStringParam(det, ADnEDDetTOFTransFileParam, " ") == asynSuccess) && paramStatus);
     paramStatus = ((setStringParam(det, ADnEDDetPixelMapFileParam, " ") == asynSuccess) && paramStatus);
@@ -694,7 +694,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     getIntegerParam(det, ADnEDDetNDArrayTOFStartParam, &m_NDArrayTOFStartValues[det]);
     //These two params are used to filter events based on a TOF ROI
     getIntegerParam(det, ADnEDDetTOFROIStartParam, &m_detTOFROIStartValues[det]);
-    getIntegerParam(det, ADnEDDetTOFROIEndParam, &m_detTOFROIEndValues[det]);
+    getIntegerParam(det, ADnEDDetTOFROISizeParam, &m_detTOFROISizeValues[det]);
     getIntegerParam(det, ADnEDDetTOFROIEnableParam, &m_detTOFROIEnabled[det]);
     //Pixel ID mapping
     getIntegerParam(det, ADnEDDetPixelMapEnableParam, &m_detPixelMappingEnabled[det]);
@@ -705,9 +705,9 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     //Pixel ID XY filter
     getIntegerParam(det, ADnEDDetPixelROIStartXParam, &m_detPixelROIStartX[det]);
     getIntegerParam(det, ADnEDDetPixelROIStartYParam, &m_detPixelROIStartY[det]);
-    getIntegerParam(det, ADnEDDetPixelROIEndXParam, &m_detPixelROIEndX[det]);
-    getIntegerParam(det, ADnEDDetPixelROIEndYParam, &m_detPixelROIEndY[det]);
     getIntegerParam(det, ADnEDDetPixelROISizeXParam, &m_detPixelROISizeX[det]);
+    getIntegerParam(det, ADnEDDetPixelROISizeYParam, &m_detPixelROISizeY[det]);
+    getIntegerParam(det, ADnEDDetPixelSizeXParam, &m_detPixelSizeX[det]);
     getIntegerParam(det, ADnEDDetPixelROIEnableParam, &m_detPixelROIEnable[det]);
 
     if (m_detPixelROISizeX[det] <= 0) {
@@ -837,7 +837,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	  //Integrate Pixel ID Data, optionally filtering on TOF ROI filter.
 	  if (m_detTOFROIEnabled[det]) {
 	    if ((tof >= static_cast<epicsFloat64>(m_detTOFROIStartValues[det])) 
-		&& (tof <= static_cast<epicsFloat64>(m_detTOFROIEndValues[det]))) {
+		&& (tof <= static_cast<epicsFloat64>(m_detTOFROIStartValues[det] + m_detTOFROISizeValues[det]))) {
 	      offset = mappedPixelIndex-m_detStartValues[det];
 	      p_Data[m_NDArrayStartValues[det]+offset]++;
 	    }
@@ -857,10 +857,11 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 		//Only integrate TOF if we are inside pixel ID XY ROI.
 		//ROI is assumed to start from 0,0 (not from whatever is the pixel ID range. So we need to offset.
 		calcIndex = mappedPixelIndex - m_detStartValues[det];
-		if (((calcIndex % m_detPixelROISizeX[det]) >= m_detPixelROIStartX[det]) && 
-		    ((calcIndex % m_detPixelROISizeX[det]) <= m_detPixelROIEndX[det])) {
-		  if ((calcIndex >= (m_detPixelROIStartY[det] * m_detPixelROISizeX[det])) &&
-		      ((calcIndex <= (m_detPixelROIEndY[det] * m_detPixelROISizeX[det]) + m_detPixelROISizeX[det]))) {
+		if (((calcIndex % m_detPixelSizeX[det]) >= m_detPixelROIStartX[det]) && 
+		    ((calcIndex % m_detPixelSizeX[det]) <= (m_detPixelROIStartX[det] + m_detPixelROISizeX[det]))) {
+		  if ((calcIndex >= (m_detPixelROIStartY[det] * m_detPixelSizeX[det])) &&
+		      ((calcIndex <= ((m_detPixelROIStartY[det] + m_detPixelROISizeY[det]) 
+				      * m_detPixelSizeX[det]) + m_detPixelSizeX[det]))) {
 		    p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
 		  }
 		}

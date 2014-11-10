@@ -177,25 +177,25 @@ record(longin, "$(P)$(R)Det$(DET):TOFROIFilterStart_RBV")
 }
 
 # ///
-# /// Set the TOF ROI end for DET $(DET)
+# /// Set the TOF ROI size for DET $(DET)
 # ///
-record(longout, "$(P)$(R)Det$(DET):TOFROIFilterEnd")
+record(longout, "$(P)$(R)Det$(DET):TOFROIFilterSize")
 {
-   field(DESC, "Pre TOF ROI End")
+   field(DESC, "Pre TOF ROI Size")
    field(DTYP, "asynInt32")
-   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_END")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_SIZE")
    field(VAL, "0")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
 }
 
 # ///
-# ///  Read the TOF ROI end for DET $(DET)
+# ///  Read the TOF ROI size for DET $(DET)
 # ///
-record(longin, "$(P)$(R)Det$(DET):TOFROIFilterEnd_RBV")
+record(longin, "$(P)$(R)Det$(DET):TOFROIFilterSize_RBV")
 {
    field(DTYP, "asynInt32")
-   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_END")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_SIZE")
    field(SCAN, "I/O Intr")
 }
 
@@ -445,25 +445,25 @@ record(longin, "$(P)$(R)Det$(DET):PixelROIFilterStartX_RBV")
 }
 
 # ///
-# /// Set the Pixel XY ROI end X for DET $(DET)
+# /// Set the Pixel XY ROI size X for DET $(DET)
 # ///
-record(longout, "$(P)$(R)Det$(DET):PixelROIFilterEndX")
+record(longout, "$(P)$(R)Det$(DET):PixelROIFilterSizeX")
 {
-   field(DESC, "Pre Pixel ROI End X")
+   field(DESC, "Pre Pixel ROI Size X")
    field(DTYP, "asynInt32")
-   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_END_X")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_SIZE_X")
    field(VAL, "0")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
 }
 
 # ///
-# /// Read the Pixel XY ROI end X for DET $(DET)
+# /// Read the Pixel XY ROI size X for DET $(DET)
 # ///
-record(longin, "$(P)$(R)Det$(DET):PixelROIFilterEndX_RBV")
+record(longin, "$(P)$(R)Det$(DET):PixelROIFilterSizeX_RBV")
 {
    field(DTYP, "asynInt32")
-   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_END_X")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_SIZE_X")
    field(SCAN, "I/O Intr")
 }
 
@@ -491,25 +491,25 @@ record(longin, "$(P)$(R)Det$(DET):PixelROIFilterStartY_RBV")
 }
 
 # ///
-# /// Set the Pixel XY ROI end Y for DET $(DET)
+# /// Set the Pixel XY ROI size Y for DET $(DET)
 # ///
-record(longout, "$(P)$(R)Det$(DET):PixelROIFilterEndY")
+record(longout, "$(P)$(R)Det$(DET):PixelROIFilterSizeY")
 {
-   field(DESC, "Pre Pixel ROI End Y")
+   field(DESC, "Pre Pixel ROI Size Y")
    field(DTYP, "asynInt32")
-   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_END_Y")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_SIZE_Y")
    field(VAL, "0")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
 }
 
 # ///
-# /// Read the Pixel XY ROI end Y for DET $(DET)
+# /// Read the Pixel XY ROI size Y for DET $(DET)
 # ///
-record(longin, "$(P)$(R)Det$(DET):PixelROIFilterEndY_RBV")
+record(longin, "$(P)$(R)Det$(DET):PixelROIFilterSizeY_RBV")
 {
    field(DTYP, "asynInt32")
-   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_END_Y")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_SIZE_Y")
    field(SCAN, "I/O Intr")
 }
 
