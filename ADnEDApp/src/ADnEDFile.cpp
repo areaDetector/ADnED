@@ -48,30 +48,34 @@ ADnEDFile::ADnEDFile(const char *fileName)
   m_Size = 0;
   strncpy(m_fileName, fileName, s_ADNEDFILE_MAX_STRING-1);
 
-  printf("%s. Opening File: %s\n", functionName, m_fileName);
+  if (strlen(fileName) != 0) {
 
-  if (access(m_fileName, R_OK) != 0) {
-    perror(functionName);
-    throw runtime_error("File could not be read.");
-  }
-  
-  if ((p_FILE = fopen(m_fileName, "r")) == NULL) {
-    perror(functionName);
-    throw runtime_error("File could not be opened.");
-  }
-
-  char line[s_ADNEDFILE_MAX_STRING] = {0};
-  char *end = NULL;
-
-  //Get size of array (1st line in file)
-  fgets(line, s_ADNEDFILE_MAX_STRING-1, p_FILE);
-  long int size = strtol(line, &end, s_ADNEDFILE_STRTOL_BASE);
-  m_Size = static_cast<epicsUInt32>(size);
-  if ((errno != ERANGE) && (end != line)) {
-    printf("%s. Expected number of lines: %d.\n", functionName, m_Size);
-  } else {
-    fprintf(stderr, "%s. ERROR: Failed to get array size. line: %s\n", functionName, line);
-    throw runtime_error("Failed to read size");
+    printf("%s. Opening File: %s\n", functionName, m_fileName);
+    
+    if (access(m_fileName, R_OK) != 0) {
+      perror(functionName);
+      throw runtime_error("File could not be read.");
+    }
+    
+    if ((p_FILE = fopen(m_fileName, "r")) == NULL) {
+      perror(functionName);
+      throw runtime_error("File could not be opened.");
+    }
+    
+    char line[s_ADNEDFILE_MAX_STRING] = {0};
+    char *end = NULL;
+    
+    //Get size of array (1st line in file)
+    fgets(line, s_ADNEDFILE_MAX_STRING-1, p_FILE);
+    long int size = strtol(line, &end, s_ADNEDFILE_STRTOL_BASE);
+    m_Size = static_cast<epicsUInt32>(size);
+    if ((errno != ERANGE) && (end != line)) {
+      printf("%s. Expected number of lines: %d.\n", functionName, m_Size);
+    } else {
+      fprintf(stderr, "%s. ERROR: Failed to get array size. line: %s\n", functionName, line);
+      throw runtime_error("Failed to read size");
+    }
+    
   }
   
 }

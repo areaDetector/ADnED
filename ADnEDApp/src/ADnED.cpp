@@ -513,15 +513,18 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
     if (p_TofTrans[addr]) {
       free(p_TofTrans[addr]);
       p_TofTrans[addr] = NULL;
+      m_TofTransSize[addr] = 0;
     }
       
     try {
       ADnEDFile file = ADnEDFile(value);
-      m_TofTransSize[addr] = file.getSize();
-      if (p_TofTrans[addr] == NULL) {
-	p_TofTrans[addr] = static_cast<epicsFloat64 *>(calloc(m_TofTransSize[addr], sizeof(epicsFloat64)));
+      if (file.getSize() != 0) { 
+	m_TofTransSize[addr] = file.getSize();
+	if (p_TofTrans[addr] == NULL) {
+	  p_TofTrans[addr] = static_cast<epicsFloat64 *>(calloc(m_TofTransSize[addr], sizeof(epicsFloat64)));
+	}
+	file.readDataIntoDoubleArray(&p_TofTrans[addr]);
       }
-      file.readDataIntoDoubleArray(&p_TofTrans[addr]);
     } catch (std::exception &e) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
 		"%s Error Parsing TOF Transformation File. Det: %d. %s\n", functionName, addr, e.what());
@@ -534,18 +537,21 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
     if (p_PixelMap[addr]) {
 	free(p_PixelMap[addr]);
 	p_PixelMap[addr] = NULL;
+	m_PixelMapSize[addr] = 0;
       }
 
     try {
       ADnEDFile file = ADnEDFile(value);
-      m_PixelMapSize[addr] = file.getSize();
-      if (p_PixelMap[addr] == NULL) {
-	p_PixelMap[addr] = static_cast<epicsUInt32 *>(calloc(m_PixelMapSize[addr], sizeof(epicsUInt32)));
-      }
-      file.readDataIntoIntArray(&p_PixelMap[addr]);
-      if ((status = checkPixelMap(addr)) == asynError) {
-	free(p_PixelMap[addr]);
-	p_PixelMap[addr] = NULL;
+      if (file.getSize() != 0) { 
+	m_PixelMapSize[addr] = file.getSize();
+	if (p_PixelMap[addr] == NULL) {
+	  p_PixelMap[addr] = static_cast<epicsUInt32 *>(calloc(m_PixelMapSize[addr], sizeof(epicsUInt32)));
+	}
+	file.readDataIntoIntArray(&p_PixelMap[addr]);
+	if ((status = checkPixelMap(addr)) == asynError) {
+	  free(p_PixelMap[addr]);
+	  p_PixelMap[addr] = NULL;
+	}
       }
     } catch (std::exception &e) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
