@@ -88,7 +88,7 @@ ADnEDFile::~ADnEDFile()
 {
   const char *functionName = "ADnEDFile::~ADnEDFile";
   
-  if (p_FILE) {
+  if (p_FILE!=NULL) {
     if (fclose(p_FILE)) {
       perror(functionName);
     } else {
