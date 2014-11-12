@@ -46,6 +46,7 @@ ADnEDFile::ADnEDFile(const char *fileName)
   const char *functionName = "ADnEDFile::ADnEDFile";
 
   m_Size = 0;
+  p_FILE = NULL;
   strncpy(m_fileName, fileName, s_ADNEDFILE_MAX_STRING-1);
 
   if (strlen(fileName) != 0) {

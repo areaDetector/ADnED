@@ -542,7 +542,7 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
 
     try {
       ADnEDFile file = ADnEDFile(value);
-      if (file.getSize() != 0) { 
+      if (file.getSize() != 0) {
 	m_PixelMapSize[addr] = file.getSize();
 	if (p_PixelMap[addr] == NULL) {
 	  p_PixelMap[addr] = static_cast<epicsUInt32 *>(calloc(m_PixelMapSize[addr], sizeof(epicsUInt32)));
