@@ -27,6 +27,7 @@ include "ADBase.template"
 
 # /// 
 # /// Reset the device.
+# /// This does nothing at the moment.
 # ///
 record(bo, "$(P)$(R)Reset")
 {
@@ -352,15 +353,24 @@ record(mbbi, "$(P)$(R)AllocSpaceStatus_RBV")
 # ///
 # /// Use this Start record to do callback when we have completed
 # /// start process. The standard Acquire record blocks until we stop.
+# /// It initially resets the downstream ROIStat plugins.
 # ///
-record(busy, "$(P)$(R)Start") {
+record(bo, "$(P)$(R)Start") {
+   field(VAL, "1")
+   field(OUT, "$(P)$(R)ResetPlugins.PROC PP")
+   field(FLNK, "$(P)$(R)StartProc.PROC")
+}
+record(bo, "$(P)$(R)StartProc") {
+   field(VAL, "1")
+   field(OUT, "$(P)$(R)StartBusy PP")
+}
+record(busy, "$(P)$(R)StartBusy") {
    field(DTYP, "asynInt32")
    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_START")
    field(ZNAM, "Done")
    field(ONAM, "Acquire")
    field(VAL,  "0")
 }
-
 
 # ///
 # /// Add EGU field to ArrayRate_RBV
@@ -374,6 +384,18 @@ record(calc, "$(P)$(R)ArrayRate_RBV")
 
 ##########################################################################
 # Include detector specific records (needs to be 1-based).
+
+# ///
+# /// Reset the ROIStat plugins. 
+# /// This is handled for each DET in ADnEDDetector.template.
+# ///
+record(dfanout, "$(P)$(R)ResetPlugins") {
+   field(VAL, "1")
+   field(OUTA, "$(P)$(R)Det1:ResetROIStat PP")
+   field(OUTB, "$(P)$(R)Det2:ResetROIStat PP")
+   field(OUTC, "$(P)$(R)Det3:ResetROIStat PP")
+   field(OUTD, "$(P)$(R)Det4:ResetROIStat PP")
+}
 
 substitute "DET=1"
 include "ADnEDDetector.template"

@@ -567,8 +567,21 @@ record(bi, "$(P)$(R)Det$(DET):PixelROIFilterEnable_RBV")
 }
 
 
+#####################################################################
+# Reset the Pixel and TOF ROIStat plugins
+#####################################################################
 
-
+# ///
+# /// Reset the pixel and TOF ROIStat plugins. Need to know how many
+# /// plugins we have instantiated in ADnEDDetectorPixelPlugin and 
+# /// ADnEDDetectorTOFPlugin.
+# ///
+record(dfanout, "$(P)$(R)Det$(DET):ResetROIStat")
+{
+   field(VAL, "1")
+   field(OUTA, "$(P)$(R)Det$(DET):XY:ROI:ResetAll PP")
+   field(OUTB, "$(P)$(R)Det$(DET):TOF:ROI:ResetAll PP")
+}
 
 
 
