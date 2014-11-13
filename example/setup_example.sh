@@ -5,6 +5,8 @@ caput -c BL99:Det:ADnED:EventDebug 0
 caput -c BL99:Det:ADnED:TOFMax 160000
 caput -c BL99:Det:ADnED:NumDetectors 2
 caput -c BL99:Det:ADnED:ArrayCallbacks 1
+caput -c BL99:Det:ADnED:EventUpdatePeriod 100
+caput -c BL99:Det:ADnED:FrameUpdatePeriod 100
 
 echo "Det1..."
 
@@ -33,6 +35,11 @@ caput -c BL99:Det:ADnED:Det1:XY:ROI:0:MinX 5
 caput -c BL99:Det:ADnED:Det1:XY:ROI:0:MinY 5
 caput -c BL99:Det:ADnED:Det1:XY:ROI:0:SizeX 5
 caput -c BL99:Det:ADnED:Det1:XY:ROI:0:SizeY 5
+
+caput -S -c BL99:Det:ADnED:Det1:PixelMapFile "/home/controls/epics/ADnED/master/example/mapping/pixel.map"
+#caput -c BL99:Det:ADnED:Det1:PixelMapEnable 1
+caput -S -c BL99:Det:ADnED:Det1:TOFTransFile "/home/controls/epics/ADnED/master/example/mapping/tof.trans"
+#caput -c BL99:Det:ADnED:Det1:TOFTransEnable 1
 
 echo "Det2..."
 
