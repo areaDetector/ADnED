@@ -5,6 +5,8 @@
 
 < envPaths
 
+epicsEnvSet PVNAME "BL99:Det:ADnED:"
+
 cd ${TOP}
 
 ## Register all support components
@@ -27,7 +29,7 @@ example_registerRecordDeviceDriver pdbbase
 epicsEnvSet IOCNAME example
 epicsEnvSet SAVE_DIR /home/controls/var/ADnED
 
-save_restoreSet_Debug(1)
+save_restoreSet_Debug(0)
 
 ### status-PV prefix, so save_restore can find its status PV's.
 save_restoreSet_status_prefix("BL99:CS:Det:ADnED")
@@ -58,12 +60,14 @@ create_monitor_set("$(IOCNAME).req", 10)
 epicsThreadSleep(5)
 # To fix autosave sometimes restoring the pixel map files before the pixel 
 # ranges have been set up, restore the pixel file records here.
-#fdbrestore("$(IOCNAME)_File.sav") #This can seg fault!
+#fdbrestore("$(IOCNAME)_File.sav") 
 
-dbpf "BL99:Det:ADnED:Det1:PixelMapFile.PROC","1"
-dbpf "BL99:Det:ADnED:Det2:PixelMapFile.PROC","1"
-dbpf "BL99:Det:ADnED:Det3:PixelMapFile.PROC","1"
-dbpf "BL99:Det:ADnED:Det4:PixelMapFile.PROC","1"
+dbpf "$(PVNAME)Det1:PixelMapFile.PROC","1"
+dbpf "$(PVNAME)Det2:PixelMapFile.PROC","1"
+dbpf "$(PVNAME)Det3:PixelMapFile.PROC","1"
+dbpf "$(PVNAME)Det4:PixelMapFile.PROC","1"
+
+
 
 
 
