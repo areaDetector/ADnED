@@ -19,25 +19,25 @@ substitute "ADDR=0"
 substitute "NDARRAY_ADDR=0"
 
 # TOF Initial ROI (to extract the 1-D TOF spectrum)
-substitute "R=ADnED:Det$(DET):TOF:"
-substitute "PORT=DET$(DET).TOF"
+substitute "R=$(ADNED)Det$(DET):TOF:"
+substitute "PORT=$(ADNED_PORT).DET$(DET).TOF"
 substitute "NDARRAY_PORT=$(ADNED_PORT)"
 include "NDPluginBase.template"
 include "NDROI.template"
 
 # TOF Waveform
-substitute "R=ADnED:Det$(DET):TOF:Array:"
-substitute "PORT=DET$(DET).TOF.ARR"
-substitute "NDARRAY_PORT=DET$(DET).TOF"
+substitute "R=$(ADNED)Det$(DET):TOF:Array:"
+substitute "PORT=$(ADNED_PORT).DET$(DET).TOF.ARR"
+substitute "NDARRAY_PORT=$(ADNED_PORT).DET$(DET).TOF"
 include "NDPluginBase.template"
 substitute "TYPE=Int32"
 substitute "FTVL=LONG"
 include "NDStdArrays.template"
 
 # Normal TOF ROIs amd Stats
-substitute "R=ADnED:Det$(DET):TOF:ROI:"
-substitute "PORT=DET$(DET).TOF.ROI"
-substitute "NDARRAY_PORT=DET$(DET).TOF"
+substitute "R=$(ADNED)Det$(DET):TOF:ROI:"
+substitute "PORT=$(ADNED_PORT).DET$(DET).TOF.ROI"
+substitute "NDARRAY_PORT=$(ADNED_PORT).DET$(DET).TOF"
 include "NDPluginBase.template"
 include "NDROIStat8.template"
 

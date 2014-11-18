@@ -5,8 +5,6 @@
 
 < envPaths
 
-epicsEnvSet PVNAME "BL99:Det:ADnED:"
-
 cd ${TOP}
 
 ## Register all support components
@@ -16,10 +14,14 @@ example_registerRecordDeviceDriver pdbbase
 #####################################################
 # ADnED
 
+epicsEnvSet PORT "N1"
 < $(ADNED)/st.cmd.config
 
-#asynSetTraceIOMask("NED",0,0xFF)
-#asynSetTraceMask("NED",0,0xFF)
+epicsEnvSet PORT "M1"
+< $(ADNED)/st.cmd.config
+
+#asynSetTraceIOMask("$(PORT)",0,0xFF)
+#asynSetTraceMask("$(PORT)",0,0xFF)
 
 #####################################################
 
@@ -53,15 +55,17 @@ iocInit
 # Create request file and start periodic 'save'
 epicsThreadSleep(5)
 makeAutosaveFileFromDbInfo("$(SAVE_DIR)/$(IOCNAME).req", "autosaveFields")
-#makeAutosaveFileFromDbInfo("$(SAVE_DIR)/$(IOCNAME)_File.req", "autosaveFields_File")
 create_monitor_set("$(IOCNAME).req", 10)
-#create_monitor_set("$(IOCNAME)_File.req", 10)
 
 epicsThreadSleep(5)
-# To fix autosave sometimes restoring the pixel map files before the pixel 
-# ranges have been set up, restore the pixel file records here.
-#fdbrestore("$(IOCNAME)_File.sav") 
 
+epicsEnvSet PVNAME "BL99:Det:N1:"
+dbpf "$(PVNAME)Det1:PixelMapFile.PROC","1"
+dbpf "$(PVNAME)Det2:PixelMapFile.PROC","1"
+dbpf "$(PVNAME)Det3:PixelMapFile.PROC","1"
+dbpf "$(PVNAME)Det4:PixelMapFile.PROC","1"
+
+epicsEnvSet PVNAME "BL99:Det:M1:"
 dbpf "$(PVNAME)Det1:PixelMapFile.PROC","1"
 dbpf "$(PVNAME)Det2:PixelMapFile.PROC","1"
 dbpf "$(PVNAME)Det3:PixelMapFile.PROC","1"

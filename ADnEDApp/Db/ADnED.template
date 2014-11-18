@@ -10,6 +10,7 @@
 #
 # Macros:
 # P - base PV name
+# ADNED - middle part of PV name (eg: BL99:Det:$(ADNED)Det1:TOF:Array)
 # PORT - Asyn port name
 # ADDR - Asyn address (set to zero)
 # TIMEOUT - Asyn timeout
@@ -21,7 +22,7 @@
 #
 #####################################################################
 
-substitute "R=ADnED:"
+substitute "R=$(ADNED)"
 
 include "ADBase.template" 
 
@@ -409,7 +410,7 @@ include "ADnEDDetector.template"
 substitute "DET=4"
 include "ADnEDDetector.template"
 
-substitute "R=ADnED:"
+substitute "R=$(ADNED)"
 substitute "DET=1"
 include "ADnEDDetectorPlugin.template"
 substitute "NELEMENTS=$(TOFSIZE)"
@@ -417,7 +418,7 @@ include "ADnEDDetectorTOFPlugin.template"
 substitute "NELEMENTS=$(DET1SIZE)"
 include "ADnEDDetectorPixelPlugin.template"
 
-substitute "R=ADnED:"
+substitute "R=$(ADNED)"
 substitute "DET=2"
 include "ADnEDDetectorPlugin.template"
 substitute "NELEMENTS=$(TOFSIZE)"
@@ -425,7 +426,7 @@ include "ADnEDDetectorTOFPlugin.template"
 substitute "NELEMENTS=$(DET2SIZE)"
 include "ADnEDDetectorPixelPlugin.template"
 
-substitute "R=ADnED:"
+substitute "R=$(ADNED)"
 substitute "DET=3"
 include "ADnEDDetectorPlugin.template"
 substitute "NELEMENTS=$(TOFSIZE)"
@@ -433,7 +434,7 @@ include "ADnEDDetectorTOFPlugin.template"
 substitute "NELEMENTS=$(DET3SIZE)"
 include "ADnEDDetectorPixelPlugin.template"
 
-substitute "R=ADnED:"
+substitute "R=$(ADNED)"
 substitute "DET=4"
 include "ADnEDDetectorPlugin.template"
 substitute "NELEMENTS=$(TOFSIZE)"
