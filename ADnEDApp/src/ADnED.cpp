@@ -1181,22 +1181,21 @@ void ADnED::eventTask(void)
 	    error = true;
 	  }
 	}
+
+	if (error) {
+	  cout << "Send Stop Frame" << endl;
+	  epicsEventSignal(this->m_stopFrame);    
+	}
 	
       }
-      //Call this if we want to block here forever.
-      //monitorRequester->waitUntilDone();
-      
-      //epicsThreadSleep(10);
-      
+
       unlock();
     }
     
-    //If we failed to connect or setup, clean up and notify error.
+    //If we failed to connect or setup, notify error.
     if (error) {
       lock();
-      setIntegerParam(ADStatus, ADStatusError);
-      cout << "Error detected. Send stop frame." << endl;
-      epicsEventSignal(this->m_stopFrame);    
+      setIntegerParam(ADStatus, ADStatusError);    
       unlock();
       acquire = false;
     }
@@ -1224,7 +1223,7 @@ void ADnED::eventTask(void)
       if (!acquire) {
 	lock();
 	setIntegerParam(ADStatus, ADStatusIdle);
-	cout << "Send stop frame" << endl;
+	cout << "Send Stop Frame" << endl;
 	epicsEventSignal(this->m_stopFrame);
 	unlock();
       }
@@ -1303,7 +1302,7 @@ void ADnED::frameTask(void)
       //Wait for a stop event
       eventStatus = epicsEventWaitWithTimeout(m_stopFrame, timeout);
       if (eventStatus == epicsEventWaitOK) {
-	cout << "Got stop frame" << endl;
+	cout << "Got Stop Frame" << endl;
         asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Stop Frame Event.\n", functionName);
         acquire = false;
       }
