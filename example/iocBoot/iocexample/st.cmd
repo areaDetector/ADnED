@@ -12,12 +12,9 @@ dbLoadDatabase "dbd/example.dbd"
 example_registerRecordDeviceDriver pdbbase
 
 #####################################################
-# ADnED
+# ADnED (only 1 per IOC at the moment)
 
 epicsEnvSet PORT "N1"
-< $(ADNED)/st.cmd.config
-
-epicsEnvSet PORT "M1"
 < $(ADNED)/st.cmd.config
 
 #asynSetTraceIOMask("$(PORT)",0,0xFF)
@@ -65,11 +62,6 @@ dbpf "$(PVNAME)Det2:PixelMapFile.PROC","1"
 dbpf "$(PVNAME)Det3:PixelMapFile.PROC","1"
 dbpf "$(PVNAME)Det4:PixelMapFile.PROC","1"
 
-epicsEnvSet PVNAME "BL99:Det:M1:"
-dbpf "$(PVNAME)Det1:PixelMapFile.PROC","1"
-dbpf "$(PVNAME)Det2:PixelMapFile.PROC","1"
-dbpf "$(PVNAME)Det3:PixelMapFile.PROC","1"
-dbpf "$(PVNAME)Det4:PixelMapFile.PROC","1"
 
 
 
