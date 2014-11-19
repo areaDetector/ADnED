@@ -1196,12 +1196,10 @@ void ADnED::eventTask(void)
 	}	
       
       }
-      unlock();
     } // end of if (eventStatus == epicsEventWaitOK)
     
     //If we failed to connect or setup, notify error.
     if (error) {
-      lock();
       setIntegerParam(ADStatus, ADStatusError);    
       acquire = false;
     }
