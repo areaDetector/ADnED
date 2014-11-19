@@ -39,7 +39,6 @@
 
 /* These are the drvInfo strings that are used to identify the parameters.
  * They are used by asyn clients, including standard asyn device support */
-//System wide settings
 #define ADnEDFirstParamString              "ADNED_FIRST"
 #define ADnEDLastParamString               "ADNED_LAST"
 #define ADnEDResetParamString              "ADNED_RESET"
@@ -171,6 +170,12 @@ class ADnED : public ADDriver {
   int m_detPixelROISizeY[ADNED_MAX_DETS+1];
   int m_detPixelSizeX[ADNED_MAX_DETS+1];
   int m_detPixelROIEnable[ADNED_MAX_DETS+1];
+
+  epics::pvAccess::ChannelProvider::shared_pointer p_ChannelProvider;
+  std::tr1::shared_ptr<nEDChannel::nEDChannelRequester> p_ChannelRequester;
+  std::tr1::shared_ptr<nEDChannel::nEDMonitorRequester> p_MonitorRequester;
+  epics::pvData::Monitor::shared_pointer p_Monitor;
+  epics::pvAccess::Channel::shared_pointer p_Channel;
 
   //Constructor parameters.
   const epicsUInt32 m_debug;

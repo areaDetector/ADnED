@@ -62,6 +62,7 @@ namespace nEDChannel {
     void monitorConnect(Status const & status, MonitorPtr const & monitor, StructureConstPtr const & structure);
     void monitorEvent(MonitorPtr const & monitor);
     void unlisten(MonitorPtr const & monitor);
+    bool waitUntilConnected(double timeOut);
     boolean waitUntilDone();
     
 
@@ -70,18 +71,10 @@ namespace nEDChannel {
 
  private:
     
+    Event m_connectEvent;
     std::string m_requesterName;
-    uint64 m_updates;
-    uint64 m_lastPulseId;
     ADnED *p_nED;
-
-    epicsTime m_nextRun;
     Event m_doneEvent;
-    size_t m_valueOffset;
-    uint64 m_overruns;
-    uint64 m_missingPulses;
- 
-    void checkUpdate(shared_ptr<PVStructure> const &structure);
 
   };
 

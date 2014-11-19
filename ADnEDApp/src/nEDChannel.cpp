@@ -78,7 +78,7 @@ namespace nEDChannel {
   //MonitorRequester
   
   nEDMonitorRequester::nEDMonitorRequester(std::string &requester_name, ADnED *nED) : 
-    MonitorRequester(), m_requesterName(requester_name), m_updates(0), m_lastPulseId(0), p_nED(nED)
+    MonitorRequester(), m_requesterName(requester_name), p_nED(nED)
   {
     cout << "nEDMonitorRequester constructor." << endl;
     cout << "m_requesterName: " << m_requesterName << endl;
@@ -93,38 +93,31 @@ namespace nEDChannel {
   void nEDMonitorRequester::monitorConnect(Status const & status, MonitorPtr const & monitor, StructureConstPtr const & structure)
   {
     cout << "Monitor connects, " << status << endl;
-    if (status.isSuccess())
-    {
-        // Check the structure by using only the Structure API?
-        // Need to navigate the hierarchy, won't get the overall PVStructure offset.
-        // Easier: Create temporary PVStructure
-        PVStructurePtr pvStructure = getPVDataCreate()->createPVStructure(structure);
-        shared_ptr<PVInt> value = pvStructure->getIntField("timeStamp.userTag");
-        if (! value)
-        {
-            cout << "No timeStamp.userTag Int" << endl;
-            return;
-        }
-        m_valueOffset = value->getFieldOffset();
-        // pvStructure is disposed; keep value_offset to read data from monitor's pvStructure
-
-        monitor->start();
+    if (status.isSuccess()) {
+      PVStructurePtr pvStructure = getPVDataCreate()->createPVStructure(structure);
+      shared_ptr<PVInt> value = pvStructure->getIntField("timeStamp.userTag");
+      if (!value) {
+	return;
+      }
+      m_connectEvent.signal();
     }
+  }
+
+  bool nEDMonitorRequester::waitUntilConnected(double timeOut) 
+  {
+    cout << "Waiting for monitor." << endl;
+    return m_connectEvent.wait(timeOut);
   }
 
   void nEDMonitorRequester::monitorEvent(MonitorPtr const & monitor)
   {
     shared_ptr<MonitorElement> update;
-    while ((update = monitor->poll()))
-      {
-	++m_updates;
-
-	p_nED->eventHandler(update->pvStructurePtr);
-
-	monitor->release(update);
-      }
+    while ((update = monitor->poll())) {
+      p_nED->eventHandler(update->pvStructurePtr);
+      monitor->release(update);
+    }
   }
-
+  
   boolean nEDMonitorRequester::waitUntilDone()
   {
     return m_doneEvent.wait();
