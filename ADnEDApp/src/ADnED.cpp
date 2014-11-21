@@ -41,6 +41,7 @@ using nEDChannel::nEDMonitorRequester;
 //Not sure how we want to handle these yet, so will leave them as #defines for now.
 #define ADNED_PV_TIMEOUT 2.0
 #define ADNED_PV_PRIORITY epics::pvAccess::ChannelProvider::PRIORITY_DEFAULT
+#define ADNED_PV_PROVIDER "pva"
 #define ADNED_PV_REQUEST "record[queueSize=100]field()"
 #define ADNED_PV_PIXELS "pixel.value" 
 #define ADNED_PV_TOF "time_of_flight.value" 
@@ -219,6 +220,19 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
                             this) == NULL);
   if (status) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s epicsThreadCreate failure for ADnEDFrameTask.\n", functionName);
+    return;
+  }
+
+  std::string channelStr("ADnED Channel");
+  std::string monitorStr("ADnED Monitor");
+  p_ChannelRequester = (shared_ptr<nEDChannelRequester>)(new nEDChannelRequester(channelStr)); 
+  if (!p_ChannelRequester) {
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s ERROR: Failed to create nEDChannelRequester.\n", functionName);
+    return;
+  }
+  p_MonitorRequester = (shared_ptr<nEDMonitorRequester>)(new nEDMonitorRequester(monitorStr, this));  
+  if (!p_MonitorRequester) {
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s ERROR: Failed to create nEDMonitorRequester.\n", functionName);
     return;
   }
 
@@ -691,8 +705,6 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   epicsFloat64 updatePeriod = 0.0;
   int numMissingPackets = 0;
   double timeDiffSecs = 0.0;
-  static epicsUInt32 eventsSinceLastUpdate;
-  static epicsUInt32 detEventsSinceLastUpdate[s_ADNED_MAX_DETS+1];
   epicsUInt32 eventRate = 0;
   const char* functionName = "ADnED::eventHandler";
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Event Handler.\n", functionName);
@@ -827,7 +839,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     }
 
     //Count events to calculate event rate.
-    eventsSinceLastUpdate += pixelsLength;
+    m_eventsSinceLastUpdate += pixelsLength;
 
     lock();
 
@@ -899,7 +911,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	  }
 
 	  //Count events to calculate event rate
-	  detEventsSinceLastUpdate[det]++;
+	  m_detEventsSinceLastUpdate[det]++;
 	}
 
       }
@@ -914,13 +926,13 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     if (eventUpdate) {
       setIntegerParam(ADnEDSeqCounterParam, m_seqCounter);
       setIntegerParam(ADnEDPulseCounterParam, m_pulseCounter);
-      eventRate = static_cast<epicsUInt32>(floor(eventsSinceLastUpdate/timeDiffSecs));
+      eventRate = static_cast<epicsUInt32>(floor(m_eventsSinceLastUpdate/timeDiffSecs));
       setIntegerParam(ADnEDEventRateParam, eventRate);
-      eventsSinceLastUpdate = 0;
+      m_eventsSinceLastUpdate = 0;
       for (int det=1; det<=numDet; det++) {
-	eventRate = static_cast<epicsUInt32>(floor(detEventsSinceLastUpdate[det]/timeDiffSecs));
+	eventRate = static_cast<epicsUInt32>(floor(m_detEventsSinceLastUpdate[det]/timeDiffSecs));
 	setIntegerParam(det, ADnEDDetEventRateParam, eventRate);
-	detEventsSinceLastUpdate[det] = 0;
+	m_detEventsSinceLastUpdate[det] = 0;
       }
       setIntegerParam(ADnEDSeqIDParam, seqID);
       setDoubleParam(ADnEDPChargeParam, pChargePtr->get());
@@ -1100,8 +1112,6 @@ void ADnED::eventTask(void)
   epicsFloat64 timeout = 0.001;
   bool acquire = 0;
   bool error = true;
-  std::string channelStr("ADnED Channel");
-  std::string monitorStr("ADnED Monitor");
   char pvName[s_ADNED_MAX_STRING_SIZE] = {0};
   const char* functionName = "ADnED::eventTask";
  
@@ -1127,7 +1137,7 @@ void ADnED::eventTask(void)
 
     eventStatus = epicsEventWait(m_startEvent);          
     if (eventStatus == epicsEventWaitOK) {
-      cout << "Got start event" << endl;
+      printf("Got start event.");
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Start Event.\n", functionName);
       acquire = true;
       error = false;
@@ -1158,34 +1168,9 @@ void ADnED::eventTask(void)
 	//Connect channel here      
 	if ((pvName[0] != '0') && (!error)) {
 	  try {
-
-	    if (!p_ChannelProvider) {
-	      p_ChannelProvider = epics::pvAccess::getChannelProviderRegistry()->getProvider("pva");
-	      if (!p_ChannelProvider) {
-		asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: No Channel Provider.\n", functionName);
-		return;
-	      }
+	    if (setupChannelMonitor(pvName) != asynSuccess) {
+	      throw std::runtime_error("Unknown error fromsetupChannelMonitor.");
 	    }
-	    
-	    bool connectStatus = false;
-	    if (!p_Channel) {
-	      p_ChannelRequester = (shared_ptr<nEDChannelRequester>)(new nEDChannelRequester(channelStr)); 
-	      p_Channel = (shared_ptr<epics::pvAccess::Channel>)(p_ChannelProvider->createChannel(pvName, p_ChannelRequester, ADNED_PV_PRIORITY));
-	      connectStatus = p_ChannelRequester->waitUntilConnected(ADNED_PV_TIMEOUT);
-	    } else {
-	      connectStatus = p_Channel->isConnected();
-	    }
-	    if (!connectStatus) {
-	      throw std::runtime_error("Timeout connecting to PV");
-	    }
-	       
-	    if (!p_Monitor) {
-	      shared_ptr<epics::pvData::PVStructure> pvRequest = epics::pvData::CreateRequest::create()->createRequest(ADNED_PV_REQUEST);
-	      p_MonitorRequester = (shared_ptr<nEDMonitorRequester>)(new nEDMonitorRequester(monitorStr, this));
-	      p_Monitor = p_Channel->createMonitor(p_MonitorRequester, pvRequest);
-	      p_MonitorRequester->waitUntilConnected(ADNED_PV_TIMEOUT);
-	    }
-
 	  } catch (std::exception &e)  {
 	    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
 		      "%s: ERROR: Problem creating monitor. Exception: %s\n", 
@@ -1259,6 +1244,62 @@ static void ADnEDEventTaskC(void *drvPvt)
   ADnED *pPvt = (ADnED *)drvPvt;
   
   pPvt->eventTask();
+}
+
+/**
+ * Set up a PVAccess channel and a associated monitor.
+ * This function may throw an exception.
+ * @param pvName The PV name to use.
+ * @return asynStatus If we complete normally, asynSuccess will be returned
+ */
+asynStatus ADnED::setupChannelMonitor(const char *pvName)
+{
+  bool connectStatus = false;
+  bool newMonitor = false;
+  const char* functionName = "ADnED::setupChannelMonitor";
+  asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s. PV Name: %s", functionName, pvName);
+  
+  if ((!p_ChannelRequester) || (!p_MonitorRequester)) {
+    throw std::runtime_error("No Channel or Monitor Requester.");
+  }
+
+  if (!p_ChannelProvider) {
+    p_ChannelProvider = epics::pvAccess::getChannelProviderRegistry()->getProvider(ADNED_PV_PROVIDER);
+    if (!p_ChannelProvider) {
+      throw std::runtime_error("No Channel Provider.");
+    }
+  }
+  
+  if (!p_Channel) {
+    p_Channel = (shared_ptr<epics::pvAccess::Channel>)
+      (p_ChannelProvider->createChannel(pvName, p_ChannelRequester, ADNED_PV_PRIORITY));
+    connectStatus = p_ChannelRequester->waitUntilConnected(ADNED_PV_TIMEOUT);
+  } else {
+    std::string channelName(p_Channel->getChannelName());
+    if (channelName != pvName) {
+      p_Channel->destroy();
+      p_Channel = (shared_ptr<epics::pvAccess::Channel>)
+	(p_ChannelProvider->createChannel(pvName, p_ChannelRequester, ADNED_PV_PRIORITY));
+      connectStatus = p_ChannelRequester->waitUntilConnected(ADNED_PV_TIMEOUT);
+      newMonitor = true;
+    }
+    connectStatus = p_Channel->isConnected();
+  }
+
+  if (!connectStatus) {
+    throw std::runtime_error("Timeout connecting to PV");
+  }
+  
+  if ((!p_Monitor) || (newMonitor)) {
+    if (p_Monitor) {
+      p_Monitor->destroy();
+    }
+    shared_ptr<epics::pvData::PVStructure> pvRequest = epics::pvData::CreateRequest::create()->createRequest(ADNED_PV_REQUEST);
+    p_Monitor = p_Channel->createMonitor(p_MonitorRequester, pvRequest);
+    p_MonitorRequester->waitUntilConnected(ADNED_PV_TIMEOUT);
+  }
+  
+  return asynSuccess;
 }
 
 
@@ -1381,7 +1422,7 @@ extern "C" {
  * @param maxMemory Used by asynPortDriver (set to -1 for unlimited)
  * @param debug This debug flag is passed to xsp3_config in the Xspress API (0 or 1)
  */
-  int ADnEDConfig(const char *portName, int maxBuffers, size_t maxMemory, int debug)
+  asynStatus ADnEDConfig(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   {
     asynStatus status = asynSuccess;
     

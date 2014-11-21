@@ -91,7 +91,7 @@
 #define ADNED_MAX_CHANNELS 4
 
 extern "C" {
-  int ADnEDConfig(const char *portName, int maxBuffers, size_t maxMemory, int debug);
+  asynStatus ADnEDConfig(const char *portName, int maxBuffers, size_t maxMemory, int debug);
   asynStatus ADnEDCreateFactory();
 }
 
@@ -128,6 +128,7 @@ class ADnED : public ADDriver {
   void printPixelMap(epicsUInt32 det);
   void printTofTrans(epicsUInt32 det);
   asynStatus checkPixelMap(epicsUInt32 det);
+  asynStatus setupChannelMonitor(const char *pvName);
  
   //Put private static data members here
   static const epicsInt32 s_ADNED_MAX_STRING_SIZE;
@@ -175,6 +176,8 @@ class ADnED : public ADDriver {
   int m_detPixelROISizeY[ADNED_MAX_DETS+1];
   int m_detPixelSizeX[ADNED_MAX_DETS+1];
   int m_detPixelROIEnable[ADNED_MAX_DETS+1];
+  epicsUInt32 m_eventsSinceLastUpdate;
+  epicsUInt32 m_detEventsSinceLastUpdate[ADNED_MAX_DETS+1];
 
   epics::pvAccess::ChannelProvider::shared_pointer p_ChannelProvider;
   std::tr1::shared_ptr<nEDChannel::nEDChannelRequester> p_ChannelRequester;
