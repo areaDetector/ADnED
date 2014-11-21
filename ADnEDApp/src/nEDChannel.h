@@ -56,7 +56,7 @@ namespace nEDChannel {
     
   public:
     
-    nEDMonitorRequester(std::string &requester_name, ADnED *nED);
+    nEDMonitorRequester(std::string &requester_name, ADnED *nED, epicsUInt32 channel);
     virtual ~nEDMonitorRequester();
     
     void monitorConnect(Status const & status, MonitorPtr const & monitor, StructureConstPtr const & structure);
@@ -75,6 +75,7 @@ namespace nEDChannel {
     std::string m_requesterName;
     ADnED *p_nED;
     Event m_doneEvent;
+    epicsUInt32 m_channelID;
 
   };
 

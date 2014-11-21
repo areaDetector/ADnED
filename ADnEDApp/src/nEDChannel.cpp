@@ -77,12 +77,13 @@ namespace nEDChannel {
 
   //MonitorRequester
   
-  nEDMonitorRequester::nEDMonitorRequester(std::string &requester_name, ADnED *nED) : 
-    MonitorRequester(), m_requesterName(requester_name), p_nED(nED)
+  nEDMonitorRequester::nEDMonitorRequester(std::string &requester_name, ADnED *nED, epicsUInt32 channelID) : 
+    MonitorRequester(), m_requesterName(requester_name), p_nED(nED), m_channelID(channelID)
   {
     cout << "nEDMonitorRequester constructor." << endl;
     cout << "m_requesterName: " << m_requesterName << endl;
     cout << "p_nED: " << std::hex << p_nED << std::dec << endl;
+    cout << "m_channeID: " << m_channelID << endl;
   }
 
   nEDMonitorRequester::~nEDMonitorRequester() 
@@ -113,7 +114,7 @@ namespace nEDChannel {
   {
     shared_ptr<MonitorElement> update;
     while ((update = monitor->poll())) {
-      p_nED->eventHandler(update->pvStructurePtr);
+      p_nED->eventHandler(update->pvStructurePtr, m_channelID);
       monitor->release(update);
     }
   }
