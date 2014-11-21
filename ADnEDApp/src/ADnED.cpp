@@ -115,10 +115,16 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDResetParamString,              asynParamInt32,       &ADnEDResetParam);
   createParam(ADnEDStartParamString,              asynParamInt32,       &ADnEDStartParam);
   createParam(ADnEDEventDebugParamString,         asynParamInt32,       &ADnEDEventDebugParam);
-  createParam(ADnEDSeqCounterParamString,       asynParamInt32,       &ADnEDSeqCounterParam);
+  createParam(ADnEDSeqCounter0ParamString,       asynParamInt32,       &ADnEDSeqCounter0Param);
+  createParam(ADnEDSeqCounter1ParamString,       asynParamInt32,       &ADnEDSeqCounter1Param);
+  createParam(ADnEDSeqCounter2ParamString,       asynParamInt32,       &ADnEDSeqCounter2Param);
+  createParam(ADnEDSeqCounter3ParamString,       asynParamInt32,       &ADnEDSeqCounter3Param);
   createParam(ADnEDPulseCounterParamString,       asynParamInt32,       &ADnEDPulseCounterParam);
   createParam(ADnEDEventRateParamString,       asynParamInt32,       &ADnEDEventRateParam);
-  createParam(ADnEDSeqIDParamString,            asynParamInt32,       &ADnEDSeqIDParam);
+  createParam(ADnEDSeqID0ParamString,            asynParamInt32,       &ADnEDSeqID0Param);
+  createParam(ADnEDSeqID1ParamString,            asynParamInt32,       &ADnEDSeqID1Param);
+  createParam(ADnEDSeqID2ParamString,            asynParamInt32,       &ADnEDSeqID2Param);
+  createParam(ADnEDSeqID3ParamString,            asynParamInt32,       &ADnEDSeqID3Param);
   createParam(ADnEDSeqIDMissingParamString,            asynParamInt32,       &ADnEDSeqIDMissingParam);
   createParam(ADnEDSeqIDNumMissingParamString,            asynParamInt32,       &ADnEDSeqIDNumMissingParam);
   createParam(ADnEDBadTimeStampParamString,            asynParamInt32,       &ADnEDBadTimeStampParam);
@@ -126,7 +132,11 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDPChargeIntParamString,            asynParamFloat64,     &ADnEDPChargeIntParam);
   createParam(ADnEDEventUpdatePeriodParamString,  asynParamFloat64,     &ADnEDEventUpdatePeriodParam);
   createParam(ADnEDFrameUpdatePeriodParamString,  asynParamFloat64,     &ADnEDFrameUpdatePeriodParam);
-  createParam(ADnEDPVNameParamString,          asynParamOctet,       &ADnEDPVNameParam);
+  createParam(ADnEDNumChannelsParamString,             asynParamInt32,       &ADnEDNumChannelsParam);
+  createParam(ADnEDPVName0ParamString,          asynParamOctet,       &ADnEDPVName0Param);
+  createParam(ADnEDPVName1ParamString,          asynParamOctet,       &ADnEDPVName1Param);
+  createParam(ADnEDPVName2ParamString,          asynParamOctet,       &ADnEDPVName2Param);
+  createParam(ADnEDPVName3ParamString,          asynParamOctet,       &ADnEDPVName3Param);
   createParam(ADnEDNumDetParamString,             asynParamInt32,       &ADnEDNumDetParam);
   createParam(ADnEDDetPixelNumStartParamString,  asynParamInt32,       &ADnEDDetPixelNumStartParam);
   createParam(ADnEDDetPixelNumEndParamString,    asynParamInt32,       &ADnEDDetPixelNumEndParam);
@@ -160,8 +170,10 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
 
   //Initialize non static, non const, data members
   m_acquiring = 0;
-  m_seqCounter = 0;
-  m_lastSeqID = -1; //Init to -1 to catch packet trains stuck at zero
+  for (int chan=0; chan<s_ADNED_MAX_DETS; ++chan) {
+    m_seqCounter[chan] = 0;
+    m_lastSeqID[chan] = -1; //Init to -1 to catch packet trains stuck at zero
+  }
   m_pulseCounter = 0;
   m_pChargeInt = 0.0;
   m_nowTimeSecs = 0.0;
@@ -171,8 +183,10 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   m_dataMaxSize = 0;
   m_bufferMaxSize = 0;
   m_tofMax = 0;
-  m_TimeStamp.put(0,0);
-  m_TimeStampLast.put(0,0);
+  for (int chan=0; chan<s_ADNED_MAX_DETS; ++chan) {
+    m_TimeStamp[chan].put(0,0);
+    m_TimeStampLast[chan].put(0,0);
+  }
 
   for (int i=0; i<=s_ADNED_MAX_DETS; ++i) {
     p_PixelMap[i] = NULL;
@@ -230,10 +244,14 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s ERROR: Failed to create nEDChannelRequester.\n", functionName);
     return;
   }
-  p_MonitorRequester = (shared_ptr<nEDMonitorRequester>)(new nEDMonitorRequester(monitorStr, this));  
-  if (!p_MonitorRequester) {
-    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s ERROR: Failed to create nEDMonitorRequester.\n", functionName);
-    return;
+  //Create a different monitor requestor for each PVAccess channel that we want to connect to. This is
+  //so we can distinguish which channel caused a monitor, which is necessary in the eventHandler function.
+  for (int channel=0; channel<s_ADNED_MAX_CHANNELS; ++channel) {
+    p_MonitorRequester[channel] = (shared_ptr<nEDMonitorRequester>)(new nEDMonitorRequester(monitorStr, this, channel));  
+    if (!p_MonitorRequester[channel]) {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s ERROR: Failed to create nEDMonitorRequester. channel: %d\n", functionName, channel);
+      return;
+    }
   }
 
   bool paramStatus = true;
@@ -241,16 +259,25 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   paramStatus = ((setIntegerParam(ADnEDResetParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDStartParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDEventDebugParam, 0) == asynSuccess) && paramStatus);
-  paramStatus = ((setIntegerParam(ADnEDSeqCounterParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDSeqCounter0Param, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDSeqCounter1Param, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDSeqCounter2Param, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDSeqCounter3Param, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDPulseCounterParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDEventRateParam, 0) == asynSuccess) && paramStatus);
-  paramStatus = ((setIntegerParam(ADnEDSeqIDParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDSeqID0Param, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDSeqID1Param, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDSeqID2Param, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDSeqID3Param, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDSeqIDMissingParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDSeqIDNumMissingParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDBadTimeStampParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setDoubleParam(ADnEDPChargeParam, 0.0) == asynSuccess) && paramStatus);
   paramStatus = ((setDoubleParam(ADnEDPChargeIntParam, 0.0) == asynSuccess) && paramStatus);
-  paramStatus = ((setStringParam(ADnEDPVNameParam, " ") == asynSuccess) && paramStatus);
+  paramStatus = ((setStringParam(ADnEDPVName0Param, " ") == asynSuccess) && paramStatus);
+  paramStatus = ((setStringParam(ADnEDPVName1Param, " ") == asynSuccess) && paramStatus);
+  paramStatus = ((setStringParam(ADnEDPVName2Param, " ") == asynSuccess) && paramStatus);
+  paramStatus = ((setStringParam(ADnEDPVName3Param, " ") == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDNumDetParam, 0) == asynSuccess) && paramStatus);
   //Loop over asyn addresses for detector specific params
   for (int det=0; det<=s_ADNED_MAX_DETS; det++) {
@@ -368,7 +395,9 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
     if (value) {
       if ((adStatus == ADStatusIdle) || (adStatus == ADStatusError) || (adStatus == ADStatusAborted)) {
 	cout << "Start acqusition." << endl;
-	m_seqCounter = 0;
+	for (int chan=0; chan<s_ADNED_MAX_CHANNELS; ++chan) { 
+	  m_seqCounter[chan] = 0;
+	}
 	if (clearParams() != asynSuccess) {
 	  asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to run clearParams on start.\n", functionName);
 	}
@@ -425,6 +454,18 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
 		  "%s Error Setting Number Of Detectors. Max: %d\n", 
 		  functionName, s_ADNED_MAX_DETS);
+	return asynError;
+      }
+    } else {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s. Cannot configure during acqusition.\n", functionName);
+      return asynError;
+    } 
+  } else if (function == ADnEDNumChannelsParam) {
+      if (adStatus != ADStatusAcquire) {
+      if (value > s_ADNED_MAX_CHANNELS) {
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		  "%s Error Setting Number Of PVAccess channels. Max: %d\n", 
+		  functionName, s_ADNED_MAX_CHANNELS);
 	return asynError;
       }
     } else {
@@ -696,7 +737,7 @@ asynStatus ADnED::checkPixelMap(epicsUInt32 det)
 /**
  * Event handler callback for monitor
  */
-void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct)
+void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct, epicsUInt32 channelID)
 {
   int eventDebug = 0;
   bool eventUpdate = false;
@@ -707,7 +748,8 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   double timeDiffSecs = 0.0;
   epicsUInt32 eventRate = 0;
   const char* functionName = "ADnED::eventHandler";
-  asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Event Handler.\n", functionName);
+
+  asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Event Handler. Channel ID %d\n", functionName, channelID);
 
   /* Get the time and decide if we update the PVs.*/
   lock();
@@ -723,8 +765,19 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   }
   unlock();
 
+  //Sanity check on channelID
+  if (channelID >= static_cast<epicsUInt32>(s_ADNED_MAX_CHANNELS)) { //0 based
+    if (eventUpdate) {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Invalid channel ID %d.\n", functionName, channelID);
+    }
+    return;
+  }
+
   int numDet = 0;
   getIntegerParam(ADnEDNumDetParam, &numDet);
+  if (numDet > s_ADNED_MAX_DETS) {
+    numDet = s_ADNED_MAX_DETS;
+  }
   getIntegerParam(ADnEDEventDebugParam, &eventDebug);
   for (int det=1; det<=numDet; det++) {
     getIntegerParam(det, ADnEDDetPixelNumStartParam, &m_detStartValues[det]);
@@ -754,19 +807,12 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Invalid Pixel ROI Size X.\n", functionName);
       }
       return;
-    }
-    
+    } 
   }
-
-  //epics::pvData::PVIntPtr seqIDPtr = pv_struct->getIntField(ADNED_PV_SEQ);
-  //if (!seqIDPtr) {
-  //  asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No valid timeStamp.userTag found.\n", functionName);
-  //  return;
-  //}
 
   //Compare timeStamp to last timeStamp to detect a new pulse.
   lock();
-  ++m_seqCounter;  
+  ++m_seqCounter[channelID];  
   try {
     if (!m_PVTimeStamp.attach(pv_struct->getStructureField(ADNED_PV_TIMESTAMP))) {
       if (eventUpdate) {
@@ -775,29 +821,34 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
       unlock();
       return;
     }
-    m_PVTimeStamp.get(m_TimeStamp);
-    if (m_TimeStampLast != m_TimeStamp) {
+    m_PVTimeStamp.get(m_TimeStamp[channelID]);
+    //Only use channel ID 0 to integrate the proton charge
+    if (m_TimeStampLast[0] != m_TimeStamp[0]) {
       newPulse = true;
     }
-    if (m_TimeStampLast > m_TimeStamp) {
+    if (m_TimeStampLast[channelID] > m_TimeStamp[channelID]) {
       if (eventUpdate) {
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Backwards timeStamp detected.\n", functionName);
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Backwards timeStamp detected on channel %d.\n", functionName, channelID);
       }
       setIntegerParam(ADnEDBadTimeStampParam, 1);
       unlock();
       return;
     }
-    m_TimeStampLast.put(m_TimeStamp.getSecondsPastEpoch(), m_TimeStamp.getNanoseconds());
-    seqID = static_cast<epicsUInt32>(m_TimeStamp.getUserTag());
+    m_TimeStampLast[channelID].put(m_TimeStamp[channelID].getSecondsPastEpoch(), m_TimeStamp[channelID].getNanoseconds());
+    
+    seqID = static_cast<epicsUInt32>(m_TimeStamp[channelID].getUserTag());
     //Detect missing packets
-    if (static_cast<epicsInt32>(m_lastSeqID) != -1) {
-      if (seqID != m_lastSeqID+1) {
-	setIntegerParam(ADnEDSeqIDMissingParam, m_lastSeqID+1);
+    if (static_cast<epicsInt32>(m_lastSeqID[channelID]) != -1) {
+      if (seqID != m_lastSeqID[channelID]+1) {
+	setIntegerParam(ADnEDSeqIDMissingParam, m_lastSeqID[channelID]+1);
 	getIntegerParam(ADnEDSeqIDNumMissingParam, &numMissingPackets);
-	setIntegerParam(ADnEDSeqIDNumMissingParam, numMissingPackets+(seqID-m_lastSeqID+1));
+	setIntegerParam(ADnEDSeqIDNumMissingParam, numMissingPackets+(seqID-m_lastSeqID[channelID]+1));
+	if (eventUpdate) {
+	  asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: Missing seq ID numbers on channel %d.\n", functionName, channelID);
+	}
       }
     }
-    m_lastSeqID = seqID;
+    m_lastSeqID[channelID] = seqID;
   } catch (std::exception &e)  {
     if (eventUpdate) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
@@ -924,7 +975,10 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 
     //Update params at slower rate
     if (eventUpdate) {
-      setIntegerParam(ADnEDSeqCounterParam, m_seqCounter);
+      if (channelID==0) setIntegerParam(ADnEDSeqCounter0Param, m_seqCounter[channelID]);
+      if (channelID==1) setIntegerParam(ADnEDSeqCounter1Param, m_seqCounter[channelID]);
+      if (channelID==2) setIntegerParam(ADnEDSeqCounter2Param, m_seqCounter[channelID]);
+      if (channelID==3) setIntegerParam(ADnEDSeqCounter3Param, m_seqCounter[channelID]);
       setIntegerParam(ADnEDPulseCounterParam, m_pulseCounter);
       eventRate = static_cast<epicsUInt32>(floor(m_eventsSinceLastUpdate/timeDiffSecs));
       setIntegerParam(ADnEDEventRateParam, eventRate);
@@ -934,7 +988,10 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	setIntegerParam(det, ADnEDDetEventRateParam, eventRate);
 	m_detEventsSinceLastUpdate[det] = 0;
       }
-      setIntegerParam(ADnEDSeqIDParam, seqID);
+      if (channelID==0) setIntegerParam(ADnEDSeqID0Param, seqID);
+      if (channelID==1) setIntegerParam(ADnEDSeqID1Param, seqID);
+      if (channelID==2) setIntegerParam(ADnEDSeqID2Param, seqID);
+      if (channelID==3) setIntegerParam(ADnEDSeqID3Param, seqID);
       setDoubleParam(ADnEDPChargeParam, pChargePtr->get());
       setDoubleParam(ADnEDPChargeIntParam, m_pChargeInt);
       callParamCallbacks();
@@ -947,16 +1004,10 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   }
 
   if (eventDebug != 0) {
-    cout << "m_seqCounter: " << m_seqCounter << endl;
+    cout << "channelID: " << endl;
     pv_struct->dumpValue(cout);
     cout << "p_Data: " << endl;
-    cout << " m_dataMaxSize: " << m_dataMaxSize << endl;
-    for (epicsUInt32 i=0; i<m_dataMaxSize; ++i) {
-      cout << " " << p_Data[i];
-    }
     cout << endl;
-
-    //cout << "PulseID: " << std::hex << value->get() << ", " << std::dec << value->get() << endl;
   }
   
 }
@@ -1077,9 +1128,15 @@ asynStatus ADnED::clearParams(void)
   bool status = true;
   const char* functionName = "ADnED::clearParams";
 
-  status = ((setIntegerParam(ADnEDSeqCounterParam, 0) == asynSuccess) && status);
+  status = ((setIntegerParam(ADnEDSeqCounter0Param, 0) == asynSuccess) && status);
+  status = ((setIntegerParam(ADnEDSeqCounter1Param, 0) == asynSuccess) && status);
+  status = ((setIntegerParam(ADnEDSeqCounter2Param, 0) == asynSuccess) && status);
+  status = ((setIntegerParam(ADnEDSeqCounter3Param, 0) == asynSuccess) && status);
   status = ((setIntegerParam(ADnEDPulseCounterParam, 0) == asynSuccess) && status);
-  status = ((setIntegerParam(ADnEDSeqIDParam, 0) == asynSuccess) && status);
+  status = ((setIntegerParam(ADnEDSeqID0Param, 0) == asynSuccess) && status);
+  status = ((setIntegerParam(ADnEDSeqID1Param, 0) == asynSuccess) && status);
+  status = ((setIntegerParam(ADnEDSeqID2Param, 0) == asynSuccess) && status);
+  status = ((setIntegerParam(ADnEDSeqID3Param, 0) == asynSuccess) && status);
   status = ((setDoubleParam(ADnEDPChargeParam, 0.0) == asynSuccess) && status);
   status = ((setDoubleParam(ADnEDPChargeIntParam, 0.0) == asynSuccess) && status);
   status = ((setIntegerParam(ADnEDSeqIDMissingParam, 0) == asynSuccess) && status);
@@ -1087,12 +1144,14 @@ asynStatus ADnED::clearParams(void)
   status = ((setIntegerParam(ADnEDBadTimeStampParam, 0) == asynSuccess) && status);
 
   m_pChargeInt = 0.0;
-  m_seqCounter = 0;
   m_pulseCounter = 0;
-  m_lastSeqID = -1;
-  m_seqCounter = 0;
-  m_TimeStamp.put(0,0);
-  m_TimeStampLast.put(0,0);
+
+  for (int chan=0; chan<s_ADNED_MAX_DETS; ++chan) {
+    m_seqCounter[chan] = 0;
+    m_lastSeqID[chan] = -1;  
+    m_TimeStamp[chan].put(0,0);
+    m_TimeStampLast[chan].put(0,0);
+  }
 
   if (!status) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to clear params.\n", functionName);
@@ -1112,7 +1171,7 @@ void ADnED::eventTask(void)
   epicsFloat64 timeout = 0.001;
   bool acquire = 0;
   bool error = true;
-  char pvName[s_ADNED_MAX_STRING_SIZE] = {0};
+  char pvName[s_ADNED_MAX_CHANNELS][s_ADNED_MAX_STRING_SIZE] = {{0}};
   const char* functionName = "ADnED::eventTask";
  
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Started Event Thread.\n", functionName);
@@ -1162,14 +1221,28 @@ void ADnED::eventTask(void)
 	epicsEventSignal(this->m_startFrame);
 	callParamCallbacks();
       
-	//Read the PV name
-	getStringParam(ADnEDPVNameParam, sizeof(pvName), pvName);
+	//Read the PV names
+	getStringParam(ADnEDPVName0Param, sizeof(pvName[0]), pvName[0]);
+	getStringParam(ADnEDPVName1Param, sizeof(pvName[1]), pvName[1]);
+	getStringParam(ADnEDPVName2Param, sizeof(pvName[2]), pvName[2]);
+	getStringParam(ADnEDPVName3Param, sizeof(pvName[3]), pvName[3]);
+
+	//Get the number of required active PVAccess channels
+	int numChannels = 0;
+	getIntegerParam(ADnEDNumChannelsParam, &numChannels);
+	if (numChannels > s_ADNED_MAX_CHANNELS) {
+	  numChannels = s_ADNED_MAX_CHANNELS;
+	}
 
 	//Connect channel here      
-	if ((pvName[0] != '0') && (!error)) {
+	if (!error) {
 	  try {
-	    if (setupChannelMonitor(pvName) != asynSuccess) {
-	      throw std::runtime_error("Unknown error fromsetupChannelMonitor.");
+	    for (int channel=0; channel<numChannels; ++channel) {
+	      if (pvName[channel][0] != '0') {
+		if (setupChannelMonitor(pvName[channel], channel) != asynSuccess) {
+		  throw std::runtime_error("Unknown error fromsetupChannelMonitor.");
+		}
+	      }
 	    }
 	  } catch (std::exception &e)  {
 	    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
@@ -1183,8 +1256,10 @@ void ADnED::eventTask(void)
 	}
 
 	if (!error) {
-	  if (p_Monitor) {
-	    p_Monitor->start();
+	  for (int channel=0; channel<s_ADNED_MAX_CHANNELS; ++channel) {
+	    if (p_Monitor[channel]) {
+	      p_Monitor[channel]->start();
+	    }
 	  }
 	} else {
 	  cout << "Send Stop Frame" << endl;
@@ -1227,8 +1302,10 @@ void ADnED::eventTask(void)
     } // End of while(acquire)
 
     //Stop monitor here
-    if (p_Monitor) {
-      p_Monitor->stop();
+    for (int channel=0; channel<s_ADNED_MAX_CHANNELS; ++channel) {
+      if (p_Monitor[channel]) {
+	p_Monitor[channel]->stop();
+      }
     }
     
   } // End of while(1)
@@ -1250,15 +1327,22 @@ static void ADnEDEventTaskC(void *drvPvt)
  * Set up a PVAccess channel and a associated monitor.
  * This function may throw an exception.
  * @param pvName The PV name to use.
+ * @param channel The PVAccess channel number, because we can support more than one channel monitor.
  * @return asynStatus If we complete normally, asynSuccess will be returned
  */
-asynStatus ADnED::setupChannelMonitor(const char *pvName)
+asynStatus ADnED::setupChannelMonitor(const char *pvName, int channel)
 {
   bool connectStatus = false;
   bool newMonitor = false;
   const char* functionName = "ADnED::setupChannelMonitor";
-  asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s. PV Name: %s", functionName, pvName);
+  asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s. PV Name: %s, Channel: %d", functionName, pvName, channel);
   
+  cout << "PV Name: " << pvName << "  Channel: " << channel << endl;
+
+  if (channel >= s_ADNED_MAX_CHANNELS) {
+    throw std::runtime_error("channel >= s_ADNED_MAX_CHANNELS.");
+  }
+
   if ((!p_ChannelRequester) || (!p_MonitorRequester)) {
     throw std::runtime_error("No Channel or Monitor Requester.");
   }
@@ -1270,33 +1354,33 @@ asynStatus ADnED::setupChannelMonitor(const char *pvName)
     }
   }
   
-  if (!p_Channel) {
-    p_Channel = (shared_ptr<epics::pvAccess::Channel>)
+  if (!p_Channel[channel]) {
+    p_Channel[channel] = (shared_ptr<epics::pvAccess::Channel>)
       (p_ChannelProvider->createChannel(pvName, p_ChannelRequester, ADNED_PV_PRIORITY));
     connectStatus = p_ChannelRequester->waitUntilConnected(ADNED_PV_TIMEOUT);
   } else {
-    std::string channelName(p_Channel->getChannelName());
+    std::string channelName(p_Channel[channel]->getChannelName());
     if (channelName != pvName) {
-      p_Channel->destroy();
-      p_Channel = (shared_ptr<epics::pvAccess::Channel>)
+      p_Channel[channel]->destroy();
+      p_Channel[channel] = (shared_ptr<epics::pvAccess::Channel>)
 	(p_ChannelProvider->createChannel(pvName, p_ChannelRequester, ADNED_PV_PRIORITY));
       connectStatus = p_ChannelRequester->waitUntilConnected(ADNED_PV_TIMEOUT);
       newMonitor = true;
     }
-    connectStatus = p_Channel->isConnected();
+    connectStatus = p_Channel[channel]->isConnected();
   }
 
   if (!connectStatus) {
     throw std::runtime_error("Timeout connecting to PV");
   }
   
-  if ((!p_Monitor) || (newMonitor)) {
-    if (p_Monitor) {
-      p_Monitor->destroy();
+  if ((!p_Monitor[channel]) || (newMonitor)) {
+    if (p_Monitor[channel]) {
+      p_Monitor[channel]->destroy();
     }
     shared_ptr<epics::pvData::PVStructure> pvRequest = epics::pvData::CreateRequest::create()->createRequest(ADNED_PV_REQUEST);
-    p_Monitor = p_Channel->createMonitor(p_MonitorRequester, pvRequest);
-    p_MonitorRequester->waitUntilConnected(ADNED_PV_TIMEOUT);
+    p_Monitor[channel] = p_Channel[channel]->createMonitor(p_MonitorRequester[channel], pvRequest);
+    p_MonitorRequester[channel]->waitUntilConnected(ADNED_PV_TIMEOUT);
   }
   
   return asynSuccess;

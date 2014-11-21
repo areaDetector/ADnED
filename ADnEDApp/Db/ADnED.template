@@ -52,11 +52,32 @@ record(bo, "$(P)$(R)EventDebug")
 # ///
 # /// Number of V4 packets in current acquisition
 # ///
-record(longin, "$(P)$(R)SeqCounter_RBV")
+record(longin, "$(P)$(R)SeqCounter0_RBV")
 {
    field(PINI, "YES")
    field(DTYP, "asynInt32")
-   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_COUNTER")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_COUNTER0")
+   field(SCAN, "I/O Intr")
+}
+record(longin, "$(P)$(R)SeqCounter1_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_COUNTER1")
+   field(SCAN, "I/O Intr")
+}
+record(longin, "$(P)$(R)SeqCounter2_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_COUNTER2")
+   field(SCAN, "I/O Intr")
+}
+record(longin, "$(P)$(R)SeqCounter3_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_COUNTER3")
    field(SCAN, "I/O Intr")
 }
 
@@ -99,17 +120,65 @@ record(longin, "$(P)$(R)EventRate_RBV")
 # /// may be multiple packets with the same ID. Note: the timeStamp NT
 # /// is used to delineate pulses.
 # ///
-record(longin, "$(P)$(R)SeqID_RBV")
+record(longin, "$(P)$(R)SeqID0_RBV")
 {
    field(PINI, "YES")
    field(DTYP, "asynInt32")
-   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_ID")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_ID0")
    field(SCAN, "I/O Intr")
 }
-record(calc, "$(P)$(R)SeqIDRate_RBV")
+record(calc, "$(P)$(R)SeqID0Rate_RBV")
 {
-    field(INPA, "$(P)$(R)SeqIDRate_RBV.B NPP NMS") 
-    field(INPB, "$(P)$(R)SeqID_RBV NPP NMS")
+    field(INPA, "$(P)$(R)SeqID0Rate_RBV.B NPP NMS") 
+    field(INPB, "$(P)$(R)SeqID0_RBV NPP NMS")
+    field(INPC, "1.0")                         
+    field(CALC, "(B-A)/C")
+    field(PREC, "1")
+    field(SCAN, "1 second")
+}
+record(longin, "$(P)$(R)SeqID1_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_ID1")
+   field(SCAN, "I/O Intr")
+}
+record(calc, "$(P)$(R)SeqID1Rate_RBV")
+{
+    field(INPA, "$(P)$(R)SeqID1Rate_RBV.B NPP NMS") 
+    field(INPB, "$(P)$(R)SeqID1_RBV NPP NMS")
+    field(INPC, "1.0")                         
+    field(CALC, "(B-A)/C")
+    field(PREC, "1")
+    field(SCAN, "1 second")
+}
+record(longin, "$(P)$(R)SeqID2_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_ID2")
+   field(SCAN, "I/O Intr")
+}
+record(calc, "$(P)$(R)SeqID2Rate_RBV")
+{
+    field(INPA, "$(P)$(R)SeqID2Rate_RBV.B NPP NMS") 
+    field(INPB, "$(P)$(R)SeqID2_RBV NPP NMS")
+    field(INPC, "1.0")                         
+    field(CALC, "(B-A)/C")
+    field(PREC, "1")
+    field(SCAN, "1 second")
+}
+record(longin, "$(P)$(R)SeqID3_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_ID3")
+   field(SCAN, "I/O Intr")
+}
+record(calc, "$(P)$(R)SeqID3Rate_RBV")
+{
+    field(INPA, "$(P)$(R)SeqID3Rate_RBV.B NPP NMS") 
+    field(INPB, "$(P)$(R)SeqID3_RBV NPP NMS")
     field(INPC, "1.0")                         
     field(CALC, "(B-A)/C")
     field(PREC, "1")
@@ -191,22 +260,113 @@ record(ai, "$(P)$(R)EventUpdatePeriod_RBV")
 }
 
 # ///
-# /// The V4 pvAccess PV name
+# /// Number of PVAccess channels. This cannot exceed a maximum number
+# /// hardcoded in the driver.
 # ///
-record(waveform, "$(P)$(R)PVName")
+record(longout, "$(P)$(R)NumChannels")
+{
+   field(DESC, "Num Channels")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_NUM_CHANNELS")
+   field(VAL, "1")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+}
+
+# ///
+# /// Number of PVAccess channels (readback)
+# ///
+record(longin, "$(P)$(R)NumChannels_RBV")
+{
+   field(DESC, "Num Channels")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_NUM_CHANNELS")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// The V4 pvAccess PV name for channel 0
+# ///
+record(waveform, "$(P)$(R)PVName0")
 {
     field(PINI, "YES")
     field(DTYP, "asynOctetWrite")
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME0")
     field(FTVL, "CHAR")
     field(NELM, "256")
    info(autosaveFields, "VAL")
 }
 
-record(waveform, "$(P)$(R)PVName_RBV")
+record(waveform, "$(P)$(R)PVName0_RBV")
 {
     field(DTYP, "asynOctetRead")
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME0")
+    field(FTVL, "CHAR")
+    field(NELM, "256")
+    field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// The V4 pvAccess PV name for channel 1
+# ///
+record(waveform, "$(P)$(R)PVName1")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynOctetWrite")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME1")
+    field(FTVL, "CHAR")
+    field(NELM, "256")
+   info(autosaveFields, "VAL")
+}
+
+record(waveform, "$(P)$(R)PVName1_RBV")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME1")
+    field(FTVL, "CHAR")
+    field(NELM, "256")
+    field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// The V4 pvAccess PV name for channel 2
+# ///
+record(waveform, "$(P)$(R)PVName2")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynOctetWrite")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME2")
+    field(FTVL, "CHAR")
+    field(NELM, "256")
+   info(autosaveFields, "VAL")
+}
+
+record(waveform, "$(P)$(R)PVName2_RBV")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME2")
+    field(FTVL, "CHAR")
+    field(NELM, "256")
+    field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// The V4 pvAccess PV name for channel 3
+# ///
+record(waveform, "$(P)$(R)PVName3")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynOctetWrite")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME3")
+    field(FTVL, "CHAR")
+    field(NELM, "256")
+   info(autosaveFields, "VAL")
+}
+
+record(waveform, "$(P)$(R)PVName3_RBV")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME3")
     field(FTVL, "CHAR")
     field(NELM, "256")
     field(SCAN, "I/O Intr")

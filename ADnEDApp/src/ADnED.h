@@ -44,10 +44,16 @@
 #define ADnEDResetParamString              "ADNED_RESET"
 #define ADnEDStartParamString              "ADNED_START"
 #define ADnEDEventDebugParamString         "ADNED_EVENT_DEBUG"
-#define ADnEDSeqCounterParamString         "ADNED_SEQ_COUNTER"
+#define ADnEDSeqCounter0ParamString         "ADNED_SEQ_COUNTER0"
+#define ADnEDSeqCounter1ParamString         "ADNED_SEQ_COUNTER1"
+#define ADnEDSeqCounter2ParamString         "ADNED_SEQ_COUNTER2"
+#define ADnEDSeqCounter3ParamString         "ADNED_SEQ_COUNTER3"
 #define ADnEDPulseCounterParamString       "ADNED_PULSE_COUNTER"
 #define ADnEDEventRateParamString          "ADNED_EVENT_RATE"
-#define ADnEDSeqIDParamString              "ADNED_SEQ_ID"
+#define ADnEDSeqID0ParamString              "ADNED_SEQ_ID0"
+#define ADnEDSeqID1ParamString              "ADNED_SEQ_ID1"
+#define ADnEDSeqID2ParamString              "ADNED_SEQ_ID2"
+#define ADnEDSeqID3ParamString              "ADNED_SEQ_ID3"
 #define ADnEDSeqIDMissingParamString       "ADNED_SEQ_ID_MISSING"
 #define ADnEDSeqIDNumMissingParamString    "ADNED_SEQ_ID_NUM_MISSING"
 #define ADnEDBadTimeStampParamString       "ADNED_BAD_TIMESTAMP"
@@ -55,7 +61,11 @@
 #define ADnEDPChargeIntParamString         "ADNED_PCHARGE_INT"
 #define ADnEDEventUpdatePeriodParamString  "ADNED_EVENT_UPDATE_PERIOD"
 #define ADnEDFrameUpdatePeriodParamString  "ADNED_FRAME_UPDATE_PERIOD"
-#define ADnEDPVNameParamString             "ADNED_PV_NAME"
+#define ADnEDNumChannelsParamString        "ADNED_NUM_CHANNELS"
+#define ADnEDPVName0ParamString            "ADNED_PV_NAME0"
+#define ADnEDPVName1ParamString            "ADNED_PV_NAME1"
+#define ADnEDPVName2ParamString            "ADNED_PV_NAME2"
+#define ADnEDPVName3ParamString            "ADNED_PV_NAME3"
 #define ADnEDNumDetParamString             "ADNED_NUM_DET"
 #define ADnEDDetPixelNumStartParamString   "ADNED_DET_PIXEL_NUM_START"
 #define ADnEDDetPixelNumEndParamString     "ADNED_DET_PIXEL_NUM_END"
@@ -118,7 +128,7 @@ class ADnED : public ADDriver {
 
   void eventTask(void);
   void frameTask(void);
-  void eventHandler(std::tr1::shared_ptr<epics::pvData::PVStructure> const &pv_struct);
+  void eventHandler(std::tr1::shared_ptr<epics::pvData::PVStructure> const &pv_struct, epicsUInt32 channelID);
   asynStatus allocArray(void); 
   asynStatus clearParams(void);
 
@@ -128,7 +138,7 @@ class ADnED : public ADDriver {
   void printPixelMap(epicsUInt32 det);
   void printTofTrans(epicsUInt32 det);
   asynStatus checkPixelMap(epicsUInt32 det);
-  asynStatus setupChannelMonitor(const char *pvName);
+  asynStatus setupChannelMonitor(const char *pvName, int channel);
  
   //Put private static data members here
   static const epicsInt32 s_ADNED_MAX_STRING_SIZE;
@@ -140,8 +150,8 @@ class ADnED : public ADDriver {
 
   //Put private dynamic here
   epicsUInt32 m_acquiring; 
-  epicsUInt32 m_seqCounter;
-  epicsUInt32 m_lastSeqID;
+  epicsUInt32 m_seqCounter[ADNED_MAX_CHANNELS];
+  epicsUInt32 m_lastSeqID[ADNED_MAX_CHANNELS];
   epicsUInt32 m_pulseCounter;
   epicsFloat64 m_pChargeInt;
   epicsTimeStamp m_nowTime;
@@ -157,8 +167,8 @@ class ADnED : public ADDriver {
   epicsUInt32 m_bufferMaxSize;
   epicsUInt32 m_tofMax;
   epics::pvData::PVTimeStamp m_PVTimeStamp;
-  epics::pvData::TimeStamp m_TimeStamp;
-  epics::pvData::TimeStamp m_TimeStampLast;
+  epics::pvData::TimeStamp m_TimeStamp[ADNED_MAX_CHANNELS];
+  epics::pvData::TimeStamp m_TimeStampLast[ADNED_MAX_CHANNELS];
   int m_detStartValues[ADNED_MAX_DETS+1];
   int m_detEndValues[ADNED_MAX_DETS+1];
   int m_NDArrayStartValues[ADNED_MAX_DETS+1];
@@ -181,9 +191,9 @@ class ADnED : public ADDriver {
 
   epics::pvAccess::ChannelProvider::shared_pointer p_ChannelProvider;
   std::tr1::shared_ptr<nEDChannel::nEDChannelRequester> p_ChannelRequester;
-  std::tr1::shared_ptr<nEDChannel::nEDMonitorRequester> p_MonitorRequester;
-  epics::pvData::Monitor::shared_pointer p_Monitor;
-  epics::pvAccess::Channel::shared_pointer p_Channel;
+  std::tr1::shared_ptr<nEDChannel::nEDMonitorRequester> p_MonitorRequester[ADNED_MAX_CHANNELS];
+  epics::pvData::Monitor::shared_pointer p_Monitor[ADNED_MAX_CHANNELS];
+  epics::pvAccess::Channel::shared_pointer p_Channel[ADNED_MAX_CHANNELS];
 
   //Constructor parameters.
   const epicsUInt32 m_debug;
@@ -199,10 +209,16 @@ class ADnED : public ADDriver {
   int ADnEDResetParam;
   int ADnEDStartParam;
   int ADnEDEventDebugParam;
-  int ADnEDSeqCounterParam;
+  int ADnEDSeqCounter0Param;
+  int ADnEDSeqCounter1Param;
+  int ADnEDSeqCounter2Param;
+  int ADnEDSeqCounter3Param;
   int ADnEDPulseCounterParam;
   int ADnEDEventRateParam;
-  int ADnEDSeqIDParam;
+  int ADnEDSeqID0Param;
+  int ADnEDSeqID1Param;
+  int ADnEDSeqID2Param;
+  int ADnEDSeqID3Param;
   int ADnEDSeqIDMissingParam;
   int ADnEDSeqIDNumMissingParam;
   int ADnEDBadTimeStampParam;
@@ -210,7 +226,11 @@ class ADnED : public ADDriver {
   int ADnEDPChargeIntParam;
   int ADnEDEventUpdatePeriodParam;
   int ADnEDFrameUpdatePeriodParam;
-  int ADnEDPVNameParam;
+  int ADnEDNumChannelsParam;
+  int ADnEDPVName0Param;
+  int ADnEDPVName1Param;
+  int ADnEDPVName2Param;
+  int ADnEDPVName3Param;
   int ADnEDNumDetParam;
   int ADnEDDetPixelNumStartParam;
   int ADnEDDetPixelNumEndParam;
