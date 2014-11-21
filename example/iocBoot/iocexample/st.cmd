@@ -14,7 +14,12 @@ example_registerRecordDeviceDriver pdbbase
 #####################################################
 # ADnED (only 1 per IOC at the moment)
 
+ADnEDCreateFactory(0)
+
 epicsEnvSet PORT "N1"
+< $(ADNED)/st.cmd.config
+
+epicsEnvSet PORT "M1"
 < $(ADNED)/st.cmd.config
 
 #asynSetTraceIOMask("$(PORT)",0,0xFF)

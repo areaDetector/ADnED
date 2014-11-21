@@ -88,9 +88,11 @@
 
 #define ADNED_MAX_STRING_SIZE 256
 #define ADNED_MAX_DETS 4
+#define ADNED_MAX_CHANNELS 4
 
 extern "C" {
   int ADnEDConfig(const char *portName, int maxBuffers, size_t maxMemory, int debug);
+  asynStatus ADnEDCreateFactory();
 }
 
 namespace epics {
@@ -112,6 +114,8 @@ class ADnED : public ADDriver {
                                   size_t nChars, size_t *nActual);
   virtual void report(FILE *fp, int details);
 
+  static asynStatus createFactory();
+
   void eventTask(void);
   void frameTask(void);
   void eventHandler(std::tr1::shared_ptr<epics::pvData::PVStructure> const &pv_struct);
@@ -128,6 +132,7 @@ class ADnED : public ADDriver {
   //Put private static data members here
   static const epicsInt32 s_ADNED_MAX_STRING_SIZE;
   static const epicsInt32 s_ADNED_MAX_DETS;
+  static const epicsInt32 s_ADNED_MAX_CHANNELS;
   static const epicsUInt32 s_ADNED_ALLOC_STATUS_OK;
   static const epicsUInt32 s_ADNED_ALLOC_STATUS_REQ;
   static const epicsUInt32 s_ADNED_ALLOC_STATUS_FAIL;

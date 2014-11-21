@@ -51,6 +51,7 @@ using nEDChannel::nEDMonitorRequester;
 //Definitions of static class data members
 const epicsInt32 ADnED::s_ADNED_MAX_STRING_SIZE = ADNED_MAX_STRING_SIZE;
 const epicsInt32 ADnED::s_ADNED_MAX_DETS = ADNED_MAX_DETS;
+const epicsInt32 ADnED::s_ADNED_MAX_CHANNELS = ADNED_MAX_CHANNELS;
 const epicsUInt32 ADnED::s_ADNED_ALLOC_STATUS_OK = 0;
 const epicsUInt32 ADnED::s_ADNED_ALLOC_STATUS_REQ = 1;
 const epicsUInt32 ADnED::s_ADNED_ALLOC_STATUS_FAIL = 2;
@@ -198,22 +199,6 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     m_detPixelSizeX[i] = 0;
     m_detPixelROIEnable[i] = 0;
   }
-
-  try {
-    cout << "Starting ClientFactory::start() " << endl;
-    epics::pvAccess::ClientFactory::start();
-  } catch (std::exception &e)  {
-    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-	      "%s: ERROR: Exception for ClientFactory::start(). Exception: %s\n", 
-	      functionName, e.what());
-    return;
-  }
-  
-  p_ChannelProvider = epics::pvAccess::getChannelProviderRegistry()->getProvider("pva");
-  if (!p_ChannelProvider) {
-    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: No Channel Provider.\n", functionName);
-    return;
-  }
   
   //Create the thread that reads the data 
   status = (epicsThreadCreate("ADnEDEventTask",
@@ -296,7 +281,25 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
 ADnED::~ADnED() 
 {
   asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "ADnED::~ADnED Called.\n");
-  epics::pvAccess::ClientFactory::stop();
+}
+
+/**
+ * Class function to create a PVAccess client factory
+ */
+asynStatus ADnED::createFactory()
+{
+  try {
+    printf("Starting ClientFactory::start()\n");
+    epics::pvAccess::ClientFactory::start();
+  } catch (std::exception &e)  {
+    fprintf(stderr, "ERROR: Exception for ClientFactory::start(). Exception: %s\n", e.what());
+    return asynError;
+  }
+
+  epicsThreadSleep(1);
+
+  return asynSuccess;
+
 }
 
 
@@ -1156,6 +1159,14 @@ void ADnED::eventTask(void)
 	if ((pvName[0] != '0') && (!error)) {
 	  try {
 
+	    if (!p_ChannelProvider) {
+	      p_ChannelProvider = epics::pvAccess::getChannelProviderRegistry()->getProvider("pva");
+	      if (!p_ChannelProvider) {
+		asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: No Channel Provider.\n", functionName);
+		return;
+	      }
+	    }
+	    
 	    bool connectStatus = false;
 	    if (!p_Channel) {
 	      p_ChannelRequester = (shared_ptr<nEDChannelRequester>)(new nEDChannelRequester(channelStr)); 
@@ -1385,6 +1396,15 @@ extern "C" {
     return(status);
   }
 
+/**
+ * Config function for IOC shell. It instantiates a PVAccess client factory for this IOC.
+ */
+  asynStatus ADnEDCreateFactory()
+  { 
+    /*Instantiate factory.*/
+    return ADnED::createFactory();
+  }
+
 
    
   /* Code for iocsh registration */
@@ -1404,10 +1424,18 @@ extern "C" {
   {
     ADnEDConfig(args[0].sval, args[1].ival, args[2].ival, args[3].ival);
   }
+
+  static const iocshFuncDef configADnEDCreateFactory = {"ADnEDCreateFactory", 0, NULL};
+  static void configADnEDCreateFactoryCallFunc(const iocshArgBuf *args)
+  {
+    ADnEDCreateFactory();
+  }
+
   
   static void ADnEDRegister(void)
   {
     iocshRegister(&configADnED, configADnEDCallFunc);
+    iocshRegister(&configADnEDCreateFactory, configADnEDCreateFactoryCallFunc);
   }
   
   epicsExportRegistrar(ADnEDRegister);
