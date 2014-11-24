@@ -44,16 +44,10 @@
 #define ADnEDResetParamString              "ADNED_RESET"
 #define ADnEDStartParamString              "ADNED_START"
 #define ADnEDEventDebugParamString         "ADNED_EVENT_DEBUG"
-#define ADnEDSeqCounter0ParamString         "ADNED_SEQ_COUNTER0"
-#define ADnEDSeqCounter1ParamString         "ADNED_SEQ_COUNTER1"
-#define ADnEDSeqCounter2ParamString         "ADNED_SEQ_COUNTER2"
-#define ADnEDSeqCounter3ParamString         "ADNED_SEQ_COUNTER3"
+#define ADnEDSeqCounterParamString         "ADNED_SEQ_COUNTER"
 #define ADnEDPulseCounterParamString       "ADNED_PULSE_COUNTER"
 #define ADnEDEventRateParamString          "ADNED_EVENT_RATE"
-#define ADnEDSeqID0ParamString              "ADNED_SEQ_ID0"
-#define ADnEDSeqID1ParamString              "ADNED_SEQ_ID1"
-#define ADnEDSeqID2ParamString              "ADNED_SEQ_ID2"
-#define ADnEDSeqID3ParamString              "ADNED_SEQ_ID3"
+#define ADnEDSeqIDParamString              "ADNED_SEQ_ID"
 #define ADnEDSeqIDMissingParamString       "ADNED_SEQ_ID_MISSING"
 #define ADnEDSeqIDNumMissingParamString    "ADNED_SEQ_ID_NUM_MISSING"
 #define ADnEDBadTimeStampParamString       "ADNED_BAD_TIMESTAMP"
@@ -62,10 +56,7 @@
 #define ADnEDEventUpdatePeriodParamString  "ADNED_EVENT_UPDATE_PERIOD"
 #define ADnEDFrameUpdatePeriodParamString  "ADNED_FRAME_UPDATE_PERIOD"
 #define ADnEDNumChannelsParamString        "ADNED_NUM_CHANNELS"
-#define ADnEDPVName0ParamString            "ADNED_PV_NAME0"
-#define ADnEDPVName1ParamString            "ADNED_PV_NAME1"
-#define ADnEDPVName2ParamString            "ADNED_PV_NAME2"
-#define ADnEDPVName3ParamString            "ADNED_PV_NAME3"
+#define ADnEDPVNameParamString            "ADNED_PV_NAME"
 #define ADnEDNumDetParamString             "ADNED_NUM_DET"
 #define ADnEDDetPixelNumStartParamString   "ADNED_DET_PIXEL_NUM_START"
 #define ADnEDDetPixelNumEndParamString     "ADNED_DET_PIXEL_NUM_END"
@@ -209,16 +200,10 @@ class ADnED : public ADDriver {
   int ADnEDResetParam;
   int ADnEDStartParam;
   int ADnEDEventDebugParam;
-  int ADnEDSeqCounter0Param;
-  int ADnEDSeqCounter1Param;
-  int ADnEDSeqCounter2Param;
-  int ADnEDSeqCounter3Param;
+  int ADnEDSeqCounterParam;
   int ADnEDPulseCounterParam;
   int ADnEDEventRateParam;
-  int ADnEDSeqID0Param;
-  int ADnEDSeqID1Param;
-  int ADnEDSeqID2Param;
-  int ADnEDSeqID3Param;
+  int ADnEDSeqIDParam;
   int ADnEDSeqIDMissingParam;
   int ADnEDSeqIDNumMissingParam;
   int ADnEDBadTimeStampParam;
@@ -227,10 +212,7 @@ class ADnED : public ADDriver {
   int ADnEDEventUpdatePeriodParam;
   int ADnEDFrameUpdatePeriodParam;
   int ADnEDNumChannelsParam;
-  int ADnEDPVName0Param;
-  int ADnEDPVName1Param;
-  int ADnEDPVName2Param;
-  int ADnEDPVName3Param;
+  int ADnEDPVNameParam;
   int ADnEDNumDetParam;
   int ADnEDDetPixelNumStartParam;
   int ADnEDDetPixelNumEndParam;

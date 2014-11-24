@@ -50,39 +50,7 @@ record(bo, "$(P)$(R)EventDebug")
 }
 
 # ///
-# /// Number of V4 packets in current acquisition
-# ///
-record(longin, "$(P)$(R)SeqCounter0_RBV")
-{
-   field(PINI, "YES")
-   field(DTYP, "asynInt32")
-   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_COUNTER0")
-   field(SCAN, "I/O Intr")
-}
-record(longin, "$(P)$(R)SeqCounter1_RBV")
-{
-   field(PINI, "YES")
-   field(DTYP, "asynInt32")
-   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_COUNTER1")
-   field(SCAN, "I/O Intr")
-}
-record(longin, "$(P)$(R)SeqCounter2_RBV")
-{
-   field(PINI, "YES")
-   field(DTYP, "asynInt32")
-   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_COUNTER2")
-   field(SCAN, "I/O Intr")
-}
-record(longin, "$(P)$(R)SeqCounter3_RBV")
-{
-   field(PINI, "YES")
-   field(DTYP, "asynInt32")
-   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_COUNTER3")
-   field(SCAN, "I/O Intr")
-}
-
-# ///
-# /// Number of pulses detected by comparing seq timestamps.
+# /// Number of pulses detected by comparing seq timestamps from the first channel.
 # ///
 record(longin, "$(P)$(R)PulseCounter_RBV")
 {
@@ -112,77 +80,6 @@ record(longin, "$(P)$(R)EventRate_RBV")
    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_EVENT_RATE")
    field(SCAN, "I/O Intr")
    field(EGU, "e/s")
-}
-
-# ///
-# /// Sequence ID values (the timeStamp.userTag). This is not the pulse ID.
-# /// It is a unique ID sent by the server with every V4 packet. So there
-# /// may be multiple packets with the same ID. Note: the timeStamp NT
-# /// is used to delineate pulses.
-# ///
-record(longin, "$(P)$(R)SeqID0_RBV")
-{
-   field(PINI, "YES")
-   field(DTYP, "asynInt32")
-   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_ID0")
-   field(SCAN, "I/O Intr")
-}
-record(calc, "$(P)$(R)SeqID0Rate_RBV")
-{
-    field(INPA, "$(P)$(R)SeqID0Rate_RBV.B NPP NMS") 
-    field(INPB, "$(P)$(R)SeqID0_RBV NPP NMS")
-    field(INPC, "1.0")                         
-    field(CALC, "(B-A)/C")
-    field(PREC, "1")
-    field(SCAN, "1 second")
-}
-record(longin, "$(P)$(R)SeqID1_RBV")
-{
-   field(PINI, "YES")
-   field(DTYP, "asynInt32")
-   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_ID1")
-   field(SCAN, "I/O Intr")
-}
-record(calc, "$(P)$(R)SeqID1Rate_RBV")
-{
-    field(INPA, "$(P)$(R)SeqID1Rate_RBV.B NPP NMS") 
-    field(INPB, "$(P)$(R)SeqID1_RBV NPP NMS")
-    field(INPC, "1.0")                         
-    field(CALC, "(B-A)/C")
-    field(PREC, "1")
-    field(SCAN, "1 second")
-}
-record(longin, "$(P)$(R)SeqID2_RBV")
-{
-   field(PINI, "YES")
-   field(DTYP, "asynInt32")
-   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_ID2")
-   field(SCAN, "I/O Intr")
-}
-record(calc, "$(P)$(R)SeqID2Rate_RBV")
-{
-    field(INPA, "$(P)$(R)SeqID2Rate_RBV.B NPP NMS") 
-    field(INPB, "$(P)$(R)SeqID2_RBV NPP NMS")
-    field(INPC, "1.0")                         
-    field(CALC, "(B-A)/C")
-    field(PREC, "1")
-    field(SCAN, "1 second")
-}
-record(longin, "$(P)$(R)SeqID3_RBV")
-{
-   field(PINI, "YES")
-   field(DTYP, "asynInt32")
-   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_ID3")
-   field(SCAN, "I/O Intr")
-}
-record(calc, "$(P)$(R)SeqID3Rate_RBV")
-{
-    field(INPA, "$(P)$(R)SeqID3Rate_RBV.B NPP NMS") 
-    field(INPB, "$(P)$(R)SeqID3_RBV NPP NMS")
-    field(INPC, "1.0")                         
-    field(CALC, "(B-A)/C")
-    field(PREC, "1")
-    field(SCAN, "1 second")
 }
 
 
@@ -261,7 +158,7 @@ record(ai, "$(P)$(R)EventUpdatePeriod_RBV")
 
 # ///
 # /// Number of PVAccess channels. This cannot exceed a maximum number
-# /// hardcoded in the driver.
+# /// hardcoded in the driver (which is 4, 0-3).
 # ///
 record(longout, "$(P)$(R)NumChannels")
 {
@@ -282,94 +179,6 @@ record(longin, "$(P)$(R)NumChannels_RBV")
    field(DTYP, "asynInt32")
    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_NUM_CHANNELS")
    field(SCAN, "I/O Intr")
-}
-
-# ///
-# /// The V4 pvAccess PV name for channel 0
-# ///
-record(waveform, "$(P)$(R)PVName0")
-{
-    field(PINI, "YES")
-    field(DTYP, "asynOctetWrite")
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME0")
-    field(FTVL, "CHAR")
-    field(NELM, "256")
-   info(autosaveFields, "VAL")
-}
-
-record(waveform, "$(P)$(R)PVName0_RBV")
-{
-    field(DTYP, "asynOctetRead")
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME0")
-    field(FTVL, "CHAR")
-    field(NELM, "256")
-    field(SCAN, "I/O Intr")
-}
-
-# ///
-# /// The V4 pvAccess PV name for channel 1
-# ///
-record(waveform, "$(P)$(R)PVName1")
-{
-    field(PINI, "YES")
-    field(DTYP, "asynOctetWrite")
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME1")
-    field(FTVL, "CHAR")
-    field(NELM, "256")
-   info(autosaveFields, "VAL")
-}
-
-record(waveform, "$(P)$(R)PVName1_RBV")
-{
-    field(DTYP, "asynOctetRead")
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME1")
-    field(FTVL, "CHAR")
-    field(NELM, "256")
-    field(SCAN, "I/O Intr")
-}
-
-# ///
-# /// The V4 pvAccess PV name for channel 2
-# ///
-record(waveform, "$(P)$(R)PVName2")
-{
-    field(PINI, "YES")
-    field(DTYP, "asynOctetWrite")
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME2")
-    field(FTVL, "CHAR")
-    field(NELM, "256")
-   info(autosaveFields, "VAL")
-}
-
-record(waveform, "$(P)$(R)PVName2_RBV")
-{
-    field(DTYP, "asynOctetRead")
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME2")
-    field(FTVL, "CHAR")
-    field(NELM, "256")
-    field(SCAN, "I/O Intr")
-}
-
-# ///
-# /// The V4 pvAccess PV name for channel 3
-# ///
-record(waveform, "$(P)$(R)PVName3")
-{
-    field(PINI, "YES")
-    field(DTYP, "asynOctetWrite")
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME3")
-    field(FTVL, "CHAR")
-    field(NELM, "256")
-   info(autosaveFields, "VAL")
-}
-
-record(waveform, "$(P)$(R)PVName3_RBV")
-{
-    field(DTYP, "asynOctetRead")
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PV_NAME3")
-    field(FTVL, "CHAR")
-    field(NELM, "256")
-    field(SCAN, "I/O Intr")
 }
 
 # ///
@@ -541,6 +350,21 @@ record(calc, "$(P)$(R)ArrayRate_RBV")
     field(EGU, "Hz")
 }
 
+
+##########################################################################
+# Include V4 channel specific records (needs to be 0-based).
+
+substitute "CHAN=0"
+include "ADnEDChannel.template"
+
+substitute "CHAN=1"
+include "ADnEDChannel.template"
+
+substitute "CHAN=2"
+include "ADnEDChannel.template"
+
+substitute "CHAN=3"
+include "ADnEDChannel.template"
 
 
 ##########################################################################

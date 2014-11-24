@@ -11,6 +11,7 @@ include $(TOP)/configure/CONFIG
 # Create and install (or just install)
 # databases, templates, substitutions like this
 DB += ADnED.template
+DB += ADnEDChannel.template
 DB += ADnEDDetector.template
 DB += ADnEDDetectorPlugin.template
 DB += ADnEDDetectorTOFPlugin.template
