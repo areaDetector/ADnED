@@ -114,6 +114,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDFirstParamString,              asynParamInt32,       &ADnEDFirstParam);
   createParam(ADnEDResetParamString,              asynParamInt32,       &ADnEDResetParam);
   createParam(ADnEDStartParamString,              asynParamInt32,       &ADnEDStartParam);
+  createParam(ADnEDStopParamString,              asynParamInt32,       &ADnEDStopParam);
   createParam(ADnEDEventDebugParamString,         asynParamInt32,       &ADnEDEventDebugParam);
   createParam(ADnEDSeqCounterParamString,       asynParamInt32,       &ADnEDSeqCounterParam);
   createParam(ADnEDPulseCounterParamString,       asynParamInt32,       &ADnEDPulseCounterParam);
@@ -249,6 +250,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   //Initialise any paramLib parameters that need passing up to device support
   paramStatus = ((setIntegerParam(ADnEDResetParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDStartParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDStopParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDEventDebugParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDPulseCounterParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDEventRateParam, 0) == asynSuccess) && paramStatus);
@@ -378,7 +380,7 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
   if (function == ADnEDResetParam) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Reset.\n", functionName);
     
-  } else if ((function == ADAcquire) || (function == ADnEDStartParam)) {
+  } else if (function == ADnEDStartParam) {
     if (value) {
       if ((adStatus == ADStatusIdle) || (adStatus == ADStatusError) || (adStatus == ADStatusAborted)) {
 	cout << "Start acqusition." << endl;
@@ -392,7 +394,9 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	cout << "Sending start event" << endl;
 	epicsEventSignal(this->m_startEvent);
       }
-    } else {
+    } 
+  } else if (function == ADnEDStopParam) {
+    if (value) {
       if (adStatus == ADStatusAcquire) {
 	cout << "Stop acqusition." << endl;
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Stop Reading Events.\n", functionName);
@@ -1291,6 +1295,11 @@ void ADnED::eventTask(void)
 	p_Monitor[channel]->stop();
       }
     }
+
+    //Complete Stop callback
+    callParamCallbacks();
+    setIntegerParam(ADnEDStopParam, 0);
+    callParamCallbacks();
     
   } // End of while(1)
 

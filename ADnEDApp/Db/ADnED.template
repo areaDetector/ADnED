@@ -343,6 +343,23 @@ record(busy, "$(P)$(R)StartBusy") {
 }
 
 # ///
+# /// Use this Stop record to do callback when we have completed
+# /// stop process. This will ensure that all the monitors have been 
+# /// stopped and the status PVs updated.
+# ///
+record(bo, "$(P)$(R)Stop") {
+   field(VAL, "1")
+   field(OUT, "$(P)$(R)StopBusy PP")
+}
+record(busy, "$(P)$(R)StopBusy") {
+   field(DTYP, "asynInt32")
+   field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_STOP")
+   field(ZNAM, "Stopped")
+   field(ONAM, "Stopping")
+   field(VAL,  "0")
+}
+
+# ///
 # /// Add EGU field to ArrayRate_RBV
 # ///
 record(calc, "$(P)$(R)ArrayRate_RBV")

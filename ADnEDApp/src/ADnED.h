@@ -43,6 +43,7 @@
 #define ADnEDLastParamString               "ADNED_LAST"
 #define ADnEDResetParamString              "ADNED_RESET"
 #define ADnEDStartParamString              "ADNED_START"
+#define ADnEDStopParamString               "ADNED_STOP"
 #define ADnEDEventDebugParamString         "ADNED_EVENT_DEBUG"
 #define ADnEDSeqCounterParamString         "ADNED_SEQ_COUNTER"
 #define ADnEDPulseCounterParamString       "ADNED_PULSE_COUNTER"
@@ -199,6 +200,7 @@ class ADnED : public ADDriver {
   #define ADNED_FIRST_DRIVER_COMMAND ADnEDFirstParam
   int ADnEDResetParam;
   int ADnEDStartParam;
+  int ADnEDStopParam;
   int ADnEDEventDebugParam;
   int ADnEDSeqCounterParam;
   int ADnEDPulseCounterParam;
