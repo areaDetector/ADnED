@@ -819,8 +819,10 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     }
     m_PVTimeStamp.get(m_TimeStamp[channelID]);
     //Only use channel ID 0 to integrate the proton charge
-    if (m_TimeStampLast[0] != m_TimeStamp[0]) {
-      newPulse = true;
+    if (channelID == 0) {
+      if (m_TimeStampLast[0] != m_TimeStamp[0]) {
+	newPulse = true;
+      }
     }
     if (m_TimeStampLast[channelID] > m_TimeStamp[channelID]) {
       if (eventUpdate) {
@@ -974,9 +976,6 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
       //Channel params
       setIntegerParam(channelID, ADnEDSeqCounterParam, m_seqCounter[channelID]);
       setIntegerParam(channelID, ADnEDSeqIDParam, seqID);
-      for (int chan=0; chan<=numChan; chan++) {
-	callParamCallbacks(chan);
-      }
       //Other params
       setIntegerParam(ADnEDPulseCounterParam, m_pulseCounter);
       eventRate = static_cast<epicsUInt32>(floor(m_eventsSinceLastUpdate/timeDiffSecs));
@@ -989,7 +988,8 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
       }
       setDoubleParam(ADnEDPChargeParam, pChargePtr->get());
       setDoubleParam(ADnEDPChargeIntParam, m_pChargeInt);
-      for (int det=1; det<=numDet; det++) {
+      //Callbacks for channel and det related parameters (so start at 0 rather than 1)
+      for (int det=0; det<=numDet; det++) {
 	callParamCallbacks(det);
       }
       callParamCallbacks();
@@ -999,7 +999,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   }
 
   if (eventDebug != 0) {
-    cout << "channelID: " << endl;
+    cout << "channelID: " << channelID << endl;
     pv_struct->dumpValue(cout);
     cout << endl;
   }
