@@ -384,9 +384,6 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
     if (value) {
       if ((adStatus == ADStatusIdle) || (adStatus == ADStatusError) || (adStatus == ADStatusAborted)) {
 	cout << "Start acqusition." << endl;
-	for (int chan=0; chan<s_ADNED_MAX_CHANNELS; ++chan) { 
-	  m_seqCounter[chan] = 0;
-	}
 	if (clearParams() != asynSuccess) {
 	  asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to run clearParams on start.\n", functionName);
 	}
@@ -1139,6 +1136,7 @@ asynStatus ADnED::clearParams(void)
     m_lastSeqID[chan] = -1;  
     m_TimeStamp[chan].put(0,0);
     m_TimeStampLast[chan].put(0,0);
+    callParamCallbacks(chan);
   }
 
   if (!status) {
