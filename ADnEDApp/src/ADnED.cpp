@@ -970,7 +970,9 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 
     //Update params at slower rate
     if (eventUpdate) {
-      //Channel params
+      //Channel params. NOTE: these can be updated sporadically for channels which don't
+      //always reset the update timer. Should I update all channels here? That would mean
+      //having an array for the seqID as well.
       setIntegerParam(channelID, ADnEDSeqCounterParam, m_seqCounter[channelID]);
       setIntegerParam(channelID, ADnEDSeqIDParam, seqID);
       //Other params
