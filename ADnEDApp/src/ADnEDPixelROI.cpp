@@ -92,8 +92,8 @@ void ADnEDPixelROI::processCallbacks(NDArray *pArray)
     setIntegerParam(ADnEDPixelROIDim1Min,  (int)pDim->offset);
     setIntegerParam(ADnEDPixelROIDim1Size, (int)pDim->size);
     pDim = &dims[2];
-    setIntegerParam(ADnEDPixelROIDim1Min,  (int)pDim->offset);
-    setIntegerParam(ADnEDPixelROIDim1Size, (int)pDim->size);
+    setIntegerParam(ADnEDPixelROIDim2Min,  (int)pDim->offset);
+    setIntegerParam(ADnEDPixelROIDim2Size, (int)pDim->size);
     
     /* This function is called with the lock taken, and it must be set when we exit.
      * The following code can be exected without the mutex because we are not accessing memory
