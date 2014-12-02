@@ -243,7 +243,6 @@ record(longout, "$(P)$(R)TOFMax")
    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_TOF_MAX")
    field(VAL, "$(TOFSIZE)")
    field(PINI, "YES")
-   field(EGU, "100ns")
    info(autosaveFields, "VAL")
 }
 
@@ -256,7 +255,6 @@ record(longin, "$(P)$(R)TOFMax_RBV")
    field(DTYP, "asynInt32")
    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_TOF_MAX")
    field(SCAN, "I/O Intr")
-   field(EGU, "100ns")
 }
 
 # ///
@@ -269,7 +267,7 @@ record(ai, "$(P)$(R)PCharge_RBV")
    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PCHARGE")
    field(PREC, "4")
    field(SCAN, "I/O Intr")
-   field(EGU, "pC")	
+   field(EGU, "C")	
 }
 
 # ///
@@ -282,7 +280,7 @@ record(ai, "$(P)$(R)PChargeIntegrated_RBV")
    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PCHARGE_INT")
    field(PREC, "4")
    field(SCAN, "I/O Intr")
-   field(EGU, "pC")	
+   field(EGU, "C")	
 }
 
 # /// 
