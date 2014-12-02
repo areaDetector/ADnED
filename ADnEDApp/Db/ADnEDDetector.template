@@ -79,6 +79,31 @@ record(longin, "$(P)$(R)Det$(DET):PixelNumEnd_RBV")
    field(SCAN, "I/O Intr")
 }
 
+# ///
+# /// Set the size of the pixel range for this detector DET=$(DET)
+# /// This may be bigger than the pixel ID range if there are gaps in the detector.
+# ///
+record(longout, "$(P)$(R)Det$(DET):PixelNumSize")
+{
+   field(DESC, "Pixel range size DET$(DET)")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_SIZE")
+   field(VAL, "0")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+}
+
+# ///
+# /// Get the size of the pixel range for this detector DET=$(DET)
+# /// This may be bigger than the pixel ID range if there are gaps in the detector.
+# ///
+record(longin, "$(P)$(R)Det$(DET):PixelNumSize_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_SIZE")
+   field(SCAN, "I/O Intr")
+}
+
 #####################################################################
 # These records are read only and are used to feed back the NDArray 
 # index values for this detector. This will be required for the 

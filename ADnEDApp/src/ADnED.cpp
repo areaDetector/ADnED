@@ -132,6 +132,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDNumDetParamString,             asynParamInt32,       &ADnEDNumDetParam);
   createParam(ADnEDDetPixelNumStartParamString,  asynParamInt32,       &ADnEDDetPixelNumStartParam);
   createParam(ADnEDDetPixelNumEndParamString,    asynParamInt32,       &ADnEDDetPixelNumEndParam);
+  createParam(ADnEDDetPixelNumSizeParamString,  asynParamInt32,       &ADnEDDetPixelNumSizeParam);
   createParam(ADnEDDetNDArrayStartParamString,    asynParamInt32,       &ADnEDDetNDArrayStartParam);
   createParam(ADnEDDetNDArrayEndParamString,    asynParamInt32,       &ADnEDDetNDArrayEndParam);
   createParam(ADnEDDetNDArraySizeParamString,    asynParamInt32,       &ADnEDDetNDArraySizeParam);
@@ -189,6 +190,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     
     m_detStartValues[i] = 0;
     m_detEndValues[i] = 0;
+    m_detSizeValues[i] = 0;
     m_NDArrayStartValues[i] = 0;
     m_NDArrayTOFStartValues[i] = 0;
     m_detTOFROIStartValues[i] = 0;
@@ -272,6 +274,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     //Detector params (1-based) - we just don't use the addr=0 params.
     paramStatus = ((setIntegerParam(det, ADnEDDetPixelNumStartParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetPixelNumEndParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetPixelNumSizeParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArrayStartParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArrayEndParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArraySizeParam, 0) == asynSuccess) && paramStatus);
@@ -409,6 +412,13 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
       return asynError;
     }
   } else if (function == ADnEDDetPixelNumEndParam) {
+    if (adStatus != ADStatusAcquire) {
+      m_dataAlloc = true;
+    } else {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s. Cannot configure during acqusition.\n", functionName);
+      return asynError;
+    }
+  } else if (function == ADnEDDetPixelNumSizeParam) {
     if (adStatus != ADStatusAcquire) {
       m_dataAlloc = true;
     } else {
@@ -697,18 +707,15 @@ asynStatus ADnED::checkPixelMap(epicsUInt32 det)
 
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s\n", functionName);
 
-  int detStartValue = 0;
-  int detEndValue = 0;
-  getIntegerParam(det, ADnEDDetPixelNumStartParam, &detStartValue);
-  getIntegerParam(det, ADnEDDetPixelNumEndParam, &detEndValue);
+  int detSizeValue = 0;
+  getIntegerParam(det, ADnEDDetPixelNumSizeParam, &detSizeValue);
 
   if ((m_PixelMapSize[det] > 0) && (p_PixelMap[det])) {
     for (epicsUInt32 index=0; index<m_PixelMapSize[det]; ++index) {
-      if (((p_PixelMap[det])[index] < static_cast<epicsUInt32>(detStartValue)) 
-	  || ((p_PixelMap[det])[index] > static_cast<epicsUInt32>(detEndValue))) {
+      if ((p_PixelMap[det])[index] > static_cast<epicsUInt32>(detSizeValue)) {
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		  "%s Det: %d. Pixel ID %d in mapping array was out of allowed range. Must be between %d and %d.\n", 
-		  functionName, det, index, detStartValue, detEndValue);
+		  "%s Det: %d. Pixel ID %d in mapping array was out of allowed range. Must be less than %d.\n", 
+		  functionName, det, index, detSizeValue);
 	memset(p_PixelMap[det], 0, m_PixelMapSize[det]);
 	m_PixelMapSize[det] = 0;
 	status = asynError;
@@ -775,6 +782,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   for (int det=1; det<=numDet; det++) {
     getIntegerParam(det, ADnEDDetPixelNumStartParam, &m_detStartValues[det]);
     getIntegerParam(det, ADnEDDetPixelNumEndParam, &m_detEndValues[det]);
+    getIntegerParam(det, ADnEDDetPixelNumSizeParam, &m_detSizeValues[det]);
     getIntegerParam(det, ADnEDDetNDArrayStartParam, &m_NDArrayStartValues[det]);
     getIntegerParam(det, ADnEDDetNDArrayTOFStartParam, &m_NDArrayTOFStartValues[det]);
     //These two params are used to filter events based on a TOF ROI
@@ -1024,6 +1032,7 @@ asynStatus ADnED::allocArray(void)
   int numDet = 0;
   int detStart = 0;
   int detEnd = 0;
+  int detSize = 0;
   int tofMax = 0;
   getIntegerParam(ADnEDNumDetParam, &numDet);
   getIntegerParam(ADnEDTOFMaxParam, &tofMax);
@@ -1035,19 +1044,23 @@ asynStatus ADnED::allocArray(void)
   }
 
   m_dataMaxSize = 0;
-  int detSize = 0;
 
   for (int det=1; det<=numDet; det++) {
     
     getIntegerParam(det, ADnEDDetPixelNumStartParam, &detStart);
     getIntegerParam(det, ADnEDDetPixelNumEndParam, &detEnd);
+    getIntegerParam(det, ADnEDDetPixelNumSizeParam, &detSize);
     
-    printf("ADnED::allocArray: det: %d, detStart: %d, detEnd: %d, tofMax: %d\n", 
-	 det, detStart, detEnd, tofMax);
+    printf("ADnED::allocArray: det: %d, detStart: %d, detEnd: %d, detSize: %d, tofMax: %d\n", 
+	   det, detStart, detEnd, detSize, tofMax);
 
     //Calculate sizes and do sanity checks
     if (detStart <= detEnd) {
-      detSize = detEnd-detStart+1;
+      //If user has left detSize 0, just set equal to pixel ID range.
+      if (detSize == 0) {
+	detSize = detEnd-detStart+1;
+	setIntegerParam(det, ADnEDDetPixelNumSizeParam, detSize);
+      }
     } else {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s detStart > detEnd.\n", functionName);
       setIntegerParam(ADnEDAllocSpaceStatusParam, s_ADNED_ALLOC_STATUS_FAIL);

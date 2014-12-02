@@ -61,6 +61,7 @@
 #define ADnEDNumDetParamString             "ADNED_NUM_DET"
 #define ADnEDDetPixelNumStartParamString   "ADNED_DET_PIXEL_NUM_START"
 #define ADnEDDetPixelNumEndParamString     "ADNED_DET_PIXEL_NUM_END"
+#define ADnEDDetPixelNumSizeParamString    "ADNED_DET_PIXEL_NUM_SIZE"
 #define ADnEDDetNDArrayStartParamString    "ADNED_DET_NDARRAY_START"
 #define ADnEDDetNDArrayEndParamString      "ADNED_DET_NDARRAY_END"
 #define ADnEDDetNDArraySizeParamString     "ADNED_DET_NDARRAY_SIZE"
@@ -163,6 +164,7 @@ class ADnED : public ADDriver {
   epics::pvData::TimeStamp m_TimeStampLast[ADNED_MAX_CHANNELS];
   int m_detStartValues[ADNED_MAX_DETS+1];
   int m_detEndValues[ADNED_MAX_DETS+1];
+  int m_detSizeValues[ADNED_MAX_DETS+1];
   int m_NDArrayStartValues[ADNED_MAX_DETS+1];
   int m_NDArrayTOFStartValues[ADNED_MAX_DETS+1];
   int m_detTOFROIStartValues[ADNED_MAX_DETS+1];
@@ -218,6 +220,7 @@ class ADnED : public ADDriver {
   int ADnEDNumDetParam;
   int ADnEDDetPixelNumStartParam;
   int ADnEDDetPixelNumEndParam;
+  int ADnEDDetPixelNumSizeParam;
   int ADnEDDetNDArrayStartParam;
   int ADnEDDetNDArrayEndParam;
   int ADnEDDetNDArraySizeParam;
