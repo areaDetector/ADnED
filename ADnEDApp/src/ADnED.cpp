@@ -898,10 +898,8 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     lock();
 
     int mappedPixelIndex = 0;
-    int calcIndex = 0; 
     epicsFloat64 tof = 0.0;
     epicsUInt32 tofInt = 0;
-    int offset = 0;
     for (size_t i=0; i<pixelsLength; ++i) {
       for (int det=1; det<=numDet; det++) {
 	
@@ -919,11 +917,12 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	    }
 	  }
 
-	  mappedPixelIndex = pixelsData[i];
+	  //Offset pixel ID here so this detector pixel ID range starts at 0
+	  mappedPixelIndex = pixelsData[i] - m_detStartValues[det];
 	  //Do pixel ID mapping if enabled
 	  if (m_detPixelMappingEnabled[det]) {
 	    if ((m_PixelMapSize[det] > 0) && (p_PixelMap[det])) {
-	      mappedPixelIndex = (p_PixelMap[det])[pixelsData[i]];
+	      mappedPixelIndex = (p_PixelMap[det])[pixelsData[i] - m_detStartValues[det]];
 	    }
 	  }
 	  
@@ -931,12 +930,10 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	  if (m_detTOFROIEnabled[det]) {
 	    if ((tof >= static_cast<epicsFloat64>(m_detTOFROIStartValues[det])) 
 		&& (tof <= static_cast<epicsFloat64>(m_detTOFROIStartValues[det] + m_detTOFROISizeValues[det]))) {
-	      offset = mappedPixelIndex-m_detStartValues[det];
-	      p_Data[m_NDArrayStartValues[det]+offset]++;
+	      p_Data[m_NDArrayStartValues[det]+mappedPixelIndex]++;
 	    }
 	  } else { //No TOF ROI filter enabled
-	    offset = mappedPixelIndex-m_detStartValues[det];
-	    p_Data[m_NDArrayStartValues[det]+offset]++;
+	    p_Data[m_NDArrayStartValues[det]+mappedPixelIndex]++;
 	  }
 
 	  //Integrate TOF/D-Space, optionally filtering on Pixel ID X/Y ROI
@@ -948,12 +945,12 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 		p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
 	      } else {
 		//Only integrate TOF if we are inside pixel ID XY ROI.
-		//ROI is assumed to start from 0,0 (not from whatever is the pixel ID range. So we need to offset.
-		calcIndex = mappedPixelIndex - m_detStartValues[det];
-		if (((calcIndex % m_detPixelSizeX[det]) >= m_detPixelROIStartX[det]) && 
-		    ((calcIndex % m_detPixelSizeX[det]) <= (m_detPixelROIStartX[det] + m_detPixelROISizeX[det]))) {
-		  if ((calcIndex >= (m_detPixelROIStartY[det] * m_detPixelSizeX[det])) &&
-		      ((calcIndex <= ((m_detPixelROIStartY[det] + m_detPixelROISizeY[det]) 
+		//ROI is assumed to start from 0,0 (not from whatever is the pixel ID range). 
+		//So we need to offset, but this has already been done by the pixel mapping above.
+		if (((mappedPixelIndex % m_detPixelSizeX[det]) >= m_detPixelROIStartX[det]) && 
+		    ((mappedPixelIndex % m_detPixelSizeX[det]) <= (m_detPixelROIStartX[det] + m_detPixelROISizeX[det]))) {
+		  if ((mappedPixelIndex >= (m_detPixelROIStartY[det] * m_detPixelSizeX[det])) &&
+		      ((mappedPixelIndex <= ((m_detPixelROIStartY[det] + m_detPixelROISizeY[det]) 
 				      * m_detPixelSizeX[det]) + m_detPixelSizeX[det]))) {
 		    p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
 		  }
