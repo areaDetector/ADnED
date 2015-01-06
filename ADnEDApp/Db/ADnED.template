@@ -68,6 +68,9 @@ record(calc, "$(P)$(R)PulseRate_RBV")
     field(PREC, "1")
     field(SCAN, "1 second")
     field(EGU, "Hz")
+    field(ADEL, "1")
+    info(autosaveFields, "ADEL")
+    info(archive, "Monitor, 00:00:01, VAL")
 }
 
 # ///
@@ -80,6 +83,9 @@ record(longin, "$(P)$(R)EventRate_RBV")
    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_EVENT_RATE")
    field(SCAN, "I/O Intr")
    field(EGU, "e/s")
+   field(ADEL, "1000")
+   info(autosaveFields, "ADEL")
+   info(archive, "Monitor, 00:00:01, VAL")
 }
 
 
@@ -97,6 +103,7 @@ record(longin, "$(P)$(R)SeqIDMissing_RBV")
    field(HIHI, "1")
    field(LLSV, "MAJOR")
    field(HHSV, "MAJOR")
+   info(archive, "Monitor, 00:00:01, VAL")
 }
 
 # ///
@@ -112,6 +119,7 @@ record(longin, "$(P)$(R)SeqIDNumMissing_RBV")
    field(HIHI, "1")
    field(LLSV, "MAJOR")
    field(HHSV, "MAJOR")
+   info(archive, "Monitor, 00:00:01, VAL")
 }
 
 # ///
@@ -127,6 +135,7 @@ record(bi, "$(P)$(R)BadTimeStamp_RBV")
    field(ONAM, "Error")
    field(ZSV, "NO_ALARM")
    field(OSV, "MAJOR")
+   info(archive, "Monitor, 00:00:01, VAL")
 }
 
 # ///
@@ -268,6 +277,9 @@ record(ai, "$(P)$(R)PCharge_RBV")
    field(PREC, "4")
    field(SCAN, "I/O Intr")
    field(EGU, "C")	
+   field(ADEL, "1000")
+   info(autosaveFields, "ADEL")
+   info(archive, "Monitor, 00:00:01, VAL")
 }
 
 # ///
@@ -280,7 +292,8 @@ record(ai, "$(P)$(R)PChargeIntegrated_RBV")
    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PCHARGE_INT")
    field(PREC, "4")
    field(SCAN, "I/O Intr")
-   field(EGU, "C")	
+   field(EGU, "C")
+   info(archive, "Monitor, 00:00:01, VAL")	
 }
 
 # /// 

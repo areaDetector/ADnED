@@ -172,6 +172,9 @@ record(longin, "$(P)$(R)Det$(DET):EventRate_RBV")
    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_EVENT_RATE")
    field(SCAN, "I/O Intr")
    field(EGU, "e/s")
+   field(ADEL, "1000")
+   info(autosaveFields, "ADEL")
+   info(archive, "Monitor, 00:00:01, VAL")
 }
 
 #####################################################################
