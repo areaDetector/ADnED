@@ -378,6 +378,14 @@ record(calc, "$(P)$(R)ArrayRate_RBV")
     field(EGU, "Hz")
 }
 
+# ///
+# /// Add archive tag to DetectorState_RBV
+# ///
+record(mbbi, "$(P)$(R)DetectorState_RBV")
+{
+   info(archive, "Monitor, 00:00:01, VAL")   
+}
+
 
 ##########################################################################
 # Include V4 channel specific records (needs to be 0-based).
