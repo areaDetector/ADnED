@@ -43,6 +43,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelNumStart")
    field(VAL, "0")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
 }
 
 # ///
@@ -67,6 +68,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelNumEnd")
    field(VAL, "0")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
 }
 
 # ///
@@ -91,6 +93,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelNumSize")
    field(VAL, "0")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
 }
 
 # ///
@@ -269,7 +272,8 @@ record(waveform, "$(P)$(R)Det$(DET):TOFTransFile")
     field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_FILE")
     field(FTVL, "CHAR")
     field(NELM, "1024")
-    info(autosaveFields, "VAL") 
+    info(autosaveFields, "VAL")
+    field(ASG, "BEAMLINE") 
 }
 
 # ///
@@ -394,6 +398,7 @@ record(waveform, "$(P)$(R)Det$(DET):PixelMapFile")
     field(FTVL, "CHAR")
     field(NELM, "1024")
     info(autosaveFields, "VAL")
+    field(ASG, "BEAMLINE")
 }
 
 # ///

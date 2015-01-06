@@ -177,6 +177,7 @@ record(longout, "$(P)$(R)NumChannels")
    field(VAL, "1")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
 }
 
 # ///
@@ -229,6 +230,7 @@ record(longout, "$(P)$(R)NumDetectors")
    field(VAL, "0")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
 }
 
 # ///
@@ -253,6 +255,7 @@ record(longout, "$(P)$(R)TOFMax")
    field(VAL, "$(TOFSIZE)")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
 }
 
 # ///
