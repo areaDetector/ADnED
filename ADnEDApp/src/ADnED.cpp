@@ -393,6 +393,14 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Start Reading Events.\n", functionName);
 	cout << "Sending start event" << endl;
 	epicsEventSignal(this->m_startEvent);
+      } else {
+	//If we have tried to Start while still acquiring, or some other state, we need
+	//to clear the busy record anyway. Print an error so we know about it.
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		  "%s: Tried to Start from an invalid state (ADStatus=%d).\n", functionName, adStatus);
+	setIntegerParam(ADnEDStartParam, 0);
+	callParamCallbacks();
+	return asynError;
       }
     } 
   } else if (function == ADnEDStopParam) {
@@ -402,6 +410,14 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Stop Reading Events.\n", functionName);
 	cout << "Sending stop event" << endl;
 	epicsEventSignal(this->m_stopEvent);
+      } else {
+	//If we have tried to Stop while not acquiring, or some other state, we need
+	//to clear the busy record anyway. Print an error so we know about it.
+	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		  "%s: Tried to Stop from an invalid state (ADStatus=%d).\n", functionName, adStatus);
+	setIntegerParam(ADnEDStopParam, 0);
+	callParamCallbacks();
+	return asynError;
       }
     }
   } else if (function == ADnEDDetPixelNumStartParam) {
