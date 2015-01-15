@@ -6,16 +6,16 @@ import cothread
 from cothread.catools import *
 
 STAT_IDLE = 0
-STAT_ACQUIRE = 1
+STAT_ACQUIRE = 0
 
 def main():
    
-    for i in range(100):
+    for i in range(1000):
 
         print "Acquire " + str(i)
    
-        caput("BL16B:Det:M1:Start", 1, wait=True, timeout=5)
-        status = caget("BL16B:Det:M1:DetectorState_RBV")
+        caput("BL16B:Det:ADnED:Start", 1, wait=True, timeout=2000)
+        status = caget("BL16B:Det:ADnED:State")
         if (status != STAT_ACQUIRE):
             print "ERROR on Start: i= " + str(i) + \
             " status= " + str(status) + " and it should be " + str(STAT_ACQUIRE)
@@ -23,9 +23,9 @@ def main():
 
         cothread.Sleep(1)
 
-        caput("BL16B:Det:M1:Stop", 1, wait=True, timeout=5)
+        caput("BL16B:Det:ADnED:Stop", 1, wait=True, timeout=2000)
         #cothread.Sleep(1) #At the moment callback not supported on a stop.
-        status = caget("BL16B:Det:M1:DetectorState_RBV")
+        status = caget("BL16B:Det:ADnED:State")
         if (status != STAT_IDLE):
             print "ERROR on Stop: i= " + str(i) + \
             " status= " + str(status) + " and it should be " + str(STAT_IDLE)
