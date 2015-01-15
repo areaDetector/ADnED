@@ -382,7 +382,6 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
 
   if (function == ADnEDResetParam) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Reset.\n", functionName);
-    
   } else if (function == ADnEDStartParam) {
     if (value) {
       if ((adStatus == ADStatusIdle) || (adStatus == ADStatusError) || (adStatus == ADStatusAborted)) {
@@ -398,6 +397,7 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	//to clear the busy record anyway. Print an error so we know about it.
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
 		  "%s: Tried to Start from an invalid state (ADStatus=%d).\n", functionName, adStatus);
+	//Note: this does not work. I need to clear the busy from outside this function.
 	setIntegerParam(ADnEDStartParam, 0);
 	callParamCallbacks();
 	return asynError;
@@ -415,6 +415,7 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	//to clear the busy record anyway. Print an error so we know about it.
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
 		  "%s: Tried to Stop from an invalid state (ADStatus=%d).\n", functionName, adStatus);
+	//Note: this does not work. I need to clear the busy from outside this function.
 	setIntegerParam(ADnEDStopParam, 0);
 	callParamCallbacks();
 	return asynError;
