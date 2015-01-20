@@ -68,6 +68,7 @@
 #define ADnEDDetNDArrayTOFStartParamString "ADNED_DET_NDARRAY_TOF_START"
 #define ADnEDDetNDArrayTOFEndParamString   "ADNED_DET_NDARRAY_TOF_END"
 #define ADnEDDetEventRateParamString       "ADNED_DET_EVENT_RATE"
+#define ADnEDDetEventTotalParamString      "ADNED_DET_EVENT_TOTAL"
 #define ADnEDDetTOFROIStartParamString     "ADNED_DET_TOF_ROI_START"
 #define ADnEDDetTOFROISizeParamString      "ADNED_DET_TOF_ROI_SIZE"
 #define ADnEDDetTOFROIEnableParamString    "ADNED_DET_TOF_ROI_ENABLE"
@@ -182,6 +183,7 @@ class ADnED : public ADDriver {
   int m_detPixelROIEnable[ADNED_MAX_DETS+1];
   epicsUInt32 m_eventsSinceLastUpdate;
   epicsUInt32 m_detEventsSinceLastUpdate[ADNED_MAX_DETS+1];
+  epicsFloat64 m_detTotalEvents[ADNED_MAX_DETS+1];
 
   epics::pvAccess::ChannelProvider::shared_pointer p_ChannelProvider;
   std::tr1::shared_ptr<nEDChannel::nEDChannelRequester> p_ChannelRequester;
@@ -227,6 +229,7 @@ class ADnED : public ADDriver {
   int ADnEDDetNDArrayTOFStartParam;
   int ADnEDDetNDArrayTOFEndParam;
   int ADnEDDetEventRateParam;
+  int ADnEDDetEventTotalParam;
   int ADnEDDetTOFROIStartParam;
   int ADnEDDetTOFROISizeParam;
   int ADnEDDetTOFROIEnableParam;

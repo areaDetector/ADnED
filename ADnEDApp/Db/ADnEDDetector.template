@@ -180,6 +180,18 @@ record(longin, "$(P)$(R)Det$(DET):EventRate_RBV")
    info(archive, "Monitor, 00:00:01, VAL")
 }
 
+# ///
+# /// Total events since last start
+# ///
+record(ai, "$(P)$(R)Det$(DET):EventTotal_RBV")
+{
+   field(DTYP, "asynFloat64")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_EVENT_TOTAL")
+   field(SCAN, "I/O Intr")
+   field(EGU, "Events")
+   field(PREC, "3")
+}
+
 #####################################################################
 # Define a TOF ROI to pre-filter the events for this detector DET=$(DET)
 # This is automatically disabled if the pixel ROI filter is enabled (and visa-versa)

@@ -139,6 +139,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDDetNDArrayTOFStartParamString,    asynParamInt32,       &ADnEDDetNDArrayTOFStartParam);
   createParam(ADnEDDetNDArrayTOFEndParamString,    asynParamInt32,       &ADnEDDetNDArrayTOFEndParam);
   createParam(ADnEDDetEventRateParamString,    asynParamInt32,       &ADnEDDetEventRateParam);
+  createParam(ADnEDDetEventTotalParamString,    asynParamFloat64,       &ADnEDDetEventTotalParam);
   createParam(ADnEDDetTOFROIStartParamString,    asynParamInt32,       &ADnEDDetTOFROIStartParam);
   createParam(ADnEDDetTOFROISizeParamString,    asynParamInt32,       &ADnEDDetTOFROISizeParam);
   createParam(ADnEDDetTOFROIEnableParamString,    asynParamInt32,       &ADnEDDetTOFROIEnableParam);
@@ -207,6 +208,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     m_detPixelROISizeY[i] = 0;
     m_detPixelSizeX[i] = 0;
     m_detPixelROIEnable[i] = 0;
+
+    m_detTotalEvents[i] = 0.0;
   }
   
   //Create the thread that reads the data 
@@ -281,6 +284,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArrayTOFStartParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArrayTOFEndParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetEventRateParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setDoubleParam(det, ADnEDDetEventTotalParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIStartParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROISizeParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIEnableParam, 0) == asynSuccess) && paramStatus);
@@ -980,6 +984,8 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 
 	  //Count events to calculate event rate
 	  m_detEventsSinceLastUpdate[det]++;
+	  //Count total events
+	  m_detTotalEvents[det]++;
 	}
 
       }
@@ -1006,6 +1012,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	eventRate = static_cast<epicsUInt32>(floor(m_detEventsSinceLastUpdate[det]/timeDiffSecs));
 	setIntegerParam(det, ADnEDDetEventRateParam, eventRate);
 	m_detEventsSinceLastUpdate[det] = 0;
+	setDoubleParam(det, ADnEDDetEventTotalParam, m_detTotalEvents[det]);
       }
       setDoubleParam(ADnEDPChargeParam, pChargePtr->get());
       setDoubleParam(ADnEDPChargeIntParam, m_pChargeInt);
@@ -1166,6 +1173,10 @@ asynStatus ADnED::clearParams(void)
     m_TimeStamp[chan].put(0,0);
     m_TimeStampLast[chan].put(0,0);
     callParamCallbacks(chan);
+  }
+
+  for (int det=0; det<=s_ADNED_MAX_DETS; ++det) {
+    m_detTotalEvents[det] = 0.0;
   }
 
   if (!status) {
