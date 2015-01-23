@@ -115,6 +115,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDResetParamString,              asynParamInt32,       &ADnEDResetParam);
   createParam(ADnEDStartParamString,              asynParamInt32,       &ADnEDStartParam);
   createParam(ADnEDStopParamString,              asynParamInt32,       &ADnEDStopParam);
+  createParam(ADnEDPauseParamString,              asynParamInt32,       &ADnEDPauseParam);
   createParam(ADnEDEventDebugParamString,         asynParamInt32,       &ADnEDEventDebugParam);
   createParam(ADnEDSeqCounterParamString,       asynParamInt32,       &ADnEDSeqCounterParam);
   createParam(ADnEDPulseCounterParamString,       asynParamInt32,       &ADnEDPulseCounterParam);
@@ -256,6 +257,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   paramStatus = ((setIntegerParam(ADnEDResetParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDStartParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDStopParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDPauseParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDEventDebugParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDPulseCounterParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDEventRateParam, 0) == asynSuccess) && paramStatus);
@@ -395,6 +397,7 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	}
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Start Reading Events.\n", functionName);
 	cout << "Sending start event" << endl;
+	setIntegerParam(ADnEDPauseParam, 0);
 	epicsEventSignal(this->m_startEvent);
       } else {
 	//If we have tried to Start while still acquiring, or some other state, we need
@@ -413,6 +416,7 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	cout << "Stop acqusition." << endl;
 	asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Stop Reading Events.\n", functionName);
 	cout << "Sending stop event" << endl;
+	setIntegerParam(ADnEDPauseParam, 0);
 	epicsEventSignal(this->m_stopEvent);
       } else {
 	//If we have tried to Stop while not acquiring, or some other state, we need
@@ -767,6 +771,11 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Event Handler. Channel ID %d\n", functionName, channelID);
 
+  /* If we are paused, still do timestamp and seq number checks, 
+     otherwise we will see missing packets.*/
+  int paused = 0;
+  getIntegerParam(ADnEDPauseParam, &paused);
+
   /* Get the time and decide if we update the PVs.*/
   lock();
   getDoubleParam(ADnEDEventUpdatePeriodParam, &updatePeriod);
@@ -918,6 +927,8 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 
     lock();
 
+    if (!paused) {
+
     int mappedPixelIndex = 0;
     epicsFloat64 tof = 0.0;
     epicsUInt32 tofInt = 0;
@@ -994,7 +1005,9 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     if (newPulse) {
       m_pChargeInt += pChargePtr->get();
       ++m_pulseCounter;
-    }    
+    }
+
+    }
 
     //Update params at slower rate
     if (eventUpdate) {

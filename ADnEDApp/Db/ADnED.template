@@ -369,6 +369,21 @@ record(busy, "$(P)$(R)StopBusy") {
    field(VAL,  "0")
 }
 
+# /// 
+# /// Pause counting (to pause a run). Enable this to stop counting
+# /// and enable it to start where counting left off. The monitors
+# /// are still enabled, we just ignore events if this is enabled.
+# /// A Stop or Start will clear this. 
+# ///
+record(bo, "$(P)$(R)Pause")
+{
+    field(DTYP,"asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PAUSE")
+    field(ZNAM,"Not Paused")  
+    field(ONAM,"Paused")
+    info(archive, "Monitor, 00:00:01, VAL")
+}
+
 # ///
 # /// Add EGU field to ArrayRate_RBV
 # ///
