@@ -280,9 +280,6 @@ record(ai, "$(P)$(R)PCharge_RBV")
    field(PREC, "4")
    field(SCAN, "I/O Intr")
    field(EGU, "C")	
-   field(ADEL, "1000")
-   info(autosaveFields, "ADEL")
-   info(archive, "Monitor, 00:00:01, VAL")
 }
 
 # ///
@@ -295,8 +292,7 @@ record(ai, "$(P)$(R)PChargeIntegrated_RBV")
    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PCHARGE_INT")
    field(PREC, "4")
    field(SCAN, "I/O Intr")
-   field(EGU, "C")
-   info(archive, "Monitor, 00:00:01, VAL")	
+   field(EGU, "C")	
 }
 
 # /// 
