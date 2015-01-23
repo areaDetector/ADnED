@@ -343,6 +343,7 @@ record(bo, "$(P)$(R)Start") {
 record(bo, "$(P)$(R)StartProc") {
    field(VAL, "1")
    field(OUT, "$(P)$(R)StartBusy PP")
+   field(FLNK, "$(P)$(R)ClearPause")
 }
 record(busy, "$(P)$(R)StartBusy") {
    field(DTYP, "asynInt32")
@@ -360,6 +361,7 @@ record(busy, "$(P)$(R)StartBusy") {
 record(bo, "$(P)$(R)Stop") {
    field(VAL, "1")
    field(OUT, "$(P)$(R)StopBusy PP")
+   field(FLNK, "$(P)$(R)ClearPause")	
 }
 record(busy, "$(P)$(R)StopBusy") {
    field(DTYP, "asynInt32")
@@ -382,6 +384,11 @@ record(bo, "$(P)$(R)Pause")
     field(ZNAM,"Not Paused")  
     field(ONAM,"Paused")
     info(archive, "Monitor, 00:00:01, VAL")
+}
+record(bo, "$(P)$(R)ClearPause")
+{
+    field(OUT, "$(P)$(R)Pause PP")
+    field(VAL,"0")  
 }
 
 # ///
