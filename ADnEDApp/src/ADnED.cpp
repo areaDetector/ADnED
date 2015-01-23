@@ -1334,6 +1334,15 @@ void ADnED::eventTask(void)
       }
     }
 
+    //Zero the event rate params
+    int numDet = 0;
+    getIntegerParam(ADnEDNumDetParam, &numDet);
+    setIntegerParam(ADnEDEventRateParam, 0);
+    for (int det=1; det<=numDet; det++) {
+      setIntegerParam(det, ADnEDDetEventRateParam, 0);
+      callParamCallbacks(det);
+    }
+
     //Complete Stop callback
     callParamCallbacks();
     setIntegerParam(ADnEDStopParam, 0);
