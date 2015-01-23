@@ -383,6 +383,7 @@ record(bo, "$(P)$(R)Pause")
     field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PAUSE")
     field(ZNAM,"Not Paused")  
     field(ONAM,"Paused")
+    field(OSV, "MINOR")
     info(archive, "Monitor, 00:00:01, VAL")
 }
 record(bo, "$(P)$(R)ClearPause")
