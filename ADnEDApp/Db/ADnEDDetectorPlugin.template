@@ -74,6 +74,7 @@ record(longout, "$(P)$(R)Det$(DET):XY:Scale:Scale")
    field(VAL, "1")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
 }
 
 # ///
@@ -84,6 +85,7 @@ record(longout, "$(P)$(R)Det$(DET):XY:Scale:Offset")
    field(VAL, "0")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
 }
 
 # ///
@@ -105,6 +107,7 @@ record(longout, "$(P)$(R)Det$(DET):XY:Scale:ManualMax")
    field(VAL, "4092")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
 }
 
 # ///
@@ -115,5 +118,8 @@ record(longout, "$(P)$(R)Det$(DET):XY:Scale:SlideMax")
    field(VAL, "4092")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
 }
+
+
 

@@ -42,6 +42,31 @@ substitute "NDARRAY_PORT=$(ADNED_PORT).DET$(DET).XY"
 include "NDPluginBase.template"
 include "NDROIStat8.template"
 
+#####################################################################
+# Put ROI0 into ASG=ALWAYS group.
 
+record(bo, "$(P)$(R)0:Use")
+{
+  field(ASG, "ALWAYS")
+}
 
+record(longout, "$(P)$(R)0:MinX")
+{
+  field(ASG, "ALWAYS")
+}
+
+record(longout, "$(P)$(R)0:MinY")
+{
+  field(ASG, "ALWAYS")
+}
+
+record(longout, "$(P)$(R)0:SizeX")
+{
+  field(ASG, "ALWAYS")
+}
+
+record(longout, "$(P)$(R)0:SizeY")
+{
+  field(ASG, "ALWAYS")
+}
 
