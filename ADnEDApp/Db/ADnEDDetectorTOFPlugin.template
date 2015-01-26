@@ -41,7 +41,23 @@ substitute "NDARRAY_PORT=$(ADNED_PORT).DET$(DET).TOF"
 include "NDPluginBase.template"
 include "NDROIStat8.template"
 
+#####################################################################
+# Put ROI0 to ROI4 into ASG=ALWAYS group for TOF XY plot.
 
+substitute "ROI=0"
+include "ADnEDDetectorROIPluginASG.template"
+
+substitute "ROI=1"
+include "ADnEDDetectorROIPluginASG.template"
+
+substitute "ROI=2"
+include "ADnEDDetectorROIPluginASG.template"
+
+substitute "ROI=3"
+include "ADnEDDetectorROIPluginASG.template"
+
+substitute "ROI=4"
+include "ADnEDDetectorROIPluginASG.template"
 
 
 

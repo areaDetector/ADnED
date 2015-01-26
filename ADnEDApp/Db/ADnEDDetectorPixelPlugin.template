@@ -43,30 +43,24 @@ include "NDPluginBase.template"
 include "NDROIStat8.template"
 
 #####################################################################
-# Put ROI0 into ASG=ALWAYS group.
+# Put ROI0 to ROI4 into ASG=ALWAYS group for pixel XY plot.
 
-record(bo, "$(P)$(R)0:Use")
-{
-  field(ASG, "ALWAYS")
-}
+substitute "ROI=0"
+include "ADnEDDetectorROIPluginASG.template"
 
-record(longout, "$(P)$(R)0:MinX")
-{
-  field(ASG, "ALWAYS")
-}
+substitute "ROI=1"
+include "ADnEDDetectorROIPluginASG.template"
 
-record(longout, "$(P)$(R)0:MinY")
-{
-  field(ASG, "ALWAYS")
-}
+substitute "ROI=2"
+include "ADnEDDetectorROIPluginASG.template"
 
-record(longout, "$(P)$(R)0:SizeX")
-{
-  field(ASG, "ALWAYS")
-}
+substitute "ROI=3"
+include "ADnEDDetectorROIPluginASG.template"
 
-record(longout, "$(P)$(R)0:SizeY")
-{
-  field(ASG, "ALWAYS")
-}
+substitute "ROI=4"
+include "ADnEDDetectorROIPluginASG.template"
+
+
+
+
 

@@ -207,6 +207,7 @@ record(longout, "$(P)$(R)Det$(DET):TOFROIFilterStart")
    field(VAL, "0")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
 }
 
 # ///
@@ -230,6 +231,7 @@ record(longout, "$(P)$(R)Det$(DET):TOFROIFilterSize")
    field(VAL, "0")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
 }
 
 # ///
@@ -253,6 +255,7 @@ record(bo, "$(P)$(R)Det$(DET):TOFROIFilterEnable")
     field(ZNAM, "Disable")
     field(ONAM, "Enable")
     info(autosaveFields, "VAL")
+    field(ASG, "ALWAYS")
 }
 
 # ///
@@ -477,6 +480,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelROIFilterStartX")
    field(VAL, "0")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
 }
 
 # ///
@@ -500,6 +504,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelROIFilterSizeX")
    field(VAL, "0")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
 }
 
 # ///
@@ -523,6 +528,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelROIFilterStartY")
    field(VAL, "0")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
 }
 
 # ///
@@ -546,6 +552,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelROIFilterSizeY")
    field(VAL, "0")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
 }
 
 # ///
@@ -573,6 +580,7 @@ record(longout, "$(P)$(R)Det$(DET):PixelSizeX")
    field(LOPR, "1")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
 }
 
 # ///
@@ -597,6 +605,7 @@ record(bo, "$(P)$(R)Det$(DET):PixelROIFilterEnable")
     field(ZNAM, "Disable")
     field(ONAM, "Enable")
     info(autosaveFields, "VAL")
+    field(ASG, "ALWAYS")
 }
 
 # ///

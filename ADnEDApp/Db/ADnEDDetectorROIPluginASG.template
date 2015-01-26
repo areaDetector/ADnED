@@ -1,0 +1,29 @@
+
+#####################################################################
+# Put an ROI into ASG=ALWAYS group.
+
+record(bo, "$(P)$(R)$(ROI):Use")
+{
+  field(ASG, "ALWAYS")
+}
+
+record(longout, "$(P)$(R)$(ROI):MinX")
+{
+  field(ASG, "ALWAYS")
+}
+
+record(longout, "$(P)$(R)$(ROI):MinY")
+{
+  field(ASG, "ALWAYS")
+}
+
+record(longout, "$(P)$(R)$(ROI):SizeX")
+{
+  field(ASG, "ALWAYS")
+}
+
+record(longout, "$(P)$(R)$(ROI):SizeY")
+{
+  field(ASG, "ALWAYS")
+}
+
