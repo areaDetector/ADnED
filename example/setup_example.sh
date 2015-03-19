@@ -1,6 +1,6 @@
 #!/bin/bash
 
-caput -c -S BL99:Det:N1:PVName "neutrons"
+caput -c -S BL99:Det:N1:PVName0 "neutrons"
 caput -c BL99:Det:N1:EventDebug 0
 caput -c BL99:Det:N1:TOFMax 160000
 caput -c BL99:Det:N1:NumDetectors 2

@@ -944,7 +944,9 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	  if (m_detTOFTransEnabled[det]) {
 	    if (p_TofTrans[det]) {
 	      tof = tofData[i] * (p_TofTrans[det])[pixelsData[i]];
-	      //Apply scale and offset
+	    }
+	    //Apply scale and offset
+	    if (m_detTOFTransScale[det] >=0) {
 	      tof = (tof * m_detTOFTransScale[det]) + m_detTOFTransOffset[det];
 	    }
 	  }
@@ -970,7 +972,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 
 	  //Integrate TOF/D-Space, optionally filtering on Pixel ID X/Y ROI
 	  tofInt = static_cast<epicsUInt32>(floor(tof));
-	  if (tof <= m_tofMax) {
+	  if ((tof <= m_tofMax) && (tof >= 0)) {
 	    if (m_detPixelROIEnable[det]) {
 	      //If pixel mapping is not enabled, this is meaningless, so just integrate as normal.
 	      if (!m_detPixelMappingEnabled[det]) { 
