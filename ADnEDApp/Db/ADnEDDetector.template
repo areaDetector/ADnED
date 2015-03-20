@@ -672,8 +672,8 @@ record(ai, "$(P)$(R)Det$(DET):TOF:XAxis_Bin")
 # ///
 record(aSub, "$(P)$(R)Det$(DET):TOF:XAxis")
 {
-   field(INAM, "aSubInit")
-   field(SNAM, "aSubProcess")
+   field(INAM, "scaleArrayInit")
+   field(SNAM, "scaleArrayProcess")
    field(PREC, "5")
    field(PINI, "YES")
    field(INPA, "$(P)$(R)Det$(DET):TOF:XAxis_Start")
