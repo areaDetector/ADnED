@@ -638,5 +638,53 @@ record(dfanout, "$(P)$(R)Det$(DET):ResetROIStat")
 }
 
 
+#####################################################################
+# Records to define the scale for the X axis plot for TOF/dE/d-space etc
+
+record(ai, "$(P)$(R)Det$(DET):TOF:XAxis_Start")
+{
+   field(PINI, "YES")
+   field(VAL, "0")
+   field(PREC, "5")
+   info(autosaveFields, "VAL")	
+}
+
+record(longin, "$(P)$(R)Det$(DET):TOF:XAxis_Size")
+{
+   field(PINI, "YES")
+   field(VAL, "$(TOFSIZE)")
+   info(autosaveFields, "VAL")	
+}
+
+record(ai, "$(P)$(R)Det$(DET):TOF:XAxis_Bin")
+{
+   field(PINI, "YES")
+   field(VAL, "1.0")
+   field(PREC, "5")
+   info(autosaveFields, "VAL")	
+}
+
+# ///
+# /// INPA - Start value
+# /// INPB - Size of the desired scale array (must be <=NOVA)
+# /// INPC - Bin size
+# /// NOVA - Max size of the output array
+# ///
+record(aSub, "$(P)$(R)Det$(DET):TOF:XAxis")
+{
+   field(INAM, "aSubInit")
+   field(SNAM, "aSubProcess")
+   field(PREC, "5")
+   field(PINI, "YES")
+   field(INPA, "$(P)$(R)Det$(DET):TOF:XAxis_Start")
+   field(INPB, "$(P)$(R)Det$(DET):TOF:XAxis_Size")
+   field(INPC, "$(P)$(R)Det$(DET):TOF:XAxis_Bin")
+   field(FTA, "DOUBLE")
+   field(FTB, "LONG")
+   field(FTC, "DOUBLE")
+   field(FTVA, "DOUBLE")
+   field(NOVA, "$(TOFSIZE)")
+}
+
 
 

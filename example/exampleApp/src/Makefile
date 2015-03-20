@@ -20,6 +20,7 @@ example_DBD += ADnEDSupport.dbd
 example_DBD += asSupport.dbd
 example_DBD += devIocStats.dbd
 example_DBD += busySupport.dbd
+example_DBD += scaleArray.dbd
 
 # example_registerRecordDeviceDriver.cpp derives from example.dbd
 example_SRCS += example_registerRecordDeviceDriver.cpp
@@ -41,6 +42,7 @@ example_LIBS += Com
 example_LIBS += autosave
 example_LIBS += devIocStats
 example_LIBS += busy
+example_LIBS += genericIOSupport
 
 # Finally link to the EPICS Base libraries
 example_LIBS += $(EPICS_BASE_IOC_LIBS)
