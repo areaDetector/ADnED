@@ -664,6 +664,14 @@ record(ai, "$(P)$(R)Det$(DET):TOF:XAxis_Bin")
    info(autosaveFields, "VAL")	
 }
 
+record(ai, "$(P)$(R)Det$(DET):TOF:XAxis_End")
+{
+   field(PINI, "YES")
+   field(VAL, "0")
+   field(PREC, "5")
+   info(autosaveFields, "VAL")	
+}
+
 # ///
 # /// INPA - Start value
 # /// INPB - Size of the desired scale array (must be <=NOVA)
@@ -685,6 +693,52 @@ record(aSub, "$(P)$(R)Det$(DET):TOF:XAxis")
    field(FTVA, "DOUBLE")
    field(NOVA, "$(TOFSIZE)")
 }
+
+#####################################################################
+# Monitor initial ROI binning parameter, and optionally 
+# do an automatic X-axis generate for the TOF plot.
+
+# ///
+# /// Auto scale the TOF X-Axis plot waveform
+# ///
+record(bi, "$(P)$(R)Det$(DET):TOF:XAxis_Auto")
+{
+   field(DESC, "XAxis Auto Scale")
+   field(PINI, "YES")
+   field(VAL, "1")
+   field(ZNAM, "No")
+   field(ONAM, "Yes")
+   info(autosaveFields, "VAL")	
+}
+
+# ///
+# /// Process $(P)$(R)Det$(DET):TOF:XAxis if XAxis_Auto is enabled and the TOF binning changes
+# ///
+record(calcout, "$(P)$(R)Det$(DET):TOF:XAxis_Auto_Proc")
+{
+   field(INPA, "$(P)$(R)Det$(DET):TOF:XAxis_Auto CP")
+   field(INPB, "$(P)$(R)Det$(DET):TOF:BinX CP")
+   field(INPC, "$(P)$(R)Det$(DET):TOF:XAxis_End CP")
+   field(INPD, "$(TOFSIZE)")
+   field(CALC, "A=1")
+   field(OOPT, "When Non-zero")
+   field(DOPT, "Use OCAL")
+   field(OCAL, "D/B")
+   field(OUT, "$(P)$(R)Det$(DET):TOF:XAxis_Size PP")
+   field(FLNK, "$(P)$(R)Det$(DET):TOF:XAxis_Auto_Proc2")
+}
+record(calcout, "$(P)$(R)Det$(DET):TOF:XAxis_Auto_Proc2")
+{
+   field(INPA, "$(P)$(R)Det$(DET):TOF:XAxis_End")
+   field(INPB, "$(P)$(R)Det$(DET):TOF:XAxis_Size")
+   field(CALC, "A/B")
+   field(OOPT, "Every Time")
+   field(DOPT, "Use CALC")
+   field(OUT, "$(P)$(R)Det$(DET):TOF:XAxis_Bin PP")
+   field(FLNK, "$(P)$(R)Det$(DET):TOF:XAxis")
+}
+
+
 
 
 
