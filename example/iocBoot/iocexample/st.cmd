@@ -12,7 +12,7 @@ dbLoadDatabase "dbd/example.dbd"
 example_registerRecordDeviceDriver pdbbase
 
 #####################################################
-# ADnED (only 1 per IOC at the moment)
+# ADnED 
 
 ADnEDCreateFactory(0)
 
