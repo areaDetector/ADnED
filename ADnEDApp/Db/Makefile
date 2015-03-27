@@ -18,6 +18,7 @@ DB += ADnEDDetectorTOFPlugin.template
 DB += ADnEDDetectorPixelPlugin.template
 DB += ADnEDPixelROI.template
 DB += ADnEDDetectorROIPluginASG.template
+DB += ADnEDDetectorTOFROIScale.template
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add
