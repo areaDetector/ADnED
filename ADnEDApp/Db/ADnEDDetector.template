@@ -645,7 +645,7 @@ record(ai, "$(P)$(R)Det$(DET):TOF:XAxis_Start")
 {
    field(PINI, "YES")
    field(VAL, "0")
-   field(PREC, "5")
+   field(PREC, "4")
    info(autosaveFields, "VAL")	
 }
 
@@ -660,7 +660,7 @@ record(ai, "$(P)$(R)Det$(DET):TOF:XAxis_Bin")
 {
    field(PINI, "YES")
    field(VAL, "1.0")
-   field(PREC, "5")
+   field(PREC, "4")
    info(autosaveFields, "VAL")	
 }
 
@@ -668,7 +668,7 @@ record(ai, "$(P)$(R)Det$(DET):TOF:XAxis_End")
 {
    field(PINI, "YES")
    field(VAL, "0")
-   field(PREC, "5")
+   field(PREC, "4")
    info(autosaveFields, "VAL")	
 }
 
@@ -682,7 +682,7 @@ record(aSub, "$(P)$(R)Det$(DET):TOF:XAxis")
 {
    field(INAM, "scaleArrayInit")
    field(SNAM, "scaleArrayProcess")
-   field(PREC, "5")
+   field(PREC, "4")
    field(PINI, "YES")
    field(INPA, "$(P)$(R)Det$(DET):TOF:XAxis_Start")
    field(INPB, "$(P)$(R)Det$(DET):TOF:XAxis_Size")
@@ -738,6 +738,36 @@ record(calcout, "$(P)$(R)Det$(DET):TOF:XAxis_Auto_Proc2")
    field(FLNK, "$(P)$(R)Det$(DET):TOF:XAxis")
 }
 
+
+#####################################################################
+# Provide records to convert high level ROI start and size to bins
+
+substitute "SIZE1=$(P)$(R)Det$(DET):TOF:XAxis_End"
+substitute "SIZE2=$(P)$(R)Det$(DET):TOF:XAxis_Size"
+
+substitute "ROI=0"
+include "ADnEDDetectorTOFROIScale.template"
+
+substitute "ROI=1"
+include "ADnEDDetectorTOFROIScale.template"
+
+substitute "ROI=2"
+include "ADnEDDetectorTOFROIScale.template"
+
+substitute "ROI=3"
+include "ADnEDDetectorTOFROIScale.template"
+
+substitute "ROI=4"
+include "ADnEDDetectorTOFROIScale.template"
+
+substitute "ROI=5"
+include "ADnEDDetectorTOFROIScale.template"
+
+substitute "ROI=6"
+include "ADnEDDetectorTOFROIScale.template"
+
+substitute "ROI=7"
+include "ADnEDDetectorTOFROIScale.template"
 
 
 
