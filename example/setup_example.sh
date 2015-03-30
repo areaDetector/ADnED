@@ -41,6 +41,9 @@ caput -S -c BL99:Det:N1:Det1:PixelMapFile "/home/controls/epics/ADnED/master/exa
 caput -S -c BL99:Det:N1:Det1:TOFTransFile "/home/controls/epics/ADnED/master/example/mapping/tof.trans"
 #caput -c BL99:Det:N1:Det1:TOFTransEnable 1
 
+caput -c BL99:Det:N1:Det1:XY:Stat:EnableCallbacks 1
+
+
 echo "Det2..."
 
 caput -c BL99:Det:N1:Det2:Description "Det 2"
@@ -68,6 +71,8 @@ caput -c BL99:Det:N1:Det2:XY:ROI:0:MinX 5
 caput -c BL99:Det:N1:Det2:XY:ROI:0:MinY 5
 caput -c BL99:Det:N1:Det2:XY:ROI:0:SizeX 5
 caput -c BL99:Det:N1:Det2:XY:ROI:0:SizeY 5
+
+caput -c BL99:Det:N1:Det2:XY:Stat:EnableCallbacks 1
 
 echo "Allocate Space..."
 caput -c BL99:Det:N1:AllocSpace.PROC 1

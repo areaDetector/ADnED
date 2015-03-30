@@ -19,6 +19,14 @@
 # DET2SIZE - The size of the DET2 waveform
 # DET3SIZE - The size of the DET3 waveform
 # DET4SIZE - The size of the DET4 waveform
+# DET1X - The X size of the DET1 XY plot
+# DET2X - The X size of the DET2 XY plot
+# DET3X - The X size of the DET3 XY plot
+# DET4X - The X size of the DET4 XY plot
+# DET1Y - The Y size of the DET1 XY plot
+# DET2Y - The Y size of the DET2 XY plot
+# DET3Y - The Y size of the DET3 XY plot
+# DET4Y - The Y size of the DET4 XY plot
 #
 #####################################################################
 
@@ -458,6 +466,9 @@ include "ADnEDDetectorPlugin.template"
 substitute "NELEMENTS=$(TOFSIZE)"
 include "ADnEDDetectorTOFPlugin.template"
 substitute "NELEMENTS=$(DET1SIZE)"
+substitute "HIST_SIZE=$(DET1SIZE)"
+substitute "XSIZE=$(DET1X)"
+substitute "YSIZE=$(DET1Y)"
 include "ADnEDDetectorPixelPlugin.template"
 
 substitute "R=$(ADNED)"
@@ -466,6 +477,9 @@ include "ADnEDDetectorPlugin.template"
 substitute "NELEMENTS=$(TOFSIZE)"
 include "ADnEDDetectorTOFPlugin.template"
 substitute "NELEMENTS=$(DET2SIZE)"
+substitute "HIST_SIZE=$(DET2SIZE)"
+substitute "XSIZE=$(DET2X)"
+substitute "YSIZE=$(DET2Y)"
 include "ADnEDDetectorPixelPlugin.template"
 
 substitute "R=$(ADNED)"
@@ -474,6 +488,9 @@ include "ADnEDDetectorPlugin.template"
 substitute "NELEMENTS=$(TOFSIZE)"
 include "ADnEDDetectorTOFPlugin.template"
 substitute "NELEMENTS=$(DET3SIZE)"
+substitute "HIST_SIZE=$(DET3SIZE)"
+substitute "XSIZE=$(DET3X)"
+substitute "YSIZE=$(DET3Y)"
 include "ADnEDDetectorPixelPlugin.template"
 
 substitute "R=$(ADNED)"
@@ -482,6 +499,9 @@ include "ADnEDDetectorPlugin.template"
 substitute "NELEMENTS=$(TOFSIZE)"
 include "ADnEDDetectorTOFPlugin.template"
 substitute "NELEMENTS=$(DET4SIZE)"
+substitute "HIST_SIZE=$(DET4SIZE)"
+substitute "XSIZE=$(DET4X)"
+substitute "YSIZE=$(DET4Y)"
 include "ADnEDDetectorPixelPlugin.template"
 
 ##########################################################################

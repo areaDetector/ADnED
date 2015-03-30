@@ -11,6 +11,8 @@
 # P,R - base PV name
 # DET - Detector number (1-based)
 # TOFSIZE - Max size of TOF spectrum
+# XSIZE - The X size of the XY plot (required for NDStats.template)
+# YSIZE - The Y size of the XY plot (required for NDStats.template)
 #
 #####################################################################
 
@@ -35,12 +37,19 @@ substitute "FTVL=LONG"
 include "NDStdArrays.template"
 
 # ROI and Stats
-
 substitute "R=$(ADNED)Det$(DET):XY:ROI:"
 substitute "PORT=$(ADNED_PORT).DET$(DET).XY.ROI"
 substitute "NDARRAY_PORT=$(ADNED_PORT).DET$(DET).XY"
 include "NDPluginBase.template"
 include "NDROIStat8.template"
+
+# Single Stats Plugin on entire 2-D NDArray
+substitute "R=$(ADNED)Det$(DET):XY:Stat:"
+substitute "PORT=$(ADNED_PORT).DET$(DET).XY.STAT"
+substitute "NDARRAY_PORT=$(ADNED_PORT).DET$(DET).XY"
+substitute "NCHANS=1024"
+include "NDPluginBase.template"
+include "NDStats.template"
 
 #####################################################################
 # Put ROI0 to ROI4 into ASG=ALWAYS group for pixel XY plot.
