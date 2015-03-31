@@ -42,7 +42,10 @@ caput -S -c BL99:Det:N1:Det1:TOFTransFile "/home/controls/epics/ADnED/master/exa
 #caput -c BL99:Det:N1:Det1:TOFTransEnable 1
 
 caput -c BL99:Det:N1:Det1:XY:Stat:EnableCallbacks 1
-
+caput -c BL99:Det:N1:Det1:XY:Stat:ComputeCentroid 1
+caput -c BL99:Det:N1:Det1:XY:Stat:ComputeProfiles 1
+caput -c BL99:Det:N1:Det1:XY:Stat:CursorX 10
+caput -c BL99:Det:N1:Det1:XY:Stat:CursorY 10
 
 echo "Det2..."
 
@@ -73,6 +76,8 @@ caput -c BL99:Det:N1:Det2:XY:ROI:0:SizeX 5
 caput -c BL99:Det:N1:Det2:XY:ROI:0:SizeY 5
 
 caput -c BL99:Det:N1:Det2:XY:Stat:EnableCallbacks 1
+caput -c BL99:Det:N1:Det2:XY:Stat:ComputeCentroid 1
+caput -c BL99:Det:N1:Det2:XY:Stat:ComputeProfiles 1
 
 echo "Allocate Space..."
 caput -c BL99:Det:N1:AllocSpace.PROC 1
