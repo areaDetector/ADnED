@@ -4,7 +4,6 @@
 # areaDetector nED client template file. This should be included by the
 # ADnEDDetector.template file, for each TOF ROI being used. 
 # It defines new high level ROI records that present different units.
-# There is also a count rate calculation.
 #
 # Matt Pearson
 # March 15
@@ -57,23 +56,6 @@ record(calcout, "$(P)$(R)Det$(DET):TOF:ROI:$(ROI):CalcSize")
 }
 
 
-###############################################################
-# Calculate the count rate in each TOF ROI, for user display
 
-# ///
-# /// Count rate in ROI
-# ///
-record(calc, "$(P)$(R)Det$(DET):TOF:ROI:$(ROI):Rate")
-{
-    field(INPA, "$(P)$(R)Det$(DET):TOF:ROI:$(ROI):Rate.LB NPP NMS")
-    field(INPB, "$(P)$(R)Det$(DET):TOF:ROI:$(ROI):Total_RBV NPP NMS")
-    field(INPC, "1.0")                              
-    field(INPD, "$(P)$(R)Det$(DET):TOF:ROI:$(ROI):Rate.VAL NPP NMS")
-    field(INPE, "$(RATE_SMOOTH=0.0)")             
-    field(CALC, "(D*E)/C+MAX(0,B-A)*(1-E)/C")
-    field(PREC, "0")
-    field(EGU,  "e/s")
-    field(SCAN, "1 second")
-}
 
 

@@ -51,6 +51,7 @@ substitute "NCHANS=1024"
 include "NDPluginBase.template"
 include "NDStats.template"
 
+
 #####################################################################
 # Put ROI0 to ROI4 into ASG=ALWAYS group for pixel XY plot.
 
