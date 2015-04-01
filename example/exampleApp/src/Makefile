@@ -36,6 +36,7 @@ example_SRCS_vxWorks += -nil-
 # Link in the code from the support library
 include $(ADCORE)/ADApp/commonDriverMakefile
 example_LIBS += ADnEDSupport
+example_LIBS += ADnEDTransform
 example_LIBS += pvDatabase
 example_LIBS += pvAccess
 example_LIBS += pvData

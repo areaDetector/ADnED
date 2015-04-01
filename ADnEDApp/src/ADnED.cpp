@@ -27,6 +27,7 @@
 #include "ADnED.h"
 #include "nEDChannel.h"
 #include "ADnEDFile.h"
+#include "ADnEDTransform.h"
 #include <pv/pvData.h>
 
 using std::cout;
@@ -185,9 +186,9 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
 
   for (int i=0; i<=s_ADNED_MAX_DETS; ++i) {
     p_PixelMap[i] = NULL;
-    p_TofTrans[i] = NULL;
+    //p_TofTrans[i] = NULL;
    
-    m_TofTransSize[i] = 0;
+    //m_TofTransSize[i] = 0;
     m_PixelMapSize[i] = 0;
     
     m_detStartValues[i] = 0;
@@ -306,6 +307,10 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
 
   if (!paramStatus) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Unable To Set Driver Parameters In Constructor.\n", functionName);
+  }
+
+  for (int det=1; det<=s_ADNED_MAX_DETS; det++) {
+    p_Transform[det] = new ADnEDTransform();
   }
 
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s End Of Constructor.\n", functionName);
@@ -608,27 +613,33 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
   if (function == ADnEDDetTOFTransFileParam) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
 	      "%s Set Det %d TOF Transformation File: %s.\n", functionName, addr, value);
-    
-    if (p_TofTrans[addr]) {
-      free(p_TofTrans[addr]);
-      p_TofTrans[addr] = NULL;
-      m_TofTransSize[addr] = 0;
-    }
-      
+       
+    epicsUInt32 arraySize = 0;
+    epicsFloat64 *pArray = NULL;
+
     try {
       ADnEDFile file = ADnEDFile(value);
       if (file.getSize() != 0) { 
-	m_TofTransSize[addr] = file.getSize();
-	if (p_TofTrans[addr] == NULL) {
-	  p_TofTrans[addr] = static_cast<epicsFloat64 *>(calloc(m_TofTransSize[addr], sizeof(epicsFloat64)));
+	arraySize = file.getSize();
+	if (pArray == NULL) {
+	  pArray = static_cast<epicsFloat64 *>(calloc(arraySize, sizeof(epicsFloat64)));
 	}
-	file.readDataIntoDoubleArray(&p_TofTrans[addr]);
+	file.readDataIntoDoubleArray(&pArray);
+	//Just use paramIndex=0 for now until we have more parameters to use.
+	if (p_Transform[addr]->setDoubleArray(0, pArray, arraySize) != 0) {
+	  asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		"%s Error loading array into p_Transform[%d]\n", functionName, addr);
+	}
       }
     } catch (std::exception &e) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
 		"%s Error Parsing TOF Transformation File. Det: %d. %s\n", functionName, addr, e.what());
     }
 
+    if (pArray != NULL) {
+      free(pArray);
+    }
+    
   } else if (function == ADnEDDetPixelMapFileParam) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
 	      "%s Set Det %d Pixel Map File: %s.\n", functionName, addr, value);
@@ -708,15 +719,7 @@ void ADnED::printPixelMap(epicsUInt32 det)
  */
 void ADnED::printTofTrans(epicsUInt32 det)
 { 
-  printf("ADnED::printTofTrans. Det: %d\n", det);
-  if ((m_TofTransSize[det] > 0) && (p_TofTrans[det])) {
-    printf("m_TofTransSize[%d]: %d\n", det, m_TofTransSize[det]);
-    for (epicsUInt32 index=0; index<m_TofTransSize[det]; ++index) {
-      printf("p_TofTrans[%d][%d]: %f\n", det, index, (p_TofTrans[det])[index]);
-    }
-  } else {
-    printf("No TOF transformation loaded.\n");
-  }
+  p_Transform[det]->printDoubleArray(0);
 }
 
 /**
@@ -942,9 +945,8 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	  tof = static_cast<epicsFloat64>(tofData[i]);
 	  //If enabled, do TOF tranformation (to d-space for example).
 	  if (m_detTOFTransEnabled[det]) {
-	    if (p_TofTrans[det]) {
-	      tof = tofData[i] * (p_TofTrans[det])[pixelsData[i]];
-	    }
+	    //Use transform 0, which is a single array multiplier
+	    tof = p_Transform[det]->calculate(0, pixelsData[i], tofData[i]);
 	    //Apply scale and offset
 	    if (m_detTOFTransScale[det] >=0) {
 	      tof = (tof * m_detTOFTransScale[det]) + m_detTOFTransOffset[det];

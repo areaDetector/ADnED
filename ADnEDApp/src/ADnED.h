@@ -36,6 +36,8 @@
 #include <pv/pvTimeStamp.h>
 #include "ADDriver.h"
 #include "nEDChannel.h"
+#include "ADnEDTransform.h"
+#include "ADnEDGlobals.h"
 
 /* These are the drvInfo strings that are used to identify the parameters.
  * They are used by asyn clients, including standard asyn device support */
@@ -90,10 +92,6 @@
 #define ADnEDTOFMaxParamString             "ADNED_TOF_MAX"
 #define ADnEDAllocSpaceParamString         "ADNED_ALLOC_SPACE"
 #define ADnEDAllocSpaceStatusParamString   "ADNED_ALLOC_SPACE_STATUS"
-
-#define ADNED_MAX_STRING_SIZE 256
-#define ADNED_MAX_DETS 4
-#define ADNED_MAX_CHANNELS 4
 
 extern "C" {
   asynStatus ADnEDConfig(const char *portName, int maxBuffers, size_t maxMemory, int debug);
@@ -153,8 +151,6 @@ class ADnED : public ADDriver {
   double m_nowTimeSecs;
   double m_lastTimeSecs;
   epicsUInt32 *p_Data;
-  epicsFloat64 *p_TofTrans[ADNED_MAX_DETS+1];
-  epicsUInt32 m_TofTransSize[ADNED_MAX_DETS+1];
   epicsUInt32 *p_PixelMap[ADNED_MAX_DETS+1];
   epicsUInt32 m_PixelMapSize[ADNED_MAX_DETS+1];
   bool m_dataAlloc;
@@ -191,6 +187,8 @@ class ADnED : public ADDriver {
   std::tr1::shared_ptr<nEDChannel::nEDMonitorRequester> p_MonitorRequester[ADNED_MAX_CHANNELS];
   epics::pvData::Monitor::shared_pointer p_Monitor[ADNED_MAX_CHANNELS];
   epics::pvAccess::Channel::shared_pointer p_Channel[ADNED_MAX_CHANNELS];
+
+  ADnEDTransform *p_Transform[ADNED_MAX_DETS+1];
 
   //Constructor parameters.
   const epicsUInt32 m_debug;
