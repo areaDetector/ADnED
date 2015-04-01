@@ -1,0 +1,6 @@
+
+#define ADNED_MAX_STRING_SIZE 256
+#define ADNED_MAX_DETS 4
+#define ADNED_MAX_CHANNELS 4
+#define ADNED_MAX_TRANSFORM_PARAMS 6 //Must be at least as big as ADNED_MAX_DETS
+
