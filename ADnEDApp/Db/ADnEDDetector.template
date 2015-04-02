@@ -270,7 +270,6 @@ record(bi, "$(P)$(R)Det$(DET):TOFROIFilterEnable_RBV")
     field(SCAN, "I/O Intr")
 }
 
-
 #####################################################################
 # TOF Transformation File & Control
 
@@ -313,29 +312,46 @@ record(bo, "$(P)$(R)Det$(DET):TOFTransPrint")
 }
 
 # ///
-# /// Enable TOF transformation for DET $(DET)
+# /// Choose the type of TOF transformation applied. This list
+# /// should match what is defined in the ADnEDTransform class.
+# /// Default is None, which also disables the scale factor and offset.
 # ///
-record(bo, "$(P)$(R)Det$(DET):TOFTransEnable")
+record(mbbo, "$(P)$(R)Det$(DET):TOFTransType")
 {
-    field(PINI, "YES")
-    field(DTYP, "asynInt32")
-    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_ENABLE")
-    field(ZNAM, "Disable")
-    field(ONAM, "Enable")
-    info(autosaveFields, "VAL")
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_TYPE")
+   field(ZRST, "None")
+   field(ZRVL, "0")
+   field(ONST, "Array Multiplier")
+   field(ONVL, "1")
+   field(TWST, "D Space")
+   field(TWVL, "2")
+   field(THST, "Delta E")
+   field(THVL, "3")
+   field(VAL,  "0")
+   info(autosaveFields, "VAL")
 }
 
 # ///
-# /// Enable TOF Trans for DET $(DET) (Readback only)
+# /// Readback the TOF transformation (readback only)
 # ///
-record(bi, "$(P)$(R)Det$(DET):TOFTransEnable_RBV")
+record(mbbi, "$(P)$(R)Det$(DET):TOFTransType_RBV")
 {
-    field(DTYP, "asynInt32")
-    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_ENABLE")
-    field(ZNAM, "Disable")
-    field(ONAM, "Enable")
-    field(SCAN, "I/O Intr")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_TYPE")
+   field(ZRST, "None")
+   field(ZRVL, "0")
+   field(ONST, "Array Multiplier")
+   field(ONVL, "1")
+   field(TWST, "D Space")
+   field(TWVL, "2")
+   field(THST, "Delta E")
+   field(THVL, "3")
+   field(VAL,  "0")
+   field(SCAN, "I/O Intr")
 }
+
 
 #####################################################################
 # Scale factor and offset (in horizontal direction) for TOF spectrum

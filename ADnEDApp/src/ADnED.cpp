@@ -150,7 +150,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDDetTOFTransPrintParamString,    asynParamInt32,       &ADnEDDetTOFTransPrintParam);
   createParam(ADnEDDetPixelMapPrintParamString,    asynParamInt32,       &ADnEDDetPixelMapPrintParam);
   createParam(ADnEDDetPixelMapEnableParamString, asynParamInt32,       &ADnEDDetPixelMapEnableParam);
-  createParam(ADnEDDetTOFTransEnableParamString, asynParamInt32,       &ADnEDDetTOFTransEnableParam);
+  createParam(ADnEDDetTOFTransTypeParamString, asynParamInt32,       &ADnEDDetTOFTransTypeParam);
   createParam(ADnEDDetTOFTransOffsetParamString, asynParamFloat64,       &ADnEDDetTOFTransOffsetParam);
   createParam(ADnEDDetTOFTransScaleParamString, asynParamFloat64,       &ADnEDDetTOFTransScaleParam);
   createParam(ADnEDDetPixelROIStartXParamString, asynParamInt32,       &ADnEDDetPixelROIStartXParam);
@@ -186,9 +186,6 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
 
   for (int i=0; i<=s_ADNED_MAX_DETS; ++i) {
     p_PixelMap[i] = NULL;
-    //p_TofTrans[i] = NULL;
-   
-    //m_TofTransSize[i] = 0;
     m_PixelMapSize[i] = 0;
     
     m_detStartValues[i] = 0;
@@ -200,7 +197,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     m_detTOFROISizeValues[i] = 0;
     m_detTOFROIEnabled[i] = 0;
     m_detPixelMappingEnabled[i] = 0;
-    m_detTOFTransEnabled[i] = 0;
+    m_detTOFTransType[i] = 0;
     m_detTOFTransOffset[i] = 0;
     m_detTOFTransScale[i] = 0;
 
@@ -294,7 +291,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     paramStatus = ((setStringParam(det, ADnEDDetTOFTransFileParam, " ") == asynSuccess) && paramStatus);
     paramStatus = ((setStringParam(det, ADnEDDetPixelMapFileParam, " ") == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetPixelMapEnableParam, 0) == asynSuccess) && paramStatus);
-    paramStatus = ((setIntegerParam(det, ADnEDDetTOFTransEnableParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetTOFTransTypeParam, 0) == asynSuccess) && paramStatus);
     callParamCallbacks(det);
   }
   paramStatus = ((setIntegerParam(ADnEDTOFMaxParam, 0) == asynSuccess) && paramStatus);
@@ -825,7 +822,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     //Pixel ID mapping
     getIntegerParam(det, ADnEDDetPixelMapEnableParam, &m_detPixelMappingEnabled[det]);
     //TOF Transformation
-    getIntegerParam(det, ADnEDDetTOFTransEnableParam, &m_detTOFTransEnabled[det]);
+    getIntegerParam(det, ADnEDDetTOFTransTypeParam, &m_detTOFTransType[det]);
     getDoubleParam(det, ADnEDDetTOFTransOffsetParam, &m_detTOFTransOffset[det]);
     getDoubleParam(det, ADnEDDetTOFTransScaleParam, &m_detTOFTransScale[det]);
     //Pixel ID XY filter
@@ -944,9 +941,9 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	  
 	  tof = static_cast<epicsFloat64>(tofData[i]);
 	  //If enabled, do TOF tranformation (to d-space for example).
-	  if (m_detTOFTransEnabled[det]) {
+	  if (m_detTOFTransType[det] != 0) {
 	    //Use transform 0, which is a single array multiplier
-	    tof = p_Transform[det]->calculate(0, pixelsData[i], tofData[i]);
+	    tof = p_Transform[det]->calculate(m_detTOFTransType[det], pixelsData[i], tofData[i]);
 	    //Apply scale and offset
 	    if (m_detTOFTransScale[det] >=0) {
 	      tof = (tof * m_detTOFTransScale[det]) + m_detTOFTransOffset[det];

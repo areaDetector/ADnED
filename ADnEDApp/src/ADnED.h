@@ -80,7 +80,7 @@
 #define ADnEDDetTOFTransPrintParamString   "ADNED_DET_TOF_TRANS_PRINT"
 #define ADnEDDetPixelMapPrintParamString   "ADNED_DET_PIXEL_MAP_PRINT"
 #define ADnEDDetPixelMapEnableParamString  "ADNED_DET_PIXEL_MAP_ENABLE"
-#define ADnEDDetTOFTransEnableParamString  "ADNED_DET_TOF_TRANS_ENABLE"
+#define ADnEDDetTOFTransTypeParamString    "ADNED_DET_TOF_TRANS_TYPE"
 #define ADnEDDetTOFTransOffsetParamString  "ADNED_DET_TOF_TRANS_OFFSET"
 #define ADnEDDetTOFTransScaleParamString   "ADNED_DET_TOF_TRANS_SCALE"
 #define ADnEDDetPixelROIStartXParamString  "ADNED_DET_PIXEL_ROI_START_X"
@@ -169,7 +169,7 @@ class ADnED : public ADDriver {
   int m_detTOFROISizeValues[ADNED_MAX_DETS+1];
   int m_detTOFROIEnabled[ADNED_MAX_DETS+1];
   int m_detPixelMappingEnabled[ADNED_MAX_DETS+1];
-  int m_detTOFTransEnabled[ADNED_MAX_DETS+1];
+  int m_detTOFTransType[ADNED_MAX_DETS+1];
   double m_detTOFTransScale[ADNED_MAX_DETS+1];
   double m_detTOFTransOffset[ADNED_MAX_DETS+1];
   int m_detPixelROIStartX[ADNED_MAX_DETS+1];
@@ -238,7 +238,7 @@ class ADnED : public ADDriver {
   int ADnEDDetTOFTransPrintParam;
   int ADnEDDetPixelMapPrintParam;
   int ADnEDDetPixelMapEnableParam;
-  int ADnEDDetTOFTransEnableParam;
+  int ADnEDDetTOFTransTypeParam;
   int ADnEDDetTOFTransOffsetParam;
   int ADnEDDetTOFTransScaleParam;
   int ADnEDDetPixelROIStartXParam;
