@@ -300,7 +300,15 @@ record(ai, "$(P)$(R)PChargeIntegrated_RBV")
    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PCHARGE_INT")
    field(PREC, "4")
    field(SCAN, "I/O Intr")
-   field(EGU, "C")	
+   field(EGU, "C")
+   field(FLNK, "$(P)$(R)PChargeIntegrated_pC")	
+}
+
+record(calc, "$(P)$(R)PChargeIntegrated_pC")
+{
+   field(INPA, "$(P)$(R)PChargeIntegrated_RBV")
+   field(CALC, "A*1e12")
+   field(EGU, "pC")
 }
 
 # /// 
