@@ -15,72 +15,60 @@ def main():
 
         print "Acquire " + str(i)
    
-        caput("BL16B:Det:GblCon:Stop", 1, wait=True, timeout=2000)
-        status = caget("BL16B:Det:GblCon:State")
+        caput("BL1A:Det:GblCon:Stop", 1, wait=True, timeout=2000)
+        status = caget("BL1A:Det:GblCon:State")
         if (status != "Ready"):
             print "ERROR on nED Stop: i= " + str(i) + \
             " status= " + str(status) + " and it should be: Ready"
             sys.exit(1)
         
-        if ((i % 500) == 0):
-            caput("BL16B:Det:GblCon:WriteConf", 1, wait=True, timeout=2000)
-            status = caget("BL16B:Det:GblCon:State")
-            if (status != "Ready"):
-                print "ERROR on nED WriteConf: i= " + str(i) + \
-                    " status= " + str(status) + " and it should be: Ready"
-                sys.exit(1)
+        #if ((i % 500) == 0):
+        #    caput("BL1A:Det:GblCon:WriteConf", 1, wait=True, timeout=2000)
+        #    status = caget("BL1A:Det:GblCon:State")
+        #    if (status != "Ready"):
+        #        print "ERROR on nED WriteConf: i= " + str(i) + \
+        #            " status= " + str(status) + " and it should be: Ready"
+        #        sys.exit(1)
 
-        caput("BL16B:Det:GblCon:Start", 1, wait=True, timeout=2000)
-        status = caget("BL16B:Det:GblCon:State")
+        caput("BL1A:Det:GblCon:Start", 1, wait=True, timeout=2000)
+        status = caget("BL1A:Det:GblCon:State")
         if (status != "Ready"):
             print "ERROR on nED Start: i= " + str(i) + \
             " status= " + str(status) + " and it should be: Ready"
             sys.exit(1)
 
-        status = caget("BL16B:Det:GblCon:PctSucceeded")
+        status = caget("BL1A:Det:GblCon:PctSucceeded")
         print "GblCon:PctSucceeded: " + str(status)
 
-        caput("BL16B:CS:RunControl:Start", 1, wait=True, timeout=2000)
-        status = caget("BL16B:CS:RunControl:StateEnum")
+        caput("BL1A:CS:RunControl:Start", 1, wait=True, timeout=2000)
+        status = caget("BL1A:CS:RunControl:StateEnum")
         if (status != STAT_ACQUIRE):
             print "ERROR on Start: i= " + str(i) + \
             " status= " + str(status) + " and it should be " + str(STAT_ACQUIRE)
             sys.exit(1)
 
-        status = caget("BL16B:Det:N1:DetectorState_RBV")
+        status = caget("BL1A:Det:N1:DetectorState_RBV")
         if (status != 1):
             print "ERROR on Start: i= " + str(i) + \
-            " BL16B:Det:N1:DetectorState_RBV= " + str(status) + " and it should be 1"
-            sys.exit(1)
-
-        status = caget("BL16B:Det:M1:DetectorState_RBV")
-        if (status != 1):
-            print "ERROR on Start: i= " + str(i) + \
-            " BL16B:Det:M1:DetectorState_RBV= " + str(status) + " and it should be 1"
+            " BL1A:Det:N1:DetectorState_RBV= " + str(status) + " and it should be 1"
             sys.exit(1)
 
         sleepTime = randint(1,10)
         print "sleepTime: " + str(sleepTime)
         cothread.Sleep(sleepTime)
 
-        caput("BL16B:CS:RunControl:Stop", 1, wait=True, timeout=2000)
+        caput("BL1A:CS:RunControl:Stop", 1, wait=True, timeout=2000)
         #cothread.Sleep(1) #At the moment callback not supported on a stop.
-        status = caget("BL16B:CS:RunControl:StateEnum")
+        status = caget("BL1A:CS:RunControl:StateEnum")
         if (status != STAT_IDLE):
             print "ERROR on Stop: i= " + str(i) + \
             " status= " + str(status) + " and it should be " + str(STAT_IDLE)
             sys.exit(1)
 
-        status = caget("BL16B:Det:N1:DetectorState_RBV")
+        status = caget("BL1A:Det:N1:DetectorState_RBV")
         if (status != 0):
             print "ERROR on Stop: i= " + str(i) + \
-            " BL16B:Det:N1:DetectorState_RBV= " + str(status) + " and it should be 0"
-            sys.exit(1)
-
-        status = caget("BL16B:Det:M1:DetectorState_RBV")
-        if (status != 0):
-            print "ERROR on Stop: i= " + str(i) + \
-            " BL16B:Det:M1:DetectorState_RBV= " + str(status) + " and it should be 0"
+            " BL1A:Det:N1:DetectorState_RBV= " + str(status) + " and it should be 0"
             sys.exit(1)
 
    
