@@ -14,7 +14,7 @@ AD_ACQUIRE = 1
 
 def main():
    
-    for i in range(5000):
+    for i in range(10000):
 
         print "Acquire " + str(i)
    
