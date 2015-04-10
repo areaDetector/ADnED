@@ -1190,6 +1190,8 @@ asynStatus ADnED::clearParams(void)
 
   for (int det=0; det<=s_ADNED_MAX_DETS; ++det) {
     m_detTotalEvents[det] = 0.0;
+    setDoubleParam(det, ADnEDDetEventTotalParam, m_detTotalEvents[det]);
+    callParamCallbacks(det);
   }
 
   if (!status) {
