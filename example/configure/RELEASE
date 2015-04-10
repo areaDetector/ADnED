@@ -27,7 +27,8 @@ include $(BASEV4)/RELEASE.local
 TEMPLATE_TOP=$(EPICS_BASE)/templates/makeBaseApp/top
 
 ASYN=		$(SUPPORT)/asyn/master
-ADCORE=		$(SUPPORT)/ADCore/proj_matt
+ADCORE=		$(SUPPORT)/ADCore/master
+#ADCORE=		$(SUPPORT)/ADCore/proj_matt
 #ADCORE=			/home/mkp/github/ADCore
 ADNED=		$(SUPPORT)/ADnED/master
 GENERICIO=      $(SUPPORT)/genericIO/master
