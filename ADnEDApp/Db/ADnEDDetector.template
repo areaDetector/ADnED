@@ -862,5 +862,21 @@ record(dfanout, "$(P)$(R)Det$(DET):PixelSizeXSet")
    field(OUTA, "$(P)$(R)Det$(DET):PixelSizeX.VAL PP")
 }
 
+################################################################
+# Monitor the TOF:ROI:1 values and use them for the TOF ROI filter
+# records above.
+
+record(dfanout, "$(P)$(R)Det$(DET):TOFROIFilterStartSet")
+{
+   field(DOL, "$(P)$(R)Det$(DET):TOF:ROI:1:MinX_RBV.VAL CP")
+   field(OMSL, "closed_loop")
+   field(OUTA, "$(P)$(R)Det$(DET):TOFROIFilterStart.VAL PP")
+}
+record(dfanout, "$(P)$(R)Det$(DET):TOFROIFilterSizeSet")
+{
+   field(DOL, "$(P)$(R)Det$(DET):TOF:ROI:1:SizeX_RBV.VAL CP")
+   field(OMSL, "closed_loop")
+   field(OUTA, "$(P)$(R)Det$(DET):TOFROIFilterSize.VAL PP")
+}
 
 

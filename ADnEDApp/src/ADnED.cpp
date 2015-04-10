@@ -962,7 +962,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	  //Integrate Pixel ID Data, optionally filtering on TOF ROI filter.
 	  if (m_detTOFROIEnabled[det]) {
 	    if ((tof >= static_cast<epicsFloat64>(m_detTOFROIStartValues[det])) 
-		&& (tof <= static_cast<epicsFloat64>(m_detTOFROIStartValues[det] + m_detTOFROISizeValues[det]))) {
+		&& (tof < static_cast<epicsFloat64>(m_detTOFROIStartValues[det] + m_detTOFROISizeValues[det]))) {
 	      p_Data[m_NDArrayStartValues[det]+mappedPixelIndex]++;
 	    }
 	  } else { //No TOF ROI filter enabled
