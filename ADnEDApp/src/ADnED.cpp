@@ -981,10 +981,9 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 		//ROI is assumed to start from 0,0 (not from whatever is the pixel ID range). 
 		//So we need to offset, but this has already been done by the pixel mapping above.
 		if (((mappedPixelIndex % m_detPixelSizeX[det]) >= m_detPixelROIStartX[det]) && 
-		    ((mappedPixelIndex % m_detPixelSizeX[det]) <= (m_detPixelROIStartX[det] + m_detPixelROISizeX[det]))) {
+		    ((mappedPixelIndex % m_detPixelSizeX[det]) < (m_detPixelROIStartX[det] + m_detPixelROISizeX[det]))) {
 		  if ((mappedPixelIndex >= (m_detPixelROIStartY[det] * m_detPixelSizeX[det])) &&
-		      ((mappedPixelIndex <= ((m_detPixelROIStartY[det] + m_detPixelROISizeY[det]) 
-				      * m_detPixelSizeX[det]) + m_detPixelSizeX[det]))) {
+		      ((mappedPixelIndex < ((m_detPixelROIStartY[det] + m_detPixelROISizeY[det]) * m_detPixelSizeX[det])))) {
 		    p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
 		  }
 		}
@@ -1336,7 +1335,6 @@ void ADnED::eventTask(void)
 	setIntegerParam(ADStatus, ADStatusIdle);
 	cout << "Send Stop Frame" << endl;
 	epicsEventSignal(this->m_stopFrame);
-	unlock();
       }
       
     } // End of while(acquire)
@@ -1361,7 +1359,8 @@ void ADnED::eventTask(void)
     callParamCallbacks();
     setIntegerParam(ADnEDStopParam, 0);
     callParamCallbacks();
-    
+    unlock();
+
   } // End of while(1)
 
   asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Exiting ADnEDEventTask main loop.\n", functionName);

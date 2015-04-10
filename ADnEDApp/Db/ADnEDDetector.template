@@ -826,5 +826,41 @@ substitute "ROI=7"
 include "ADnEDDetectorROIRate.template"
 
 
+################################################################
+# Monitor the XY:ROI:1 values and use them for the X/Y ROI filter
+# records above.
+
+record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterStartXSet")
+{
+   field(DOL, "$(P)$(R)Det$(DET):XY:ROI:1:MinX_RBV.VAL CP")
+   field(OMSL, "closed_loop")
+   field(OUTA, "$(P)$(R)Det$(DET):PixelROIFilterStartX.VAL PP")
+}
+record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterSizeXSet")
+{
+   field(DOL, "$(P)$(R)Det$(DET):XY:ROI:1:SizeX_RBV.VAL CP")
+   field(OMSL, "closed_loop")
+   field(OUTA, "$(P)$(R)Det$(DET):PixelROIFilterSizeX.VAL PP")
+}
+record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterStartYSet")
+{
+   field(DOL, "$(P)$(R)Det$(DET):XY:ROI:1:MinY_RBV.VAL CP")
+   field(OMSL, "closed_loop")
+   field(OUTA, "$(P)$(R)Det$(DET):PixelROIFilterStartY.VAL PP")
+}
+record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterSizeYSet")
+{
+   field(DOL, "$(P)$(R)Det$(DET):XY:ROI:1:SizeY_RBV.VAL CP")
+   field(OMSL, "closed_loop")
+   field(OUTA, "$(P)$(R)Det$(DET):PixelROIFilterSizeY.VAL PP")
+}
+# and set the pixel X size (the size of the detector in the X direction)
+record(dfanout, "$(P)$(R)Det$(DET):PixelSizeXSet")
+{
+   field(DOL, "$(P)$(R)Det$(DET):XY:Size1_RBV.VAL CP")
+   field(OMSL, "closed_loop")
+   field(OUTA, "$(P)$(R)Det$(DET):PixelSizeX.VAL PP")
+}
+
 
 
