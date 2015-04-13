@@ -828,7 +828,7 @@ include "ADnEDDetectorROIRate.template"
 
 ################################################################
 # Monitor the XY:ROI:1 values and use them for the X/Y ROI filter
-# records above.
+# records above. 
 
 record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterStartXSet")
 {
@@ -864,19 +864,25 @@ record(dfanout, "$(P)$(R)Det$(DET):PixelSizeXSet")
 
 ################################################################
 # Monitor the TOF:ROI:1 values and use them for the TOF ROI filter
-# records above.
+# records above. Take into account the ROI binning that may be used.
 
-record(dfanout, "$(P)$(R)Det$(DET):TOFROIFilterStartSet")
+record(calcout, "$(P)$(R)Det$(DET):TOFROIFilterStartSet")
 {
-   field(DOL, "$(P)$(R)Det$(DET):TOF:ROI:1:MinX_RBV.VAL CP")
-   field(OMSL, "closed_loop")
-   field(OUTA, "$(P)$(R)Det$(DET):TOFROIFilterStart.VAL PP")
+   field(INPA, "$(P)$(R)Det$(DET):TOF:ROI:1:MinX_RBV.VAL CP")
+   field(INPB, "$(P)$(R)Det$(DET):TOF:BinX_RBV.VAL CP")
+   field(CALC, "A*B")
+   field(OOPT, "Every Time")
+   field(DOPT, "Use CALC")
+   field(OUT, "$(P)$(R)Det$(DET):TOFROIFilterStart.VAL PP")
 }
-record(dfanout, "$(P)$(R)Det$(DET):TOFROIFilterSizeSet")
+record(calcout, "$(P)$(R)Det$(DET):TOFROIFilterSizeSet")
 {
-   field(DOL, "$(P)$(R)Det$(DET):TOF:ROI:1:SizeX_RBV.VAL CP")
-   field(OMSL, "closed_loop")
-   field(OUTA, "$(P)$(R)Det$(DET):TOFROIFilterSize.VAL PP")
+   field(INPA, "$(P)$(R)Det$(DET):TOF:ROI:1:SizeX_RBV.VAL CP")
+   field(INPB, "$(P)$(R)Det$(DET):TOF:BinX_RBV.VAL CP")
+   field(CALC, "A*B")
+   field(OOPT, "Every Time")
+   field(DOPT, "Use CALC")
+   field(OUT, "$(P)$(R)Det$(DET):TOFROIFilterSize.VAL PP")
 }
 
 
