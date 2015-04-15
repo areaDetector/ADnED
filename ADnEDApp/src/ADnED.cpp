@@ -39,17 +39,6 @@ using std::tr1::shared_ptr;
 using nEDChannel::nEDChannelRequester;
 using nEDChannel::nEDMonitorRequester;
 
-//Not sure how we want to handle these yet, so will leave them as #defines for now.
-#define ADNED_PV_TIMEOUT 2.0
-#define ADNED_PV_PRIORITY epics::pvAccess::ChannelProvider::PRIORITY_DEFAULT
-#define ADNED_PV_PROVIDER "pva"
-#define ADNED_PV_REQUEST "record[queueSize=100]field()"
-#define ADNED_PV_PIXELS "pixel.value" 
-#define ADNED_PV_TOF "time_of_flight.value" 
-#define ADNED_PV_TIMESTAMP "timeStamp"
-#define ADNED_PV_SEQ "timeStamp.userTag" 
-#define ADNED_PV_PCHARGE "proton_charge.value"
-
 //Definitions of static class data members
 const epicsInt32 ADnED::s_ADNED_MAX_STRING_SIZE = ADNED_MAX_STRING_SIZE;
 const epicsInt32 ADnED::s_ADNED_MAX_DETS = ADNED_MAX_DETS;
