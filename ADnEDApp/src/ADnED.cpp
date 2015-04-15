@@ -553,6 +553,23 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
     }
   }
 
+  epicsUInt32 transIndex = 0;
+  if (function == ADnEDDetTOFTransInt0Param) transIndex = 0;
+  if (function == ADnEDDetTOFTransInt1Param) transIndex = 1;
+  if (function == ADnEDDetTOFTransInt2Param) transIndex = 2;
+  if (function == ADnEDDetTOFTransInt3Param) transIndex = 3;
+  if (function == ADnEDDetTOFTransInt4Param) transIndex = 4;
+  if (function == ADnEDDetTOFTransInt5Param) transIndex = 5;
+
+  if ((function == ADnEDDetTOFTransInt0Param) || (function == ADnEDDetTOFTransInt1Param) || (function == ADnEDDetTOFTransInt2Param) ||
+      (function == ADnEDDetTOFTransInt3Param) || (function == ADnEDDetTOFTransInt4Param) || (function == ADnEDDetTOFTransInt5Param)) {
+    if (p_Transform[addr]->setIntParam(transIndex, value) != 0) {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		"%s Error loading int32 into p_Transform[%d]. transIndex: %d, value: %d\n", functionName, addr, transIndex, value);
+      status = asynError;
+    }
+  }
+
   if (m_dataAlloc) {
     setIntegerParam(ADnEDAllocSpaceStatusParam, s_ADNED_ALLOC_STATUS_REQ);
     callParamCallbacks();
@@ -595,6 +612,23 @@ asynStatus ADnED::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
   status = getAddress(pasynUser, &addr); 
   if (status!=asynSuccess) {
     return(status);
+  }
+
+  epicsUInt32 transIndex = 0;
+  if (function == ADnEDDetTOFTransFloat0Param) transIndex = 0;
+  if (function == ADnEDDetTOFTransFloat1Param) transIndex = 1;
+  if (function == ADnEDDetTOFTransFloat2Param) transIndex = 2;
+  if (function == ADnEDDetTOFTransFloat3Param) transIndex = 3;
+  if (function == ADnEDDetTOFTransFloat4Param) transIndex = 4;
+  if (function == ADnEDDetTOFTransFloat5Param) transIndex = 5;
+
+  if ((function == ADnEDDetTOFTransFloat0Param) || (function == ADnEDDetTOFTransFloat1Param) || (function == ADnEDDetTOFTransFloat2Param) ||
+      (function == ADnEDDetTOFTransFloat3Param) || (function == ADnEDDetTOFTransFloat4Param) || (function == ADnEDDetTOFTransFloat5Param)) {
+    if (p_Transform[addr]->setDoubleParam(transIndex, value) != 0) {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		"%s Error loading float64 into p_Transform[%d]. transIndex: %d, value: %f\n", functionName, addr, transIndex, value);
+      status = asynError;
+    }
   }
 
   if (function == ADnEDFrameUpdatePeriodParam) {
