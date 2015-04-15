@@ -35,8 +35,8 @@ substitute "R=$(ADNED)"
 include "ADBase.template" 
 
 # /// 
-# /// Reset the device.
-# /// This does nothing at the moment.
+# /// Reset the counts without starting. This clears the same parameters
+# /// as we do on a start.
 # ///
 record(bo, "$(P)$(R)Reset")
 {

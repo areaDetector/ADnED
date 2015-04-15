@@ -426,6 +426,10 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
 
   if (function == ADnEDResetParam) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Reset.\n", functionName);
+    cout << "Reset some params (total counts, PCharge, seq numbers, etc, without doing a start." << endl;
+    if (clearParams() != asynSuccess) {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to run clearParams on Reset.\n", functionName);
+    }
   } else if (function == ADnEDStartParam) {
     if (value) {
       if ((adStatus == ADStatusIdle) || (adStatus == ADStatusError) || (adStatus == ADStatusAborted)) {
