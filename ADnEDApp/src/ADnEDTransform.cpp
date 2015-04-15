@@ -8,9 +8,9 @@
 ADnEDTransform::ADnEDTransform(void) {
   
   printf(" TOF Transform Types:\n");
-  printf("  ADNED_MAX_TRANSFORM_ARRAY: %d\n", ADNED_MAX_TRANSFORM_ARRAY);
-  printf("  ADNED_MAX_TRANSFORM_DSPACE: %d\n", ADNED_MAX_TRANSFORM_DSPACE);
-  printf("  ADNED_MAX_TRANSFORM_DELTAE: %d\n", ADNED_MAX_TRANSFORM_DELTAE);
+  printf("  ADNED_TRANSFORM_ARRAY: %d\n", ADNED_TRANSFORM_ARRAY);
+  printf("  ADNED_TRANSFORM_DSPACE: %d\n", ADNED_TRANSFORM_DSPACE);
+  printf("  ADNED_TRANSFORM_DELTAE: %d\n", ADNED_TRANSFORM_DELTAE);
 
   for (int i=0; i<ADNED_MAX_TRANSFORM_PARAMS; ++i) {
     m_intParam[i] = 0;
@@ -36,33 +36,33 @@ ADnEDTransform::~ADnEDTransform(void) {
  *
  * Transform types are:
  *
- * ADNED_MAX_TRANSFORM_ARRAY - multiply the TOF by a pixel ID lookup in doubleArray[0]. 
- *                             Can be used for fixed geometry instruments to calculate 
- *                             dspace. Can be used on Vulcan for example.
+ * ADNED_TRANSFORM_ARRAY - multiply the TOF by a pixel ID lookup in doubleArray[0]. 
+ *                         Can be used for fixed geometry instruments to calculate 
+ *                         dspace. Can be used on Vulcan for example.
  *
- * ADNED_MAX_TRANSFORM_DSPACE - calculate dspace where the theta angle changes. 
- *                              Used for direct geometry instruments like Hyspec. 
- *                              NOTE: not sure how this works yet.  
+ * ADNED_TRANSFORM_DSPACE - calculate dspace where the theta angle changes. 
+ *                          Used for direct geometry instruments like Hyspec. 
+ *                          NOTE: not sure how this works yet.  
  *
- * ADNED_MAX_TRANSFORM_DELTAE - calculate deltaE for indirect geometry instruments for 
- *                              their inelastic detectors. This uses an equation which 
- *                              depends on the mass of the neutron, L1, an array of L2 
- *                              and an array of Ef. The final energy per-pixelID, Ef, 
- *                              is known because of the use of mirrors to select energy. 
- *                              We can calculate incident energy using the known final 
- *                              energy and the TOF. So we are calculating energy 
- *                              transfer for each event.
+ * ADNED_TRANSFORM_DELTAE - calculate deltaE for indirect geometry instruments for 
+ *                          their inelastic detectors. This uses an equation which 
+ *                          depends on the mass of the neutron, L1, an array of L2 
+ *                          and an array of Ef. The final energy per-pixelID, Ef, 
+ *                          is known because of the use of mirrors to select energy. 
+ *                          We can calculate incident energy using the known final 
+ *                          energy and the TOF. So we are calculating energy 
+ *                          transfer for each event.
  *                              
- *                              deltaE = (1/2)Mn * (L1 / (TOF - (L2*sqrt(Mn/(2*Ef))) ) )**2 - Ef
- *                              where:
- *                              Mn = mass of neutron in 1.674954 × 10-27
- *                              L1 = constant (in meters)
- *                              Ef and L2 are double arrays based on pixelID
- *                              TOF = time of flight (in seconds)
+ *                          deltaE = (1/2)Mn * (L1 / (TOF - (L2*sqrt(Mn/(2*Ef))) ) )**2 - Ef
+ *                          where:
+ *                          Mn = mass of neutron in 1.674954 × 10-27
+ *                          L1 = constant (in meters)
+ *                          Ef and L2 are double arrays based on pixelID
+ *                          TOF = time of flight (in seconds)
  *
- *                              Energy must be in Joules (1 eV = 1.602176565(35) × 10−19 J)
+ *                          Energy must be in Joules (1 eV = 1.602176565(35) × 10−19 J)
  * 
- *                              Once the deltaE has been obtained in Joules, it is converted back to eV. 
+ *                          Once the deltaE has been obtained in Joules, it is converted back to eV. 
  */
 epicsFloat64 ADnEDTransform::calculate(epicsUInt32 type, epicsUInt32 pixelID, epicsUInt32 tof) {
   
@@ -74,18 +74,18 @@ epicsFloat64 ADnEDTransform::calculate(epicsUInt32 type, epicsUInt32 pixelID, ep
     return -1;
   }
   
-  if (type == ADNED_MAX_TRANSFORM_ARRAY) {
+  if (type == ADNED_TRANSFORM_ARRAY) {
     return calc_array_multiply(pixelID, tof);
-  } else if (type == ADNED_MAX_TRANSFORM_DSPACE) {
+  } else if (type == ADNED_TRANSFORM_DSPACE) {
     return calc_dspace(pixelID, tof);
-  } else if (type == ADNED_MAX_TRANSFORM_DELTAE) {
+  } else if (type == ADNED_TRANSFORM_DELTAE) {
     return calc_deltaE(pixelID, tof);
   }
   
 }
 
 /**
- * Type = ADNED_MAX_TRANSFORM_ARRAY
+ * Type = ADNED_TRANSFORM_ARRAY
  * Use a pixel ID dependant multiplier on the TOF.
  * This uses (doubleArray[0])[pixelID]
  */
@@ -97,14 +97,14 @@ epicsFloat64 ADnEDTransform::calc_array_multiply(epicsUInt32 pixelID, epicsUInt3
 }
 
 /**
- * Type = ADNED_MAX_TRANSFORM_DSPACE
+ * Type = ADNED_TRANSFORM_DSPACE
  */
 epicsFloat64 ADnEDTransform::calc_dspace(epicsUInt32 pixelID, epicsUInt32 tof) {
   return 0;
 }
 
 /**
- * Type = ADNED_MAX_TRANSFORM_DELTAE
+ * Type = ADNED_TRANSFORM_DELTAE
  */
 epicsFloat64 ADnEDTransform::calc_deltaE(epicsUInt32 pixelID, epicsUInt32 tof) {
   return 0;
