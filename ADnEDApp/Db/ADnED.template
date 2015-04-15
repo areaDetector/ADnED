@@ -36,7 +36,7 @@ include "ADBase.template"
 
 # /// 
 # /// Reset the counts without starting. This clears the same parameters
-# /// as we do on a start.
+# /// as we do on a start. It also resets the ROI plugins.
 # ///
 record(bo, "$(P)$(R)Reset")
 {
@@ -44,6 +44,7 @@ record(bo, "$(P)$(R)Reset")
     field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_RESET")
     field(ZNAM,"Done")  
     field(ONAM,"Reset")
+    field(FLNK, "$(P)$(R)ResetPlugins")
 }
 
 # /// 
