@@ -273,37 +273,21 @@ record(bi, "$(P)$(R)Det$(DET):TOFROIFilterEnable_RBV")
 #####################################################################
 # TOF Transformation File & Control
 
-# ///
-# /// TOF Transformation File
-# /// This is loaded into an array, which is used to transform the 
-# /// TOF spectrum. For example, we can create a d-space spectrum 
-# /// by defining the multiplication factors in the file for each pixel ID.
-# ///
-record(waveform, "$(P)$(R)Det$(DET):TOFTransFile0")
-{
-    field(PINI, "YES")
-    field(DTYP, "asynOctetWrite")
-    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_FILE0")
-    field(FTVL, "CHAR")
-    field(NELM, "1024")
-    info(autosaveFields, "VAL")
-    field(ASG, "BEAMLINE") 
-}
+substitute "INDEX=0"
+include "ADnEDDetectorTOFTransform.template"
+substitute "INDEX=1"
+include "ADnEDDetectorTOFTransform.template"
+substitute "INDEX=2"
+include "ADnEDDetectorTOFTransform.template"
+substitute "INDEX=3"
+include "ADnEDDetectorTOFTransform.template"
+substitute "INDEX=4"
+include "ADnEDDetectorTOFTransform.template"
+substitute "INDEX=5"
+include "ADnEDDetectorTOFTransform.template"
 
 # ///
-# /// TOF Transformation File Readback
-# ///
-record(waveform, "$(P)$(R)Det$(DET):TOFTransFile0_RBV")
-{
-    field(DTYP, "asynOctetRead")
-    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_FILE0")
-    field(FTVL, "CHAR")
-    field(NELM, "1024")
-    field(SCAN, "I/O Intr")
-}
-
-# ///
-# /// To aid debug, print TOF Transformation Array to IOC shell
+# /// To aid debug, print TOF Transformation details to IOC shell
 # ///
 record(bo, "$(P)$(R)Det$(DET):TOFTransPrint")
 {
