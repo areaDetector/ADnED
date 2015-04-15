@@ -101,57 +101,76 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
 
   //Add the params to the paramLib 
   //createParam adds the parameters to all param lists automatically (using maxAddr).
-  createParam(ADnEDFirstParamString,              asynParamInt32,       &ADnEDFirstParam);
-  createParam(ADnEDResetParamString,              asynParamInt32,       &ADnEDResetParam);
-  createParam(ADnEDStartParamString,              asynParamInt32,       &ADnEDStartParam);
-  createParam(ADnEDStopParamString,              asynParamInt32,       &ADnEDStopParam);
-  createParam(ADnEDPauseParamString,              asynParamInt32,       &ADnEDPauseParam);
-  createParam(ADnEDEventDebugParamString,         asynParamInt32,       &ADnEDEventDebugParam);
-  createParam(ADnEDSeqCounterParamString,       asynParamInt32,       &ADnEDSeqCounterParam);
-  createParam(ADnEDPulseCounterParamString,       asynParamInt32,       &ADnEDPulseCounterParam);
-  createParam(ADnEDEventRateParamString,       asynParamInt32,       &ADnEDEventRateParam);
-  createParam(ADnEDSeqIDParamString,            asynParamInt32,       &ADnEDSeqIDParam);
-  createParam(ADnEDSeqIDMissingParamString,            asynParamInt32,       &ADnEDSeqIDMissingParam);
-  createParam(ADnEDSeqIDNumMissingParamString,            asynParamInt32,       &ADnEDSeqIDNumMissingParam);
-  createParam(ADnEDBadTimeStampParamString,            asynParamInt32,       &ADnEDBadTimeStampParam);
-  createParam(ADnEDPChargeParamString,            asynParamFloat64,     &ADnEDPChargeParam);
-  createParam(ADnEDPChargeIntParamString,            asynParamFloat64,     &ADnEDPChargeIntParam);
-  createParam(ADnEDEventUpdatePeriodParamString,  asynParamFloat64,     &ADnEDEventUpdatePeriodParam);
-  createParam(ADnEDFrameUpdatePeriodParamString,  asynParamFloat64,     &ADnEDFrameUpdatePeriodParam);
-  createParam(ADnEDNumChannelsParamString,             asynParamInt32,       &ADnEDNumChannelsParam);
-  createParam(ADnEDPVNameParamString,          asynParamOctet,       &ADnEDPVNameParam);
-  createParam(ADnEDNumDetParamString,             asynParamInt32,       &ADnEDNumDetParam);
-  createParam(ADnEDDetPixelNumStartParamString,  asynParamInt32,       &ADnEDDetPixelNumStartParam);
-  createParam(ADnEDDetPixelNumEndParamString,    asynParamInt32,       &ADnEDDetPixelNumEndParam);
-  createParam(ADnEDDetPixelNumSizeParamString,  asynParamInt32,       &ADnEDDetPixelNumSizeParam);
-  createParam(ADnEDDetNDArrayStartParamString,    asynParamInt32,       &ADnEDDetNDArrayStartParam);
-  createParam(ADnEDDetNDArrayEndParamString,    asynParamInt32,       &ADnEDDetNDArrayEndParam);
-  createParam(ADnEDDetNDArraySizeParamString,    asynParamInt32,       &ADnEDDetNDArraySizeParam);
-  createParam(ADnEDDetNDArrayTOFStartParamString,    asynParamInt32,       &ADnEDDetNDArrayTOFStartParam);
-  createParam(ADnEDDetNDArrayTOFEndParamString,    asynParamInt32,       &ADnEDDetNDArrayTOFEndParam);
-  createParam(ADnEDDetEventRateParamString,    asynParamInt32,       &ADnEDDetEventRateParam);
-  createParam(ADnEDDetEventTotalParamString,    asynParamFloat64,       &ADnEDDetEventTotalParam);
-  createParam(ADnEDDetTOFROIStartParamString,    asynParamInt32,       &ADnEDDetTOFROIStartParam);
-  createParam(ADnEDDetTOFROISizeParamString,    asynParamInt32,       &ADnEDDetTOFROISizeParam);
-  createParam(ADnEDDetTOFROIEnableParamString,    asynParamInt32,       &ADnEDDetTOFROIEnableParam);
-  createParam(ADnEDDetTOFTransFileParamString,          asynParamOctet,       &ADnEDDetTOFTransFileParam);
-  createParam(ADnEDDetPixelMapFileParamString,          asynParamOctet,       &ADnEDDetPixelMapFileParam);
-  createParam(ADnEDDetTOFTransPrintParamString,    asynParamInt32,       &ADnEDDetTOFTransPrintParam);
-  createParam(ADnEDDetPixelMapPrintParamString,    asynParamInt32,       &ADnEDDetPixelMapPrintParam);
-  createParam(ADnEDDetPixelMapEnableParamString, asynParamInt32,       &ADnEDDetPixelMapEnableParam);
-  createParam(ADnEDDetTOFTransTypeParamString, asynParamInt32,       &ADnEDDetTOFTransTypeParam);
-  createParam(ADnEDDetTOFTransOffsetParamString, asynParamFloat64,       &ADnEDDetTOFTransOffsetParam);
-  createParam(ADnEDDetTOFTransScaleParamString, asynParamFloat64,       &ADnEDDetTOFTransScaleParam);
-  createParam(ADnEDDetPixelROIStartXParamString, asynParamInt32,       &ADnEDDetPixelROIStartXParam);
-  createParam(ADnEDDetPixelROISizeXParamString, asynParamInt32,       &ADnEDDetPixelROISizeXParam);
-  createParam(ADnEDDetPixelROIStartYParamString, asynParamInt32,       &ADnEDDetPixelROIStartYParam);
-  createParam(ADnEDDetPixelROISizeYParamString, asynParamInt32,       &ADnEDDetPixelROISizeYParam);
-  createParam(ADnEDDetPixelSizeXParamString, asynParamInt32,       &ADnEDDetPixelSizeXParam);
-  createParam(ADnEDDetPixelROIEnableParamString, asynParamInt32,       &ADnEDDetPixelROIEnableParam);
-  createParam(ADnEDTOFMaxParamString,             asynParamInt32,       &ADnEDTOFMaxParam);
-  createParam(ADnEDAllocSpaceParamString,         asynParamInt32,       &ADnEDAllocSpaceParam);
-  createParam(ADnEDAllocSpaceStatusParamString,         asynParamInt32,       &ADnEDAllocSpaceStatusParam);
-  createParam(ADnEDLastParamString,               asynParamInt32,       &ADnEDLastParam);
+  createParam(ADnEDFirstParamString,              asynParamInt32,    &ADnEDFirstParam);
+  createParam(ADnEDResetParamString,              asynParamInt32,    &ADnEDResetParam);
+  createParam(ADnEDStartParamString,              asynParamInt32,    &ADnEDStartParam);
+  createParam(ADnEDStopParamString,               asynParamInt32,    &ADnEDStopParam);
+  createParam(ADnEDPauseParamString,              asynParamInt32,    &ADnEDPauseParam);
+  createParam(ADnEDEventDebugParamString,         asynParamInt32,    &ADnEDEventDebugParam);
+  createParam(ADnEDSeqCounterParamString,         asynParamInt32,    &ADnEDSeqCounterParam);
+  createParam(ADnEDPulseCounterParamString,       asynParamInt32,    &ADnEDPulseCounterParam);
+  createParam(ADnEDEventRateParamString,          asynParamInt32,    &ADnEDEventRateParam);
+  createParam(ADnEDSeqIDParamString,              asynParamInt32,    &ADnEDSeqIDParam);
+  createParam(ADnEDSeqIDMissingParamString,       asynParamInt32,    &ADnEDSeqIDMissingParam);
+  createParam(ADnEDSeqIDNumMissingParamString,    asynParamInt32,    &ADnEDSeqIDNumMissingParam);
+  createParam(ADnEDBadTimeStampParamString,       asynParamInt32,    &ADnEDBadTimeStampParam);
+  createParam(ADnEDPChargeParamString,            asynParamFloat64,  &ADnEDPChargeParam);
+  createParam(ADnEDPChargeIntParamString,         asynParamFloat64,  &ADnEDPChargeIntParam);
+  createParam(ADnEDEventUpdatePeriodParamString,  asynParamFloat64,  &ADnEDEventUpdatePeriodParam);
+  createParam(ADnEDFrameUpdatePeriodParamString,  asynParamFloat64,  &ADnEDFrameUpdatePeriodParam);
+  createParam(ADnEDNumChannelsParamString,        asynParamInt32,    &ADnEDNumChannelsParam);
+  createParam(ADnEDPVNameParamString,             asynParamOctet,    &ADnEDPVNameParam);
+  createParam(ADnEDNumDetParamString,             asynParamInt32,    &ADnEDNumDetParam);
+  createParam(ADnEDDetPixelNumStartParamString,   asynParamInt32,    &ADnEDDetPixelNumStartParam);
+  createParam(ADnEDDetPixelNumEndParamString,     asynParamInt32,    &ADnEDDetPixelNumEndParam);
+  createParam(ADnEDDetPixelNumSizeParamString,    asynParamInt32,    &ADnEDDetPixelNumSizeParam);
+  createParam(ADnEDDetNDArrayStartParamString,    asynParamInt32,    &ADnEDDetNDArrayStartParam);
+  createParam(ADnEDDetNDArrayEndParamString,      asynParamInt32,    &ADnEDDetNDArrayEndParam);
+  createParam(ADnEDDetNDArraySizeParamString,     asynParamInt32,    &ADnEDDetNDArraySizeParam);
+  createParam(ADnEDDetNDArrayTOFStartParamString, asynParamInt32,    &ADnEDDetNDArrayTOFStartParam);
+  createParam(ADnEDDetNDArrayTOFEndParamString,   asynParamInt32,    &ADnEDDetNDArrayTOFEndParam);
+  createParam(ADnEDDetEventRateParamString,       asynParamInt32,    &ADnEDDetEventRateParam);
+  createParam(ADnEDDetEventTotalParamString,      asynParamFloat64,  &ADnEDDetEventTotalParam);
+  createParam(ADnEDDetTOFROIStartParamString,     asynParamInt32,    &ADnEDDetTOFROIStartParam);
+  createParam(ADnEDDetTOFROISizeParamString,      asynParamInt32,    &ADnEDDetTOFROISizeParam);
+  createParam(ADnEDDetTOFROIEnableParamString,    asynParamInt32,    &ADnEDDetTOFROIEnableParam);
+  //Params to use with ADnEDTransform
+  createParam(ADnEDDetTOFTransFile0ParamString,   asynParamOctet,    &ADnEDDetTOFTransFile0Param);
+  createParam(ADnEDDetTOFTransFile1ParamString,   asynParamOctet,    &ADnEDDetTOFTransFile1Param);
+  createParam(ADnEDDetTOFTransFile2ParamString,   asynParamOctet,    &ADnEDDetTOFTransFile2Param);
+  createParam(ADnEDDetTOFTransFile3ParamString,   asynParamOctet,    &ADnEDDetTOFTransFile3Param);
+  createParam(ADnEDDetTOFTransFile4ParamString,   asynParamOctet,    &ADnEDDetTOFTransFile4Param);
+  createParam(ADnEDDetTOFTransFile5ParamString,   asynParamOctet,    &ADnEDDetTOFTransFile5Param);
+  createParam(ADnEDDetTOFTransInt0ParamString,    asynParamInt32,    &ADnEDDetTOFTransInt0Param);
+  createParam(ADnEDDetTOFTransInt1ParamString,    asynParamInt32,    &ADnEDDetTOFTransInt1Param);
+  createParam(ADnEDDetTOFTransInt2ParamString,    asynParamInt32,    &ADnEDDetTOFTransInt2Param);
+  createParam(ADnEDDetTOFTransInt3ParamString,    asynParamInt32,    &ADnEDDetTOFTransInt3Param);
+  createParam(ADnEDDetTOFTransInt4ParamString,    asynParamInt32,    &ADnEDDetTOFTransInt4Param);
+  createParam(ADnEDDetTOFTransInt5ParamString,    asynParamInt32,    &ADnEDDetTOFTransInt5Param);
+  createParam(ADnEDDetTOFTransFloat0ParamString,  asynParamFloat64,  &ADnEDDetTOFTransFloat0Param);  
+  createParam(ADnEDDetTOFTransFloat1ParamString,  asynParamFloat64,  &ADnEDDetTOFTransFloat1Param);
+  createParam(ADnEDDetTOFTransFloat2ParamString,  asynParamFloat64,  &ADnEDDetTOFTransFloat2Param);  
+  createParam(ADnEDDetTOFTransFloat3ParamString,  asynParamFloat64,  &ADnEDDetTOFTransFloat3Param);  
+  createParam(ADnEDDetTOFTransFloat4ParamString,  asynParamFloat64,  &ADnEDDetTOFTransFloat4Param);  
+  createParam(ADnEDDetTOFTransFloat5ParamString,  asynParamFloat64,  &ADnEDDetTOFTransFloat5Param);  
+  createParam(ADnEDDetTOFTransPrintParamString,   asynParamInt32,    &ADnEDDetTOFTransPrintParam);
+  createParam(ADnEDDetTOFTransTypeParamString,    asynParamInt32,    &ADnEDDetTOFTransTypeParam);
+  createParam(ADnEDDetTOFTransOffsetParamString,  asynParamFloat64,  &ADnEDDetTOFTransOffsetParam);
+  createParam(ADnEDDetTOFTransScaleParamString,   asynParamFloat64,  &ADnEDDetTOFTransScaleParam);
+  //
+  createParam(ADnEDDetPixelMapFileParamString,    asynParamOctet,    &ADnEDDetPixelMapFileParam);
+  createParam(ADnEDDetPixelMapPrintParamString,   asynParamInt32,    &ADnEDDetPixelMapPrintParam);
+  createParam(ADnEDDetPixelMapEnableParamString,  asynParamInt32,    &ADnEDDetPixelMapEnableParam);
+  createParam(ADnEDDetPixelROIStartXParamString,  asynParamInt32,    &ADnEDDetPixelROIStartXParam);
+  createParam(ADnEDDetPixelROISizeXParamString,   asynParamInt32,    &ADnEDDetPixelROISizeXParam);
+  createParam(ADnEDDetPixelROIStartYParamString,  asynParamInt32,    &ADnEDDetPixelROIStartYParam);
+  createParam(ADnEDDetPixelROISizeYParamString,   asynParamInt32,    &ADnEDDetPixelROISizeYParam);
+  createParam(ADnEDDetPixelSizeXParamString,      asynParamInt32,    &ADnEDDetPixelSizeXParam);
+  createParam(ADnEDDetPixelROIEnableParamString,  asynParamInt32,    &ADnEDDetPixelROIEnableParam);
+  createParam(ADnEDTOFMaxParamString,             asynParamInt32,    &ADnEDTOFMaxParam);
+  createParam(ADnEDAllocSpaceParamString,         asynParamInt32,    &ADnEDAllocSpaceParam);
+  createParam(ADnEDAllocSpaceStatusParamString,   asynParamInt32,    &ADnEDAllocSpaceStatusParam);
+  createParam(ADnEDLastParamString,               asynParamInt32,    &ADnEDLastParam);
 
   //Initialize non static, non const, data members
   m_acquiring = 0;
@@ -254,6 +273,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   paramStatus = ((setDoubleParam(ADnEDPChargeParam, 0.0) == asynSuccess) && paramStatus);
   paramStatus = ((setDoubleParam(ADnEDPChargeIntParam, 0.0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDNumDetParam, 0) == asynSuccess) && paramStatus);
+  paramStatus = ((setIntegerParam(ADnEDNumChannelsParam, 0) == asynSuccess) && paramStatus);
   //Loop over asyn addresses for detector and channel specific params. We create both here because
   //we are using the Asyn address to handle both the detector and channel params. 
   for (int det=0; det<=s_ADNED_MAX_DETS; det++) {
@@ -277,10 +297,37 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIStartParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROISizeParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIEnableParam, 0) == asynSuccess) && paramStatus);
-    paramStatus = ((setStringParam(det, ADnEDDetTOFTransFileParam, " ") == asynSuccess) && paramStatus);
+    //Params to use with ADnEDTransform
+    paramStatus = ((setStringParam(det, ADnEDDetTOFTransFile0Param, " ") == asynSuccess) && paramStatus);
+    paramStatus = ((setStringParam(det, ADnEDDetTOFTransFile1Param, " ") == asynSuccess) && paramStatus);
+    paramStatus = ((setStringParam(det, ADnEDDetTOFTransFile2Param, " ") == asynSuccess) && paramStatus);
+    paramStatus = ((setStringParam(det, ADnEDDetTOFTransFile3Param, " ") == asynSuccess) && paramStatus);
+    paramStatus = ((setStringParam(det, ADnEDDetTOFTransFile4Param, " ") == asynSuccess) && paramStatus);
+    paramStatus = ((setStringParam(det, ADnEDDetTOFTransFile5Param, " ") == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetTOFTransInt0Param, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetTOFTransInt1Param, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetTOFTransInt2Param, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetTOFTransInt3Param, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetTOFTransInt4Param, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetTOFTransInt5Param, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setDoubleParam(det, ADnEDDetTOFTransFloat0Param, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setDoubleParam(det, ADnEDDetTOFTransFloat1Param, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setDoubleParam(det, ADnEDDetTOFTransFloat2Param, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setDoubleParam(det, ADnEDDetTOFTransFloat3Param, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setDoubleParam(det, ADnEDDetTOFTransFloat4Param, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setDoubleParam(det, ADnEDDetTOFTransFloat5Param, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetTOFTransTypeParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setDoubleParam(det, ADnEDDetTOFTransOffsetParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setDoubleParam(det, ADnEDDetTOFTransScaleParam, 1) == asynSuccess) && paramStatus);
+    //
     paramStatus = ((setStringParam(det, ADnEDDetPixelMapFileParam, " ") == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetPixelMapEnableParam, 0) == asynSuccess) && paramStatus);
-    paramStatus = ((setIntegerParam(det, ADnEDDetTOFTransTypeParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetPixelROIStartXParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetPixelROISizeXParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetPixelROIStartYParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetPixelROISizeYParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetPixelSizeXParam, 1) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetPixelROIEnableParam, 0) == asynSuccess) && paramStatus);
     callParamCallbacks(det);
   }
   paramStatus = ((setIntegerParam(ADnEDTOFMaxParam, 0) == asynSuccess) && paramStatus);
@@ -596,9 +643,19 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
     return(status);
   }
  
-  if (function == ADnEDDetTOFTransFileParam) {
+  epicsUInt32 transIndex = 0;
+  if (function == ADnEDDetTOFTransFile0Param) transIndex = 0;
+  if (function == ADnEDDetTOFTransFile1Param) transIndex = 1;
+  if (function == ADnEDDetTOFTransFile2Param) transIndex = 2;
+  if (function == ADnEDDetTOFTransFile3Param) transIndex = 3;
+  if (function == ADnEDDetTOFTransFile4Param) transIndex = 4;
+  if (function == ADnEDDetTOFTransFile5Param) transIndex = 5;
+
+  if ((function == ADnEDDetTOFTransFile0Param) || (function == ADnEDDetTOFTransFile1Param) || (function == ADnEDDetTOFTransFile2Param) ||
+      (function == ADnEDDetTOFTransFile3Param) || (function == ADnEDDetTOFTransFile4Param) || (function == ADnEDDetTOFTransFile5Param)) {
+	
     asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
-	      "%s Set Det %d TOF Transformation File: %s.\n", functionName, addr, value);
+	      "%s Set Det %d TOF Transformation (Index %d) File: %s.\n", functionName, addr, transIndex, value);
        
     epicsUInt32 arraySize = 0;
     epicsFloat64 *pArray = NULL;
@@ -611,15 +668,16 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
 	  pArray = static_cast<epicsFloat64 *>(calloc(arraySize, sizeof(epicsFloat64)));
 	}
 	file.readDataIntoDoubleArray(&pArray);
-	//Just use paramIndex=0 for now until we have more parameters to use.
-	if (p_Transform[addr]->setDoubleArray(0, pArray, arraySize) != 0) {
+	if (p_Transform[addr]->setDoubleArray(transIndex, pArray, arraySize) != 0) {
 	  asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
 		"%s Error loading array into p_Transform[%d]\n", functionName, addr);
+	  status = asynError;
 	}
       }
     } catch (std::exception &e) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
 		"%s Error Parsing TOF Transformation File. Det: %d. %s\n", functionName, addr, e.what());
+      status = asynError;
     }
 
     if (pArray != NULL) {

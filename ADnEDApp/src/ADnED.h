@@ -60,7 +60,7 @@
 #define ADnEDEventUpdatePeriodParamString  "ADNED_EVENT_UPDATE_PERIOD"
 #define ADnEDFrameUpdatePeriodParamString  "ADNED_FRAME_UPDATE_PERIOD"
 #define ADnEDNumChannelsParamString        "ADNED_NUM_CHANNELS"
-#define ADnEDPVNameParamString            "ADNED_PV_NAME"
+#define ADnEDPVNameParamString             "ADNED_PV_NAME"
 #define ADnEDNumDetParamString             "ADNED_NUM_DET"
 #define ADnEDDetPixelNumStartParamString   "ADNED_DET_PIXEL_NUM_START"
 #define ADnEDDetPixelNumEndParamString     "ADNED_DET_PIXEL_NUM_END"
@@ -75,20 +75,39 @@
 #define ADnEDDetTOFROIStartParamString     "ADNED_DET_TOF_ROI_START"
 #define ADnEDDetTOFROISizeParamString      "ADNED_DET_TOF_ROI_SIZE"
 #define ADnEDDetTOFROIEnableParamString    "ADNED_DET_TOF_ROI_ENABLE"
-#define ADnEDDetTOFTransFileParamString    "ADNED_DET_TOF_TRANS_FILE"
-#define ADnEDDetPixelMapFileParamString    "ADNED_DET_PIXEL_MAP_FILE"
+//Params to use with ADnEDTransform
+#define ADnEDDetTOFTransFile0ParamString   "ADNED_DET_TOF_TRANS_FILE0"
+#define ADnEDDetTOFTransFile1ParamString   "ADNED_DET_TOF_TRANS_FILE1"
+#define ADnEDDetTOFTransFile2ParamString   "ADNED_DET_TOF_TRANS_FILE2"
+#define ADnEDDetTOFTransFile3ParamString   "ADNED_DET_TOF_TRANS_FILE3"
+#define ADnEDDetTOFTransFile4ParamString   "ADNED_DET_TOF_TRANS_FILE4"
+#define ADnEDDetTOFTransFile5ParamString   "ADNED_DET_TOF_TRANS_FILE5"
+#define ADnEDDetTOFTransInt0ParamString    "ADNED_DET_TOF_TRANS_INT0"
+#define ADnEDDetTOFTransInt1ParamString    "ADNED_DET_TOF_TRANS_INT1"
+#define ADnEDDetTOFTransInt2ParamString    "ADNED_DET_TOF_TRANS_INT2"
+#define ADnEDDetTOFTransInt3ParamString    "ADNED_DET_TOF_TRANS_INT3"
+#define ADnEDDetTOFTransInt4ParamString    "ADNED_DET_TOF_TRANS_INT4"
+#define ADnEDDetTOFTransInt5ParamString    "ADNED_DET_TOF_TRANS_INT5"
+#define ADnEDDetTOFTransFloat0ParamString  "ADNED_DET_TOF_TRANS_FLOAT0"
+#define ADnEDDetTOFTransFloat1ParamString  "ADNED_DET_TOF_TRANS_FLOAT1"
+#define ADnEDDetTOFTransFloat2ParamString  "ADNED_DET_TOF_TRANS_FLOAT2"
+#define ADnEDDetTOFTransFloat3ParamString  "ADNED_DET_TOF_TRANS_FLOAT3"
+#define ADnEDDetTOFTransFloat4ParamString  "ADNED_DET_TOF_TRANS_FLOAT4"
+#define ADnEDDetTOFTransFloat5ParamString  "ADNED_DET_TOF_TRANS_FLOAT5"
 #define ADnEDDetTOFTransPrintParamString   "ADNED_DET_TOF_TRANS_PRINT"
-#define ADnEDDetPixelMapPrintParamString   "ADNED_DET_PIXEL_MAP_PRINT"
-#define ADnEDDetPixelMapEnableParamString  "ADNED_DET_PIXEL_MAP_ENABLE"
 #define ADnEDDetTOFTransTypeParamString    "ADNED_DET_TOF_TRANS_TYPE"
 #define ADnEDDetTOFTransOffsetParamString  "ADNED_DET_TOF_TRANS_OFFSET"
 #define ADnEDDetTOFTransScaleParamString   "ADNED_DET_TOF_TRANS_SCALE"
+//
+#define ADnEDDetPixelMapFileParamString    "ADNED_DET_PIXEL_MAP_FILE"
+#define ADnEDDetPixelMapPrintParamString   "ADNED_DET_PIXEL_MAP_PRINT"
+#define ADnEDDetPixelMapEnableParamString  "ADNED_DET_PIXEL_MAP_ENABLE"
 #define ADnEDDetPixelROIStartXParamString  "ADNED_DET_PIXEL_ROI_START_X"
 #define ADnEDDetPixelROISizeXParamString   "ADNED_DET_PIXEL_ROI_SIZE_X"
 #define ADnEDDetPixelROIStartYParamString  "ADNED_DET_PIXEL_ROI_START_Y"
 #define ADnEDDetPixelROISizeYParamString   "ADNED_DET_PIXEL_ROI_SIZE_Y"
 #define ADnEDDetPixelSizeXParamString      "ADNED_DET_PIXEL_SIZE_X"
-#define ADnEDDetPixelROIEnableParamString   "ADNED_DET_PIXEL_ROI_ENABLE"
+#define ADnEDDetPixelROIEnableParamString  "ADNED_DET_PIXEL_ROI_ENABLE"
 #define ADnEDTOFMaxParamString             "ADNED_TOF_MAX"
 #define ADnEDAllocSpaceParamString         "ADNED_ALLOC_SPACE"
 #define ADnEDAllocSpaceStatusParamString   "ADNED_ALLOC_SPACE_STATUS"
@@ -233,14 +252,33 @@ class ADnED : public ADDriver {
   int ADnEDDetTOFROIStartParam;
   int ADnEDDetTOFROISizeParam;
   int ADnEDDetTOFROIEnableParam;
-  int ADnEDDetTOFTransFileParam;
-  int ADnEDDetPixelMapFileParam;
+  //Params to use with ADnEDTransform
+  int ADnEDDetTOFTransFile0Param;
+  int ADnEDDetTOFTransFile1Param;
+  int ADnEDDetTOFTransFile2Param;
+  int ADnEDDetTOFTransFile3Param;
+  int ADnEDDetTOFTransFile4Param;
+  int ADnEDDetTOFTransFile5Param;
+  int ADnEDDetTOFTransInt0Param;
+  int ADnEDDetTOFTransInt1Param;
+  int ADnEDDetTOFTransInt2Param;
+  int ADnEDDetTOFTransInt3Param;
+  int ADnEDDetTOFTransInt4Param;
+  int ADnEDDetTOFTransInt5Param;
+  int ADnEDDetTOFTransFloat0Param;
+  int ADnEDDetTOFTransFloat1Param;
+  int ADnEDDetTOFTransFloat2Param;
+  int ADnEDDetTOFTransFloat3Param;
+  int ADnEDDetTOFTransFloat4Param;
+  int ADnEDDetTOFTransFloat5Param;
   int ADnEDDetTOFTransPrintParam;
-  int ADnEDDetPixelMapPrintParam;
-  int ADnEDDetPixelMapEnableParam;
   int ADnEDDetTOFTransTypeParam;
   int ADnEDDetTOFTransOffsetParam;
   int ADnEDDetTOFTransScaleParam;
+  //
+  int ADnEDDetPixelMapFileParam;
+  int ADnEDDetPixelMapPrintParam;
+  int ADnEDDetPixelMapEnableParam;
   int ADnEDDetPixelROIStartXParam;
   int ADnEDDetPixelROISizeXParam;
   int ADnEDDetPixelROIStartYParam;
