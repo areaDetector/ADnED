@@ -44,7 +44,7 @@ class ADnEDTransform {
   int setDoubleArray(epicsUInt32 paramIndex, const epicsFloat64 *pSource, epicsUInt32 size);
 
   //Debug function
-  void printDoubleArray(epicsUInt32 paramIndex);
+  void printParams(void);
 
  private:
   //These are the functions that do the real work.

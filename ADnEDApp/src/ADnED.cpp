@@ -801,7 +801,8 @@ void ADnED::printPixelMap(epicsUInt32 det)
  */
 void ADnED::printTofTrans(epicsUInt32 det)
 { 
-  p_Transform[det]->printDoubleArray(0);
+  printf("ADnED::printTofTrans. Det: %d\n", det);
+  p_Transform[det]->printParams();
 }
 
 /**
