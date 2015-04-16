@@ -558,15 +558,7 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
   }
 
   epicsUInt32 transIndex = 0;
-  if (function == ADnEDDetTOFTransInt0Param) transIndex = 0;
-  if (function == ADnEDDetTOFTransInt1Param) transIndex = 1;
-  if (function == ADnEDDetTOFTransInt2Param) transIndex = 2;
-  if (function == ADnEDDetTOFTransInt3Param) transIndex = 3;
-  if (function == ADnEDDetTOFTransInt4Param) transIndex = 4;
-  if (function == ADnEDDetTOFTransInt5Param) transIndex = 5;
-
-  if ((function == ADnEDDetTOFTransInt0Param) || (function == ADnEDDetTOFTransInt1Param) || (function == ADnEDDetTOFTransInt2Param) ||
-      (function == ADnEDDetTOFTransInt3Param) || (function == ADnEDDetTOFTransInt4Param) || (function == ADnEDDetTOFTransInt5Param)) {
+  if (matchTransInt(function, transIndex)) {
     if (p_Transform[addr]->setIntParam(transIndex, value) != 0) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
 		"%s Error loading int32 into p_Transform[%d]. transIndex: %d, value: %d\n", functionName, addr, transIndex, value);
@@ -619,15 +611,7 @@ asynStatus ADnED::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
   }
 
   epicsUInt32 transIndex = 0;
-  if (function == ADnEDDetTOFTransFloat0Param) transIndex = 0;
-  if (function == ADnEDDetTOFTransFloat1Param) transIndex = 1;
-  if (function == ADnEDDetTOFTransFloat2Param) transIndex = 2;
-  if (function == ADnEDDetTOFTransFloat3Param) transIndex = 3;
-  if (function == ADnEDDetTOFTransFloat4Param) transIndex = 4;
-  if (function == ADnEDDetTOFTransFloat5Param) transIndex = 5;
-
-  if ((function == ADnEDDetTOFTransFloat0Param) || (function == ADnEDDetTOFTransFloat1Param) || (function == ADnEDDetTOFTransFloat2Param) ||
-      (function == ADnEDDetTOFTransFloat3Param) || (function == ADnEDDetTOFTransFloat4Param) || (function == ADnEDDetTOFTransFloat5Param)) {
+  if (matchTransFloat(function, transIndex)) {
     if (p_Transform[addr]->setDoubleParam(transIndex, value) != 0) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
 		"%s Error loading float64 into p_Transform[%d]. transIndex: %d, value: %f\n", functionName, addr, transIndex, value);
@@ -655,7 +639,7 @@ asynStatus ADnED::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
   }
   
   //Do callbacks so higher layers see any changes 
-  callParamCallbacks();
+  callParamCallbacks(addr);
   
   return status;
 }
@@ -682,15 +666,7 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
   }
  
   epicsUInt32 transIndex = 0;
-  if (function == ADnEDDetTOFTransFile0Param) transIndex = 0;
-  if (function == ADnEDDetTOFTransFile1Param) transIndex = 1;
-  if (function == ADnEDDetTOFTransFile2Param) transIndex = 2;
-  if (function == ADnEDDetTOFTransFile3Param) transIndex = 3;
-  if (function == ADnEDDetTOFTransFile4Param) transIndex = 4;
-  if (function == ADnEDDetTOFTransFile5Param) transIndex = 5;
-
-  if ((function == ADnEDDetTOFTransFile0Param) || (function == ADnEDDetTOFTransFile1Param) || (function == ADnEDDetTOFTransFile2Param) ||
-      (function == ADnEDDetTOFTransFile3Param) || (function == ADnEDDetTOFTransFile4Param) || (function == ADnEDDetTOFTransFile5Param)) {
+  if (matchTransFile(function, transIndex)) {
 	
     asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
 	      "%s Set Det %d TOF Transformation (Index %d) File: %s.\n", functionName, addr, transIndex, value);
@@ -803,6 +779,120 @@ void ADnED::printTofTrans(epicsUInt32 det)
 { 
   printf("ADnED::printTofTrans. Det: %d\n", det);
   p_Transform[det]->printParams();
+}
+
+/**
+ * Check if a parameter is a ADnEDTransform related one, and return it.
+ * If it doesn't match, return -1.
+ * @param asynParam - The asyn parameter to test
+ * @param transIndex - Return value of the matching ADnEDTransform index
+ * @return true=match, false=no match
+ */
+bool ADnED::matchTransFile(int asynParam, epicsUInt32 &transIndex)
+{
+  //Unfortunately can't use switch statement here
+  if (asynParam == ADnEDDetTOFTransFile0Param) {
+    transIndex = 0;
+    return true;
+  }
+  if (asynParam == ADnEDDetTOFTransFile1Param) {
+    transIndex = 1;
+    return true;
+  }
+  if (asynParam == ADnEDDetTOFTransFile2Param) {
+    transIndex = 2;
+    return true;
+  }
+  if (asynParam == ADnEDDetTOFTransFile3Param) {
+    transIndex = 3;
+    return true;
+  }
+  if (asynParam == ADnEDDetTOFTransFile4Param) {
+    transIndex = 4;
+    return true;
+  }
+  if (asynParam == ADnEDDetTOFTransFile5Param) {
+    transIndex = 5;
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Check if a parameter is a ADnEDTransform related one, and return it.
+ * If it doesn't match, return -1.
+ * @param asynParam - The asyn parameter to test
+ * @param transIndex - Return value of the matching ADnEDTransform index
+ * @return true=match, false=no match
+ */
+bool ADnED::matchTransInt(int asynParam, epicsUInt32 &transIndex)
+{
+  //Unfortunately can't use switch statement here
+  if (asynParam == ADnEDDetTOFTransInt0Param) {
+    transIndex = 0;
+    return true;
+  }
+  if (asynParam == ADnEDDetTOFTransInt1Param) {
+    transIndex = 1;
+    return true;
+  }
+  if (asynParam == ADnEDDetTOFTransInt2Param) {
+    transIndex = 2;
+    return true;
+  }
+  if (asynParam == ADnEDDetTOFTransInt3Param) {
+    transIndex = 3;
+    return true;
+  }
+  if (asynParam == ADnEDDetTOFTransInt4Param) {
+    transIndex = 4;
+    return true;
+  }
+  if (asynParam == ADnEDDetTOFTransInt5Param) {
+    transIndex = 5;
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Check if a parameter is a ADnEDTransform related one, and return it.
+ * If it doesn't match, return -1.
+ * @param asynParam - The asyn parameter to test
+ * @param transIndex - Return value of the matching ADnEDTransform index
+ * @return true=match, false=no match
+ */
+bool ADnED::matchTransFloat(int asynParam, epicsUInt32 &transIndex)
+{
+  //Unfortunately can't use switch statement here
+  if (asynParam == ADnEDDetTOFTransFloat0Param) {
+    transIndex = 0;
+    return true;
+  }
+  if (asynParam == ADnEDDetTOFTransFloat1Param) {
+    transIndex = 1;
+    return true;
+  }
+  if (asynParam == ADnEDDetTOFTransFloat2Param) {
+    transIndex = 2;
+    return true;
+  }
+  if (asynParam == ADnEDDetTOFTransFloat3Param) {
+    transIndex = 3;
+    return true;
+  }
+  if (asynParam == ADnEDDetTOFTransFloat4Param) {
+    transIndex = 4;
+    return true;
+  }
+  if (asynParam == ADnEDDetTOFTransFloat5Param) {
+    transIndex = 5;
+    return true;
+  }
+
+  return false;
 }
 
 /**

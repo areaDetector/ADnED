@@ -151,6 +151,9 @@ class ADnED : public ADDriver {
   void printTofTrans(epicsUInt32 det);
   asynStatus checkPixelMap(epicsUInt32 det);
   asynStatus setupChannelMonitor(const char *pvName, int channel);
+  bool matchTransFile(const int asynParam, epicsUInt32 &transIndex);
+  bool matchTransInt(const int asynParam, epicsUInt32 &transIndex);
+  bool matchTransFloat(const int asynParam, epicsUInt32 &transIndex);
  
   //Put private static data members here
   static const epicsInt32 s_ADNED_MAX_STRING_SIZE;
