@@ -10,6 +10,10 @@
 #define ADNED_TRANSFORM_DSPACE_DYNAMIC 2
 #define ADNED_TRANSFORM_DELTAE 3
 
+//ADnEDTransform constants
+#define ADNED_TRANSFORM_MN 1.674954e-27
+#define ADNED_TRANSFORM_HALF_MN 0.837477e-27
+
 //PVAccess related params. Used in ADnED.cpp.
 #define ADNED_PV_TIMEOUT 2.0
 #define ADNED_PV_PRIORITY epics::pvAccess::ChannelProvider::PRIORITY_DEFAULT
