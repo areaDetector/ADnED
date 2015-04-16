@@ -48,8 +48,8 @@ class ADnEDTransform {
 
  private:
   //These are the functions that do the real work.
-  epicsFloat64 calc_array_multiply(epicsUInt32 pixelID, epicsUInt32 tof);
-  epicsFloat64 calc_dspace(epicsUInt32 pixelID, epicsUInt32 tof);
+  epicsFloat64 calc_dspace_static(epicsUInt32 pixelID, epicsUInt32 tof);
+  epicsFloat64 calc_dspace_dynamic(epicsUInt32 pixelID, epicsUInt32 tof);
   epicsFloat64 calc_deltaE(epicsUInt32 pixelID, epicsUInt32 tof);
  
   //Storage for parameters and arrays used in the calculations.

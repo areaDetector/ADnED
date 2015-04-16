@@ -8,8 +8,8 @@
 ADnEDTransform::ADnEDTransform(void) {
   
   printf(" TOF Transform Types:\n");
-  printf("  ADNED_TRANSFORM_ARRAY: %d\n", ADNED_TRANSFORM_ARRAY);
-  printf("  ADNED_TRANSFORM_DSPACE: %d\n", ADNED_TRANSFORM_DSPACE);
+  printf("  ADNED_TRANSFORM_DSPACE_STATIC: %d\n", ADNED_TRANSFORM_DSPACE_STATIC);
+  printf("  ADNED_TRANSFORM_DSPACE_DYNAMIC: %d\n", ADNED_TRANSFORM_DSPACE_DYNAMIC);
   printf("  ADNED_TRANSFORM_DELTAE: %d\n", ADNED_TRANSFORM_DELTAE);
 
   for (int i=0; i<ADNED_MAX_TRANSFORM_PARAMS; ++i) {
@@ -36,13 +36,13 @@ ADnEDTransform::~ADnEDTransform(void) {
  *
  * Transform types are:
  *
- * ADNED_TRANSFORM_ARRAY - multiply the TOF by a pixel ID lookup in doubleArray[0]. 
- *                         Can be used for fixed geometry instruments to calculate 
- *                         dspace. Can be used on Vulcan for example.
+ * ADNED_TRANSFORM_DSPACE_STATIC - multiply the TOF by a pixel ID lookup in doubleArray[0]. 
+ *                                 Can be used for fixed geometry instruments to calculate 
+ *                                 dspace. Can be used on Vulcan for example.
  *
- * ADNED_TRANSFORM_DSPACE - calculate dspace where the theta angle changes. 
- *                          Used for direct geometry instruments like Hyspec. 
- *                          NOTE: not sure how this works yet.  
+ * ADNED_TRANSFORM_DSPACE_DYNAMIC - calculate dspace where the theta angle changes. 
+ *                                  Used for direct geometry instruments like Hyspec. 
+ *                                  NOTE: not sure how this works yet.  
  *
  * ADNED_TRANSFORM_DELTAE - calculate deltaE for indirect geometry instruments for 
  *                          their inelastic detectors. This uses an equation which 
@@ -74,10 +74,10 @@ epicsFloat64 ADnEDTransform::calculate(epicsUInt32 type, epicsUInt32 pixelID, ep
     return -1;
   }
   
-  if (type == ADNED_TRANSFORM_ARRAY) {
-    return calc_array_multiply(pixelID, tof);
-  } else if (type == ADNED_TRANSFORM_DSPACE) {
-    return calc_dspace(pixelID, tof);
+  if (type == ADNED_TRANSFORM_DSPACE_STATIC) {
+    return calc_dspace_static(pixelID, tof);
+  } else if (type == ADNED_TRANSFORM_DSPACE_DYNAMIC) {
+    return calc_dspace_dynamic(pixelID, tof);
   } else if (type == ADNED_TRANSFORM_DELTAE) {
     return calc_deltaE(pixelID, tof);
   }
@@ -85,11 +85,11 @@ epicsFloat64 ADnEDTransform::calculate(epicsUInt32 type, epicsUInt32 pixelID, ep
 }
 
 /**
- * Type = ADNED_TRANSFORM_ARRAY
+ * Type = ADNED_TRANSFORM_DSPACE_STATIC
  * Use a pixel ID dependant multiplier on the TOF.
  * This uses (doubleArray[0])[pixelID]
  */
-epicsFloat64 ADnEDTransform::calc_array_multiply(epicsUInt32 pixelID, epicsUInt32 tof) {
+epicsFloat64 ADnEDTransform::calc_dspace_static(epicsUInt32 pixelID, epicsUInt32 tof) {
   if ((p_Array[0] != NULL) && (pixelID < m_ArraySize[0])) {
     return tof*(p_Array[0])[pixelID];
   }
@@ -97,9 +97,9 @@ epicsFloat64 ADnEDTransform::calc_array_multiply(epicsUInt32 pixelID, epicsUInt3
 }
 
 /**
- * Type = ADNED_TRANSFORM_DSPACE
+ * Type = ADNED_TRANSFORM_DSPACE_DYNAMIC
  */
-epicsFloat64 ADnEDTransform::calc_dspace(epicsUInt32 pixelID, epicsUInt32 tof) {
+epicsFloat64 ADnEDTransform::calc_dspace_dynamic(epicsUInt32 pixelID, epicsUInt32 tof) {
   return 0;
 }
 
