@@ -80,6 +80,7 @@ record(ao, "$(P)$(R)Det$(DET):TOFTransFloat$(INDEX)")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_FLOAT$(INDEX)")
    field(VAL, "0.0")
    field(PINI, "YES")
+   field(PREC, "4")
    info(autosaveFields, "VAL")
    field(ASG, "BEAMLINE") 
 }
@@ -93,6 +94,7 @@ record(ai, "$(P)$(R)Det$(DET):TOFTransFloat$(INDEX)_RBV")
    field(DTYP, "asynFloat64")
    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_FLOAT$(INDEX)")
    field(SCAN, "I/O Intr")
+   field(PREC, "4")	
 }
 
 
