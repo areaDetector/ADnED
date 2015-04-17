@@ -1126,7 +1126,6 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	  tof = static_cast<epicsFloat64>(tofData[i]);
 	  //If enabled, do TOF tranformation (to d-space for example).
 	  if (m_detTOFTransType[det] != 0) {
-	    //Use transform 0, which is a single array multiplier
 	    tof = p_Transform[det]->calculate(m_detTOFTransType[det], pixelsData[i], tofData[i]);
 	    //Apply scale and offset
 	    if (m_detTOFTransScale[det] >=0) {
