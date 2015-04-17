@@ -296,6 +296,28 @@ record(bo, "$(P)$(R)Det$(DET):TOFTransPrint")
 }
 
 # ///
+# /// Control debug param for this detector
+# ///
+record(bo, "$(P)$(R)Det$(DET):TOFTransDebug")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_DEBUG")
+    field(ZNAM, "Off")
+    field(ONAM, "On")
+    field(VAL, "0")
+    field(PINI, "YES")
+    field(ASG, "BEAMLINE")
+}
+record(bi, "$(P)$(R)Det$(DET):TOFTransDebug_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_DEBUG")
+    field(ZNAM, "Off")
+    field(ONAM, "On")
+    field(SCAN, "I/O Intr")
+}
+
+# ///
 # /// Choose the type of TOF transformation applied. This list
 # /// should match what is defined in the ADnEDTransform class.
 # /// Default is None, which also disables the scale factor and offset.

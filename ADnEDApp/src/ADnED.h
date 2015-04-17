@@ -95,6 +95,7 @@
 #define ADnEDDetTOFTransFloat4ParamString  "ADNED_DET_TOF_TRANS_FLOAT4"
 #define ADnEDDetTOFTransFloat5ParamString  "ADNED_DET_TOF_TRANS_FLOAT5"
 #define ADnEDDetTOFTransPrintParamString   "ADNED_DET_TOF_TRANS_PRINT"
+#define ADnEDDetTOFTransDebugParamString   "ADNED_DET_TOF_TRANS_DEBUG"
 #define ADnEDDetTOFTransTypeParamString    "ADNED_DET_TOF_TRANS_TYPE"
 #define ADnEDDetTOFTransOffsetParamString  "ADNED_DET_TOF_TRANS_OFFSET"
 #define ADnEDDetTOFTransScaleParamString   "ADNED_DET_TOF_TRANS_SCALE"
@@ -275,6 +276,7 @@ class ADnED : public ADDriver {
   int ADnEDDetTOFTransFloat4Param;
   int ADnEDDetTOFTransFloat5Param;
   int ADnEDDetTOFTransPrintParam;
+  int ADnEDDetTOFTransDebugParam;
   int ADnEDDetTOFTransTypeParam;
   int ADnEDDetTOFTransOffsetParam;
   int ADnEDDetTOFTransScaleParam;

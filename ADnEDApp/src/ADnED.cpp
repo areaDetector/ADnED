@@ -154,6 +154,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDDetTOFTransFloat4ParamString,  asynParamFloat64,  &ADnEDDetTOFTransFloat4Param);  
   createParam(ADnEDDetTOFTransFloat5ParamString,  asynParamFloat64,  &ADnEDDetTOFTransFloat5Param);  
   createParam(ADnEDDetTOFTransPrintParamString,   asynParamInt32,    &ADnEDDetTOFTransPrintParam);
+  createParam(ADnEDDetTOFTransDebugParamString,   asynParamInt32,    &ADnEDDetTOFTransDebugParam);
   createParam(ADnEDDetTOFTransTypeParamString,    asynParamInt32,    &ADnEDDetTOFTransTypeParam);
   createParam(ADnEDDetTOFTransOffsetParamString,  asynParamFloat64,  &ADnEDDetTOFTransOffsetParam);
   createParam(ADnEDDetTOFTransScaleParamString,   asynParamFloat64,  &ADnEDDetTOFTransScaleParam);
@@ -316,6 +317,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     paramStatus = ((setDoubleParam(det, ADnEDDetTOFTransFloat3Param, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setDoubleParam(det, ADnEDDetTOFTransFloat4Param, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setDoubleParam(det, ADnEDDetTOFTransFloat5Param, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetTOFTransDebugParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFTransTypeParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setDoubleParam(det, ADnEDDetTOFTransOffsetParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setDoubleParam(det, ADnEDDetTOFTransScaleParam, 1) == asynSuccess) && paramStatus);
@@ -539,6 +541,12 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
     }
   } else if (function == ADnEDDetTOFTransPrintParam) {
     printTofTrans(addr);
+  } else if (function == ADnEDDetTOFTransDebugParam) {
+    if (value != 0) {
+      p_Transform[addr]->setDebug(true);
+    } else {
+      p_Transform[addr]->setDebug(false);
+    }
   } else if (function == ADnEDDetPixelMapPrintParam) {
     printPixelMap(addr);
   } else if (function == ADnEDDetPixelROISizeXParam) {

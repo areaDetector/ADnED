@@ -43,8 +43,9 @@ class ADnEDTransform {
   int setDoubleParam(epicsUInt32 paramIndex, epicsFloat64 paramVal);
   int setDoubleArray(epicsUInt32 paramIndex, const epicsFloat64 *pSource, epicsUInt32 size);
 
-  //Debug function
+  //Debug functions
   void printParams(void);
+  void setDebug(bool debug);
 
  private:
   //These are the functions that do the real work.
@@ -57,6 +58,9 @@ class ADnEDTransform {
   epicsFloat64 m_doubleParam[ADNED_MAX_TRANSFORM_PARAMS];
   epicsFloat64 *p_Array[ADNED_MAX_TRANSFORM_PARAMS];
   epicsUInt32 m_ArraySize[ADNED_MAX_TRANSFORM_PARAMS];
+
+  //Flag to print out intermediate calculation steps for debug (true or false)
+  bool m_debug;
 
 };
 

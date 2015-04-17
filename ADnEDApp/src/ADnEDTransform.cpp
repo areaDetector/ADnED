@@ -91,6 +91,11 @@ epicsFloat64 ADnEDTransform::calculate(epicsUInt32 type, epicsUInt32 pixelID, ep
  *   p_Array[0]
  */
 epicsFloat64 ADnEDTransform::calc_dspace_static(epicsUInt32 pixelID, epicsUInt32 tof) {
+  
+  if (m_debug) {
+    printf("ADnEDTransform::calc_dspace_static. pixelID: %d, tof: %d\n", pixelID, tof);
+  }
+
   if ((p_Array[0] != NULL) && (pixelID < m_ArraySize[0])) {
     return tof*(p_Array[0])[pixelID];
   }
@@ -117,48 +122,58 @@ epicsFloat64 ADnEDTransform::calc_dspace_dynamic(epicsUInt32 pixelID, epicsUInt3
  */
 epicsFloat64 ADnEDTransform::calc_deltaE(epicsUInt32 pixelID, epicsUInt32 tof) {
   
-  //deltaE = (1/2)Mn * (L1 / (TOF - (L2*sqrt(Mn/(2*Ef))) ) )**2 - Ef
-
   epicsFloat64 deltaE = 0;
   epicsFloat64 Ef = 0;
   epicsFloat64 Ei = 0;
   epicsFloat64 tof_s = 0;
 
-  printf("Start. PixelID: %d, TOF: %d.\n", pixelID, tof);
+  if (m_debug) {
+    printf("ADnEDTransform::calc_deltaE. pixelID: %d, tof: %d\n", pixelID, tof);
+  }
 
   //Checks
   if ((p_Array[0] == NULL) || (p_Array[1] == NULL)) {
-    printf("PixelID: %d, TOF: %d. Arrays are NULL.\n", pixelID, tof);
+    if (m_debug) {
+      printf("  Arrays are NULL.\n");
+    }
     return 0;
   } 
   if ((p_Array[0][pixelID] <= 0) || (p_Array[1][pixelID] <= 0)) {
-    printf("PixelID: %d, TOF: %d. Arrays elements are zero.\n", pixelID, tof);
+    if (m_debug) {
+      printf("  Array elements are zero.\n");
+    }
     return 0;
   } 
   if (tof == 0) {
-    printf("PixelID: %d, TOF: %d. TOF is zero.\n", pixelID, tof);
+    if (m_debug) {
+      printf("  TOF is zero.\n", pixelID, tof);
+    }
     return 0;
   }
-
-  printf("Calc. PixelID: %d, TOF: %d.\n", pixelID, tof);
 
   //Convert Ef (in meV) to Joules
   Ef = (p_Array[0][pixelID] / ADNED_TRANSFORM_EV_TO_mEV) * ADNED_TRANSFORM_EV_TO_J;  
   //Convert TOF to seconds
   tof_s = static_cast<epicsFloat64>(tof) * ADNED_TRANSFORM_TOF_TO_S;
 
-  printf("Calc. Ef: %g\n", Ef);
-  printf("Calc. tof_s: %g\n", tof_s);
+  if (m_debug) {
+    printf("  Ef in Joules: %g\n", Ef);
+    printf("  TOF in seconds: %g\n", tof_s);
+  }
   
   Ei = 0.5 * ADNED_TRANSFORM_MN * pow(m_doubleParam[0] / (tof_s - (p_Array[1][pixelID] * sqrt(ADNED_TRANSFORM_MN/(2*Ef))) ),2);
-  printf("Calc. Ei: %g\n", Ei);
+  if (m_debug) {
+    printf("  Ei in Joules: %g\n", Ei);
+  }
 
   deltaE = Ei - Ef;
   
-  //Convert back to MeV
+  //Convert back to meV
   deltaE = (deltaE / ADNED_TRANSFORM_EV_TO_J) * ADNED_TRANSFORM_EV_TO_mEV;
 
-  printf("End. PixelID: %d, TOF: %d, deltaE: %f.\n", pixelID, tof, deltaE);
+  if (m_debug) {
+    printf("  deltaE: %f.\n", deltaE);
+  }
 
   return deltaE;
 
@@ -263,3 +278,10 @@ void ADnEDTransform::printParams() {
   
 }
 
+/**
+ *
+ */
+void ADnEDTransform::setDebug(bool debug)
+{
+  m_debug = debug;
+}
