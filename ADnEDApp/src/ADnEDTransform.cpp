@@ -57,12 +57,13 @@ ADnEDTransform::~ADnEDTransform(void) {
  *                          where:
  *                          Mn = mass of neutron in 1.674954 × 10-27
  *                          L1 = constant (in meters)
- *                          Ef and L2 are double arrays based on pixelID
+ *                          Ef and L2 are double arrays based on pixelID. 
+ *                          The Ef input array must be in units of MeV. The L2 array is in meters.
  *                          TOF = time of flight (in seconds)
  *
  *                          Energy must be in Joules (1 eV = 1.602176565(35) × 10−19 J)
  * 
- *                          Once the deltaE has been obtained in Joules, it is converted back to eV. 
+ *                          Once the deltaE has been obtained in Joules, it is converted back to MeV. 
  */
 epicsFloat64 ADnEDTransform::calculate(epicsUInt32 type, epicsUInt32 pixelID, epicsUInt32 tof) {
   
@@ -73,7 +74,7 @@ epicsFloat64 ADnEDTransform::calculate(epicsUInt32 type, epicsUInt32 pixelID, ep
   if (pixelID < 0) {
     return -1;
   }
-  
+
   if (type == ADNED_TRANSFORM_DSPACE_STATIC) {
     return calc_dspace_static(pixelID, tof);
   } else if (type == ADNED_TRANSFORM_DSPACE_DYNAMIC) {
@@ -86,8 +87,8 @@ epicsFloat64 ADnEDTransform::calculate(epicsUInt32 type, epicsUInt32 pixelID, ep
 
 /**
  * Type = ADNED_TRANSFORM_DSPACE_STATIC
- * Use a pixel ID dependant multiplier on the TOF.
- * This uses (doubleArray[0])[pixelID]
+ * Parameters used:
+ *   p_Array[0]
  */
 epicsFloat64 ADnEDTransform::calc_dspace_static(epicsUInt32 pixelID, epicsUInt32 tof) {
   if ((p_Array[0] != NULL) && (pixelID < m_ArraySize[0])) {
@@ -105,9 +106,62 @@ epicsFloat64 ADnEDTransform::calc_dspace_dynamic(epicsUInt32 pixelID, epicsUInt3
 
 /**
  * Type = ADNED_TRANSFORM_DELTAE
+ * Parameters used:
+ *   ADNED_TRANSFORM_MN - The mass of the neutron in Kg
+ *   m_doubleParam[0] - L1 in meters
+ *   p_Array[0] - Ef in MeV (indexed by pixel ID)
+ *   p_Array[1] - L2 in meters (indexed by pixel ID)
+ *
+ * The equation uses SI units. So the input parameters are converted internally. 
+ *   
  */
 epicsFloat64 ADnEDTransform::calc_deltaE(epicsUInt32 pixelID, epicsUInt32 tof) {
-  return 0;
+  
+  //deltaE = (1/2)Mn * (L1 / (TOF - (L2*sqrt(Mn/(2*Ef))) ) )**2 - Ef
+
+  epicsFloat64 deltaE = 0;
+  epicsFloat64 Ef = 0;
+  epicsFloat64 Ei = 0;
+  epicsFloat64 tof_s = 0;
+
+  printf("Start. PixelID: %d, TOF: %d.\n", pixelID, tof);
+
+  //Checks
+  if ((p_Array[0] == NULL) || (p_Array[1] == NULL)) {
+    printf("PixelID: %d, TOF: %d. Arrays are NULL.\n", pixelID, tof);
+    return 0;
+  } 
+  if ((p_Array[0][pixelID] <= 0) || (p_Array[1][pixelID] <= 0)) {
+    printf("PixelID: %d, TOF: %d. Arrays elements are zero.\n", pixelID, tof);
+    return 0;
+  } 
+  if (tof == 0) {
+    printf("PixelID: %d, TOF: %d. TOF is zero.\n", pixelID, tof);
+    return 0;
+  }
+
+  printf("Calc. PixelID: %d, TOF: %d.\n", pixelID, tof);
+
+  //Convert Ef (in meV) to Joules
+  Ef = (p_Array[0][pixelID] / ADNED_TRANSFORM_EV_TO_mEV) * ADNED_TRANSFORM_EV_TO_J;  
+  //Convert TOF to seconds
+  tof_s = static_cast<epicsFloat64>(tof) * ADNED_TRANSFORM_TOF_TO_S;
+
+  printf("Calc. Ef: %g\n", Ef);
+  printf("Calc. tof_s: %g\n", tof_s);
+  
+  Ei = 0.5 * ADNED_TRANSFORM_MN * pow(m_doubleParam[0] / (tof_s - (p_Array[1][pixelID] * sqrt(ADNED_TRANSFORM_MN/(2*Ef))) ),2);
+  printf("Calc. Ei: %g\n", Ei);
+
+  deltaE = Ei - Ef;
+  
+  //Convert back to MeV
+  deltaE = (deltaE / ADNED_TRANSFORM_EV_TO_J) * ADNED_TRANSFORM_EV_TO_mEV;
+
+  printf("End. PixelID: %d, TOF: %d, deltaE: %f.\n", pixelID, tof, deltaE);
+
+  return deltaE;
+
 }
 
 /**

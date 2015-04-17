@@ -11,8 +11,10 @@
 #define ADNED_TRANSFORM_DELTAE 3
 
 //ADnEDTransform constants
-#define ADNED_TRANSFORM_MN 1.674954e-27
-#define ADNED_TRANSFORM_HALF_MN 0.837477e-27
+#define ADNED_TRANSFORM_MN 1.674954e-27 //Mass of the neutron in Kg
+#define ADNED_TRANSFORM_EV_TO_J 1.60217635e-19 // 1eV = 1.60217635e-19 Joules
+#define ADNED_TRANSFORM_TOF_TO_S 1e-7 // The TOF is in units of 100ns
+#define ADNED_TRANSFORM_EV_TO_mEV 1e3 // 1eV = 1e3 meV
 
 //PVAccess related params. Used in ADnED.cpp.
 #define ADNED_PV_TIMEOUT 2.0
