@@ -567,7 +567,7 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
 
   epicsUInt32 transIndex = 0;
   if (matchTransInt(function, transIndex)) {
-    if (p_Transform[addr]->setIntParam(transIndex, value) != 0) {
+    if (p_Transform[addr]->setIntParam(transIndex, value) != ADNED_TRANSFORM_OK) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
 		"%s Error loading int32 into p_Transform[%d]. transIndex: %d, value: %d\n", functionName, addr, transIndex, value);
       status = asynError;
@@ -620,7 +620,7 @@ asynStatus ADnED::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
 
   epicsUInt32 transIndex = 0;
   if (matchTransFloat(function, transIndex)) {
-    if (p_Transform[addr]->setDoubleParam(transIndex, value) != 0) {
+    if (p_Transform[addr]->setDoubleParam(transIndex, value) != ADNED_TRANSFORM_OK) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
 		"%s Error loading float64 into p_Transform[%d]. transIndex: %d, value: %f\n", functionName, addr, transIndex, value);
       status = asynError;
@@ -690,7 +690,7 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
 	  pArray = static_cast<epicsFloat64 *>(calloc(arraySize, sizeof(epicsFloat64)));
 	}
 	file.readDataIntoDoubleArray(&pArray);
-	if (p_Transform[addr]->setDoubleArray(transIndex, pArray, arraySize) != 0) {
+	if (p_Transform[addr]->setDoubleArray(transIndex, pArray, arraySize) != ADNED_TRANSFORM_OK) {
 	  asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
 		"%s Error loading array into p_Transform[%d]\n", functionName, addr);
 	  status = asynError;

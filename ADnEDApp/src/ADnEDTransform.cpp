@@ -68,11 +68,11 @@ ADnEDTransform::~ADnEDTransform(void) {
 epicsFloat64 ADnEDTransform::calculate(epicsUInt32 type, epicsUInt32 pixelID, epicsUInt32 tof) {
   
   if (type < 0) {
-    return -1;
+    return ADNED_TRANSFORM_ERROR;
   }
   
   if (pixelID < 0) {
-    return -1;
+    return ADNED_TRANSFORM_ERROR;
   }
 
   if (type == ADNED_TRANSFORM_DSPACE_STATIC) {
@@ -99,14 +99,15 @@ epicsFloat64 ADnEDTransform::calc_dspace_static(epicsUInt32 pixelID, epicsUInt32
   if ((p_Array[0] != NULL) && (pixelID < m_ArraySize[0])) {
     return tof*(p_Array[0])[pixelID];
   }
-  return 0;
+
+  return ADNED_TRANSFORM_ERROR;
 }
 
 /**
  * Type = ADNED_TRANSFORM_DSPACE_DYNAMIC
  */
 epicsFloat64 ADnEDTransform::calc_dspace_dynamic(epicsUInt32 pixelID, epicsUInt32 tof) {
-  return 0;
+  return ADNED_TRANSFORM_ERROR;
 }
 
 /**
@@ -136,19 +137,19 @@ epicsFloat64 ADnEDTransform::calc_deltaE(epicsUInt32 pixelID, epicsUInt32 tof) {
     if (m_debug) {
       printf("  Arrays are NULL.\n");
     }
-    return 0;
+    return ADNED_TRANSFORM_ERROR;
   } 
   if ((p_Array[0][pixelID] <= 0) || (p_Array[1][pixelID] <= 0)) {
     if (m_debug) {
       printf("  Array elements are zero.\n");
     }
-    return 0;
+    return ADNED_TRANSFORM_ERROR;
   } 
   if (tof == 0) {
     if (m_debug) {
       printf("  TOF is zero.\n", pixelID, tof);
     }
-    return 0;
+    return ADNED_TRANSFORM_ERROR;
   }
 
   //Convert Ef (in meV) to Joules
@@ -187,12 +188,12 @@ epicsFloat64 ADnEDTransform::calc_deltaE(epicsUInt32 pixelID, epicsUInt32 tof) {
 int ADnEDTransform::setIntParam(epicsUInt32 paramIndex, epicsUInt32 paramVal) {
   
   if ((paramIndex < 0) || (paramIndex >= ADNED_MAX_TRANSFORM_PARAMS)) {
-    return -1;
+    return ADNED_TRANSFORM_ERROR;
   }
   
   m_intParam[paramIndex] = paramVal;
 
-  return 0;
+  return ADNED_TRANSFORM_OK;
 }
 
 /**
@@ -203,12 +204,12 @@ int ADnEDTransform::setIntParam(epicsUInt32 paramIndex, epicsUInt32 paramVal) {
 int ADnEDTransform::setDoubleParam(epicsUInt32 paramIndex, epicsFloat64 paramVal) {
   
   if ((paramIndex < 0) || (paramIndex >= ADNED_MAX_TRANSFORM_PARAMS)) {
-    return -1;
+    return ADNED_TRANSFORM_ERROR;
   }
   
   m_doubleParam[paramIndex] = paramVal;
 
-  return 0;
+  return ADNED_TRANSFORM_OK;
 }
 
 /**
@@ -219,15 +220,15 @@ int ADnEDTransform::setDoubleParam(epicsUInt32 paramIndex, epicsFloat64 paramVal
 int ADnEDTransform::setDoubleArray(epicsUInt32 paramIndex, const epicsFloat64 *pSource, epicsUInt32 size) {
   
   if ((paramIndex < 0) || (paramIndex >= ADNED_MAX_TRANSFORM_PARAMS)) {
-    return -1;
+    return ADNED_TRANSFORM_ERROR;
   }
 
   if (size <= 0) {
-    return -1;
+    return ADNED_TRANSFORM_ERROR;
   }
 
   if (pSource == NULL) {
-    return -1;
+    return ADNED_TRANSFORM_ERROR;
   }
   
   if (p_Array[paramIndex]) {
@@ -244,7 +245,7 @@ int ADnEDTransform::setDoubleArray(epicsUInt32 paramIndex, const epicsFloat64 *p
 
   memcpy(p_Array[paramIndex], pSource, m_ArraySize[paramIndex]*sizeof(epicsFloat64));
 
-  return 0;
+  return ADNED_TRANSFORM_OK;
 }
 
 /**
