@@ -22,6 +22,7 @@ ADnEDSupport_SRCS += nEDChannel.cpp
 ADnEDSupport_SRCS += ADnEDPixelROI.cpp
 ADnEDSupport_SRCS += ADnEDFile.cpp
 
+ADnEDTransform_SRCS += ADnEDTransformBase.cpp
 ADnEDTransform_SRCS += ADnEDTransform.cpp
 
 ADnEDSupport_LIBS += $(EPICS_BASE_IOC_LIBS)

@@ -28,39 +28,23 @@
 
 #include "epicsTypes.h"
 #include "ADnEDGlobals.h"
+#include "ADnEDTransformBase.h"
 
-class ADnEDTransform {
+class ADnEDTransform : public ADnEDTransformBase {
   
  public:
   ADnEDTransform();
   virtual ~ADnEDTransform();
   
   //Call this to transform the TOF using a particular calculation (specified by type)
-  epicsFloat64 calculate(epicsUInt32 type, epicsUInt32 pixelID, epicsUInt32 tof);
-  
-  //Functions to set the internal parameters and arrays used for each calculation
-  int setIntParam(epicsUInt32 paramIndex, epicsUInt32 paramVal);
-  int setDoubleParam(epicsUInt32 paramIndex, epicsFloat64 paramVal);
-  int setDoubleArray(epicsUInt32 paramIndex, const epicsFloat64 *pSource, epicsUInt32 size);
-
-  //Debug functions
-  void printParams(void);
-  void setDebug(bool debug);
+  //This is the only public function that you need to define in a derived class.
+  epicsFloat64 calculate(epicsUInt32 type, epicsUInt32 pixelID, epicsUInt32 tof) const;
 
  private:
-  //These are the functions that do the real work.
-  epicsFloat64 calc_dspace_static(epicsUInt32 pixelID, epicsUInt32 tof);
-  epicsFloat64 calc_dspace_dynamic(epicsUInt32 pixelID, epicsUInt32 tof);
-  epicsFloat64 calc_deltaE(epicsUInt32 pixelID, epicsUInt32 tof);
- 
-  //Storage for parameters and arrays used in the calculations.
-  epicsUInt32 m_intParam[ADNED_MAX_TRANSFORM_PARAMS];
-  epicsFloat64 m_doubleParam[ADNED_MAX_TRANSFORM_PARAMS];
-  epicsFloat64 *p_Array[ADNED_MAX_TRANSFORM_PARAMS];
-  epicsUInt32 m_ArraySize[ADNED_MAX_TRANSFORM_PARAMS];
-
-  //Flag to print out intermediate calculation steps for debug (true or false)
-  bool m_debug;
+  //These are the functions that do the real work, at least in this implementation
+  epicsFloat64 calc_dspace_static(epicsUInt32 pixelID, epicsUInt32 tof) const;
+  epicsFloat64 calc_dspace_dynamic(epicsUInt32 pixelID, epicsUInt32 tof) const;
+  epicsFloat64 calc_deltaE(epicsUInt32 pixelID, epicsUInt32 tof) const;
 
 };
 
