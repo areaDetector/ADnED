@@ -93,7 +93,7 @@ class adned_lib(object):
         _detector_state = adned + ":DetectorState_RBV"
         
         try:
-            self.verify(adned, _detector_state, self.__g.AD_IDLE)
+            self.verify(_detector_state, self.__g.AD_IDLE)
         except Exception as e:
             print str(e)
             return self.__g.FAIL

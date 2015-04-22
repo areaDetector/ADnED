@@ -1,5 +1,22 @@
 #!/usr/bin/python
 
+"""
+Author: Matt Pearson
+Date: Apr 2015
+
+Description: Run all the tests listed in run_tests.txt
+
+The tests will almost certainly fail if there are no incoming
+events, so it is assumed to be run against a beamline installation
+with shutter open, or a simulation.
+
+Run like:
+cd test
+./run_tests.py {base pv name}
+
+Or, can run individual tests in the same manner.
+"""
+
 import sys
 import os
 

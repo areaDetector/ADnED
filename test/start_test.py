@@ -1,7 +1,10 @@
 #!/usr/bin/python
 
 """
-Check that records are reset properly on a start.
+Author: Matt Pearson
+Date: Apr 2015
+
+Description: Check that records are reset properly on a start.
 """
 
 import sys
@@ -13,6 +16,13 @@ from adned_globals import adned_globals
 from epics import caget, caput
     
 def main():
+    """
+    Do a series of starts & stops. After the start, immediately
+    check that the counters have been reset to 0, by comparing them
+    to the values just before the previous stop.
+
+    After a stop, make sure that the event rate parameters are zero.
+    """
 
     pv = str(sys.argv[1])
 
@@ -21,6 +31,8 @@ def main():
     lib = adned_lib()
     g = adned_globals()
     
+    lib.init_check(pv)
+
     cycles = range(100)
     
     total_counts = []

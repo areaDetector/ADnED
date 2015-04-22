@@ -1,8 +1,11 @@
 #!/usr/bin/python
 
 """
-Check the start & stop process multiple times. Check the 
-detector state is the correct value each time.
+Author: Matt Pearson
+Date: Apr 2015
+
+Description: Check the start & stop process multiple times. 
+Check the detector state is the correct value each time.
 """
 
 import sys
@@ -14,6 +17,10 @@ from adned_globals import adned_globals
 from epics import caget, caput
     
 def main():
+    """
+    Make sure the DetectorState_RBV state is correct after a 
+    start and stop. This can be critical for higher level software.
+    """
 
     pv = str(sys.argv[1])
 
@@ -22,6 +29,8 @@ def main():
     lib = adned_lib()
     g = adned_globals()
     
+    lib.init_check(pv)
+
     cycles = range(100)
     
     for i in cycles:
