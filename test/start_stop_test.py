@@ -1,11 +1,17 @@
 #!/usr/bin/python
 
+"""
+Check the start & stop process multiple times. Check the 
+detector state is the correct value each time.
+"""
+
 import sys
 import time
 from random import randint
 
 from adned_lib import adned_lib
 from adned_globals import adned_globals
+from epics import caget, caput
     
 def main():
 
@@ -16,7 +22,7 @@ def main():
     lib = adned_lib()
     g = adned_globals()
     
-    cycles = range(1000)
+    cycles = range(100)
     
     for i in cycles:
         print "Start/Stop test " + str(i)
