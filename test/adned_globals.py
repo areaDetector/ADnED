@@ -34,9 +34,13 @@ class adned_globals(object):
     def getADAcquire(self):
         return 1
 
+    def getADMaxDets(self):
+        return 2
+
     TIMEOUT = property(getTimeout, doc="Put callback timeout")
     FAIL = property(getFail, doc="Fail return value")
     SUCCESS = property(getSuccess, doc="Success return value")
     AD_IDLE = property(getADIdle, doc="Area Detector Idle State")
     AD_ACQUIRE = property(getADAcquire, doc="Area Detector Acquire State")
+    AD_MAX_DET = property(getADMaxDets, doc="Max number of detectors")
 
