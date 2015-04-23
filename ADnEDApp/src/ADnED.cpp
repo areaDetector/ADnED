@@ -52,7 +52,7 @@ static void ADnEDEventTaskC(void *drvPvt);
 static void ADnEDFrameTaskC(void *drvPvt);
 
 /**
- * Constructor for Xspress3::Xspress3. 
+ * Constructor. 
  * This must be called in the Epics IOC startup file.
  * @param portName The Asyn port name to use
  * @param maxBuffers Used by asynPortDriver (set to -1 for unlimited)
@@ -1123,18 +1123,19 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	if ((pixelsData[i] >= static_cast<epicsUInt32>(m_detStartValues[det])) 
 	    && (pixelsData[i] <= static_cast<epicsUInt32>(m_detEndValues[det]))) {
 	  
+	  //Offset pixel ID here so this detector pixel ID range starts at 0
+	  mappedPixelIndex = pixelsData[i] - m_detStartValues[det];
+
 	  tof = static_cast<epicsFloat64>(tofData[i]);
 	  //If enabled, do TOF tranformation (to d-space for example).
 	  if (m_detTOFTransType[det] != 0) {
-	    tof = p_Transform[det]->calculate(m_detTOFTransType[det], pixelsData[i], tofData[i]);
+	    tof = p_Transform[det]->calculate(m_detTOFTransType[det], mappedPixelIndex, tofData[i]);
 	    //Apply scale and offset
 	    if (m_detTOFTransScale[det] >=0) {
 	      tof = (tof * m_detTOFTransScale[det]) + m_detTOFTransOffset[det];
 	    }
 	  }
 
-	  //Offset pixel ID here so this detector pixel ID range starts at 0
-	  mappedPixelIndex = pixelsData[i] - m_detStartValues[det];
 	  //Do pixel ID mapping if enabled
 	  if (m_detPixelMappingEnabled[det]) {
 	    if ((m_PixelMapSize[det] > 0) && (p_PixelMap[det])) {
