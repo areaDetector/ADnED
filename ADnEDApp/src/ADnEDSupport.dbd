@@ -1,2 +1,4 @@
 registrar("ADnEDRegister")
 registrar("ADnEDPixelROIRegister")
+registrar("ADnEDAxis")
+

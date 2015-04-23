@@ -27,8 +27,6 @@ TEMPLATE_TOP=$(EPICS_BASE)/templates/makeBaseApp/top
 
 ASYN=		$(SUPPORT)/asyn/master
 ADCORE=		$(SUPPORT)/ADCore/master
-#ADCORE=			/home/mkp/github/ADCore
-#ADUTIL=		$(SUPPORT)/ADUtil/master
 
 include $(BASEV4)/RELEASE.local
 

@@ -13,7 +13,6 @@ LIBRARY_IOC += ADnEDSupport
 LIBRARY_IOC += ADnEDTransform
 
 # Install DBD files into <top>/dbd
-#DBD += ADnED.dbd
 DBD += ADnEDSupport.dbd
 
 # Compile and add the code to the support library
@@ -21,6 +20,7 @@ ADnEDSupport_SRCS += ADnED.cpp
 ADnEDSupport_SRCS += nEDChannel.cpp
 ADnEDSupport_SRCS += ADnEDPixelROI.cpp
 ADnEDSupport_SRCS += ADnEDFile.cpp
+ADnEDSupport_SRCS += ADnEDAxis.c
 
 ADnEDTransform_SRCS += ADnEDTransformBase.cpp
 ADnEDTransform_SRCS += ADnEDTransform.cpp

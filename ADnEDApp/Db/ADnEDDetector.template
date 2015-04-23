@@ -702,8 +702,8 @@ record(ai, "$(P)$(R)Det$(DET):TOF:XAxis_End")
 # ///
 record(aSub, "$(P)$(R)Det$(DET):TOF:XAxis")
 {
-   field(INAM, "scaleArrayInit")
-   field(SNAM, "scaleArrayProcess")
+   field(INAM, "ADnEDAxisInit")
+   field(SNAM, "ADnEDAxisProcess")
    field(PREC, "4")
    field(PINI, "YES")
    field(INPA, "$(P)$(R)Det$(DET):TOF:XAxis_Start")

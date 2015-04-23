@@ -28,10 +28,8 @@ TEMPLATE_TOP=$(EPICS_BASE)/templates/makeBaseApp/top
 
 ASYN=		$(SUPPORT)/asyn/master
 ADCORE=		$(SUPPORT)/ADCore/master
-#ADCORE=		$(SUPPORT)/ADCore/proj_matt
-#ADCORE=			/home/mkp/github/ADCore
 ADNED=		$(SUPPORT)/ADnED/master
-GENERICIO=      $(SUPPORT)/genericIO/master
+#GENERICIO=      $(SUPPORT)/genericIO/master
 DEVIOCSTATS=    $(SUPPORT)/devIocStats/master
 AUTOSAVE=       $(SUPPORT)/autosave/master
 BUSY=           $(SUPPORT)/busy/master
