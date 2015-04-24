@@ -106,7 +106,7 @@ class adned_lib(object):
         Verify that adned record == value.
         """
         if (caget(adned) != value):
-            msg = "ERROR: " + adned + " not equal to " + str(value)
+            msg = " ERROR: " + adned + " not equal to " + str(value)
             raise Exception(__name__ + msg)
 
         return self.__g.SUCCESS
