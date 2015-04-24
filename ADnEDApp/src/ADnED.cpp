@@ -1362,6 +1362,10 @@ asynStatus ADnED::clearParams(void)
   m_pChargeInt = 0.0;
   m_pulseCounter = 0;
 
+  if (p_Data != NULL) {
+    memset(p_Data, 0, m_bufferMaxSize*sizeof(epicsUInt32));
+  }
+
   for (int chan=0; chan<s_ADNED_MAX_CHANNELS; ++chan) {
     status = ((setIntegerParam(chan, ADnEDSeqCounterParam, 0) == asynSuccess) && status);
     status = ((setIntegerParam(chan, ADnEDSeqIDParam, 0) == asynSuccess) && status);
