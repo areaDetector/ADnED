@@ -15,6 +15,7 @@
 # ROI - ROI number
 # SIZE1 - PV for the size of the plot in science units (eg 16ms)
 # SIZE2 - PV for the size of the array after binning (eg. 160000 bins)
+# SIZE3 - PV for the start of the plot in science units (eg. 2ms, if we plot from 2 to 16)
 # TIMEOUT - Asyn timeout
 #
 #####################################################################
@@ -42,7 +43,8 @@ record(calcout, "$(P)$(R)Det$(DET):TOF:ROI:$(ROI):CalcMin")
    field(INPA, "$(P)$(R)Det$(DET):TOF:ROI:$(ROI):Min CP")
    field(INPB, "$(SIZE1) CP")
    field(INPC, "$(SIZE2) CP")
-   field(CALC, "(A/B)*C")
+   field(INPD, "$(SIZE3) CP")
+   field(CALC, "(((D-A)/B)*C)")
    field(OUT, "$(P)$(R)Det$(DET):TOF:ROI:$(ROI):MinX PP")
 }
 

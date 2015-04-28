@@ -766,6 +766,7 @@ record(calcout, "$(P)$(R)Det$(DET):TOF:XAxis_Auto_Proc2")
 
 substitute "SIZE1=$(P)$(R)Det$(DET):TOF:XAxis_End"
 substitute "SIZE2=$(P)$(R)Det$(DET):TOF:XAxis_Size"
+substitute "SIZE3=$(P)$(R)Det$(DET):TOF:XAxis_Start"
 
 substitute "ROI=0"
 include "ADnEDDetectorTOFROIScale.template"
