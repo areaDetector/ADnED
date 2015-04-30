@@ -29,7 +29,6 @@ TEMPLATE_TOP=$(EPICS_BASE)/templates/makeBaseApp/top
 ASYN=		$(SUPPORT)/asyn/master
 ADCORE=		$(SUPPORT)/ADCore/master
 ADNED=		$(SUPPORT)/ADnED/master
-#GENERICIO=      $(SUPPORT)/genericIO/master
 DEVIOCSTATS=    $(SUPPORT)/devIocStats/master
 AUTOSAVE=       $(SUPPORT)/autosave/master
 BUSY=           $(SUPPORT)/busy/master
