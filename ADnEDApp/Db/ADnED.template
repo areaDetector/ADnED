@@ -77,9 +77,6 @@ record(calc, "$(P)$(R)PulseRate_RBV")
     field(PREC, "1")
     field(SCAN, "1 second")
     field(EGU, "Hz")
-    field(ADEL, "1")
-    info(autosaveFields, "ADEL")
-    info(archive, "Monitor, 00:00:01, VAL")
 }
 
 # ///
@@ -92,9 +89,6 @@ record(longin, "$(P)$(R)EventRate_RBV")
    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_EVENT_RATE")
    field(SCAN, "I/O Intr")
    field(EGU, "e/s")
-   field(ADEL, "1000")
-   info(autosaveFields, "ADEL")
-   info(archive, "Monitor, 00:00:01, VAL")
 }
 
 
