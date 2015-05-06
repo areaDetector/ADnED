@@ -50,8 +50,8 @@ namespace nEDChannel {
   void nEDChannelRequester::channelStateChange(Channel::shared_pointer const & channel, Channel::ConnectionState connectionState)
   {
     cout << channel->getChannelName() << " state: "
-	 << Channel::ConnectionStateNames[connectionState]
-	 << " (" << connectionState << ")" << endl;
+         << Channel::ConnectionStateNames[connectionState]
+         << " (" << connectionState << ")" << endl;
     if (connectionState == Channel::CONNECTED) {
       m_connectEvent.signal();
     }
@@ -98,7 +98,7 @@ namespace nEDChannel {
       PVStructurePtr pvStructure = getPVDataCreate()->createPVStructure(structure);
       shared_ptr<PVInt> value = pvStructure->getIntField("timeStamp.userTag");
       if (!value) {
-	return;
+        return;
       }
       m_connectEvent.signal();
     }

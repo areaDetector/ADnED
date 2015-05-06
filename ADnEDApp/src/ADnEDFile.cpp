@@ -144,11 +144,11 @@ void ADnEDFile::readDataIntoIntArray(epicsUInt32 **pArray)
       long int new_index = strtol(line, &end, s_ADNEDFILE_STRTOL_BASE);
       //Populate array
       if ((errno != ERANGE) && (end != line)) {
-	(*pArray)[index] = static_cast<epicsUInt32>(new_index);
-	++index;
+        (*pArray)[index] = static_cast<epicsUInt32>(new_index);
+        ++index;
       } else {
-	fprintf(stderr, "%s: Stopping due to bad reading in line: %s.\n", functionName, line);
-	throw runtime_error("Could not convert line to int.");
+        fprintf(stderr, "%s: Stopping due to bad reading in line: %s.\n", functionName, line);
+        throw runtime_error("Could not convert line to int.");
       }
     } else {
       fprintf(stderr, "%s: Stopping due to whitespace in line: %s.\n", functionName, line);
@@ -196,11 +196,11 @@ void ADnEDFile::readDataIntoDoubleArray(epicsFloat64 **pArray)
       double factor = strtod(line, &end);
       //Populate array
       if ((errno != ERANGE) && (end != line)) {
-	(*pArray)[index] = static_cast<epicsFloat64>(factor);
-	++index;
+        (*pArray)[index] = static_cast<epicsFloat64>(factor);
+        ++index;
       } else {
-	fprintf(stderr, "%s: Stopping due to bad reading in line: %s.\n", functionName, line);
-	throw runtime_error("Could not convert line to double.");
+        fprintf(stderr, "%s: Stopping due to bad reading in line: %s.\n", functionName, line);
+        throw runtime_error("Could not convert line to double.");
       }
     } else {
       fprintf(stderr, "%s: Stopping due to whitespace in line: %s.\n", functionName, line);

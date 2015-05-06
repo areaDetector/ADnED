@@ -117,7 +117,7 @@ void ADnEDTransformBase::printParams(void) const {
     if ((m_ArraySize[i] > 0) && (p_Array[i])) {
       printf("  m_ArraySize[%d]: %d\n", i, m_ArraySize[i]);
       for (epicsUInt32 j=0; j<m_ArraySize[i]; ++j) {
-	printf("  p_Array[%d][%d]: %f\n", i, j, (p_Array[i])[j]);
+        printf("  p_Array[%d][%d]: %f\n", i, j, (p_Array[i])[j]);
       }
     } else {
       printf("  No transformation array loaded for index %d.\n", i);

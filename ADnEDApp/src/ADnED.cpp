@@ -435,42 +435,42 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
   } else if (function == ADnEDStartParam) {
     if (value) {
       if ((adStatus == ADStatusIdle) || (adStatus == ADStatusError) || (adStatus == ADStatusAborted)) {
-	cout << "Start acqusition." << endl;
-	if (clearParams() != asynSuccess) {
-	  asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to run clearParams on start.\n", functionName);
-	}
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Start Reading Events.\n", functionName);
-	cout << "Sending start event" << endl;
-	setIntegerParam(ADnEDPauseParam, 0);
-	epicsEventSignal(this->m_startEvent);
+        cout << "Start acqusition." << endl;
+        if (clearParams() != asynSuccess) {
+          asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to run clearParams on start.\n", functionName);
+        }
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Start Reading Events.\n", functionName);
+        cout << "Sending start event" << endl;
+        setIntegerParam(ADnEDPauseParam, 0);
+        epicsEventSignal(this->m_startEvent);
       } else {
-	//If we have tried to Start while still acquiring, or some other state, we need
-	//to clear the busy record anyway. Print an error so we know about it.
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		  "%s: Tried to Start from an invalid state (ADStatus=%d).\n", functionName, adStatus);
-	//Note: this does not work. I need to clear the busy from outside this function.
-	setIntegerParam(ADnEDStartParam, 0);
-	callParamCallbacks();
-	return asynError;
+        //If we have tried to Start while still acquiring, or some other state, we need
+        //to clear the busy record anyway. Print an error so we know about it.
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+                  "%s: Tried to Start from an invalid state (ADStatus=%d).\n", functionName, adStatus);
+        //Note: this does not work. I need to clear the busy from outside this function.
+        setIntegerParam(ADnEDStartParam, 0);
+        callParamCallbacks();
+        return asynError;
       }
     } 
   } else if (function == ADnEDStopParam) {
     if (value) {
       if (adStatus == ADStatusAcquire) {
-	cout << "Stop acqusition." << endl;
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Stop Reading Events.\n", functionName);
-	cout << "Sending stop event" << endl;
-	setIntegerParam(ADnEDPauseParam, 0);
-	epicsEventSignal(this->m_stopEvent);
+        cout << "Stop acqusition." << endl;
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Stop Reading Events.\n", functionName);
+        cout << "Sending stop event" << endl;
+        setIntegerParam(ADnEDPauseParam, 0);
+        epicsEventSignal(this->m_stopEvent);
       } else {
-	//If we have tried to Stop while not acquiring, or some other state, we need
-	//to clear the busy record anyway. Print an error so we know about it.
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		  "%s: Tried to Stop from an invalid state (ADStatus=%d).\n", functionName, adStatus);
-	//Note: this does not work. I need to clear the busy from outside this function.
-	setIntegerParam(ADnEDStopParam, 0);
-	callParamCallbacks();
-	return asynError;
+        //If we have tried to Stop while not acquiring, or some other state, we need
+        //to clear the busy record anyway. Print an error so we know about it.
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+                  "%s: Tried to Stop from an invalid state (ADStatus=%d).\n", functionName, adStatus);
+        //Note: this does not work. I need to clear the busy from outside this function.
+        setIntegerParam(ADnEDStopParam, 0);
+        callParamCallbacks();
+        return asynError;
       }
     }
   } else if (function == ADnEDDetPixelNumStartParam) {
@@ -504,12 +504,12 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
   } else if (function == ADnEDAllocSpaceParam) {
     if (adStatus != ADStatusAcquire) {
       if (allocArray() != asynSuccess) {
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to allocate array.\n", functionName);
-	setIntegerParam(ADnEDAllocSpaceStatusParam, s_ADNED_ALLOC_STATUS_FAIL);
-	setStringParam(ADStatusMessage, "allocArray Error");
-	setIntegerParam(ADStatus, ADStatusError);
-	callParamCallbacks();
-	return asynError;
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to allocate array.\n", functionName);
+        setIntegerParam(ADnEDAllocSpaceStatusParam, s_ADNED_ALLOC_STATUS_FAIL);
+        setStringParam(ADStatusMessage, "allocArray Error");
+        setIntegerParam(ADStatus, ADStatusError);
+        callParamCallbacks();
+        return asynError;
       } 
     } else {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s. Cannot configure during acqusition.\n", functionName);
@@ -518,10 +518,10 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
   } else if (function == ADnEDNumDetParam) {
     if (adStatus != ADStatusAcquire) {
       if (value > s_ADNED_MAX_DETS) {
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		  "%s Error Setting Number Of Detectors. Max: %d\n", 
-		  functionName, s_ADNED_MAX_DETS);
-	return asynError;
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+                  "%s Error Setting Number Of Detectors. Max: %d\n", 
+                  functionName, s_ADNED_MAX_DETS);
+        return asynError;
       }
     } else {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s. Cannot configure during acqusition.\n", functionName);
@@ -530,10 +530,10 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
   } else if (function == ADnEDNumChannelsParam) {
       if (adStatus != ADStatusAcquire) {
       if (value > s_ADNED_MAX_CHANNELS) {
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		  "%s Error Setting Number Of PVAccess channels. Max: %d\n", 
-		  functionName, s_ADNED_MAX_CHANNELS);
-	return asynError;
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+                  "%s Error Setting Number Of PVAccess channels. Max: %d\n", 
+                  functionName, s_ADNED_MAX_CHANNELS);
+        return asynError;
       }
     } else {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s. Cannot configure during acqusition.\n", functionName);
@@ -569,7 +569,7 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
   if (matchTransInt(function, transIndex)) {
     if (p_Transform[addr]->setIntParam(transIndex, value) != ADNED_TRANSFORM_OK) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		"%s Error loading int32 into p_Transform[%d]. transIndex: %d, value: %d\n", functionName, addr, transIndex, value);
+                "%s Error loading int32 into p_Transform[%d]. transIndex: %d, value: %d\n", functionName, addr, transIndex, value);
       status = asynError;
     }
   }
@@ -622,7 +622,7 @@ asynStatus ADnED::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
   if (matchTransFloat(function, transIndex)) {
     if (p_Transform[addr]->setDoubleParam(transIndex, value) != ADNED_TRANSFORM_OK) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		"%s Error loading float64 into p_Transform[%d]. transIndex: %d, value: %f\n", functionName, addr, transIndex, value);
+                "%s Error loading float64 into p_Transform[%d]. transIndex: %d, value: %f\n", functionName, addr, transIndex, value);
       status = asynError;
     }
   }
@@ -675,9 +675,9 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
  
   epicsUInt32 transIndex = 0;
   if (matchTransFile(function, transIndex)) {
-	
+        
     asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
-	      "%s Set Det %d TOF Transformation (Index %d) File: %s.\n", functionName, addr, transIndex, value);
+              "%s Set Det %d TOF Transformation (Index %d) File: %s.\n", functionName, addr, transIndex, value);
        
     epicsUInt32 arraySize = 0;
     epicsFloat64 *pArray = NULL;
@@ -685,20 +685,20 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
     try {
       ADnEDFile file = ADnEDFile(value);
       if (file.getSize() != 0) { 
-	arraySize = file.getSize();
-	if (pArray == NULL) {
-	  pArray = static_cast<epicsFloat64 *>(calloc(arraySize, sizeof(epicsFloat64)));
-	}
-	file.readDataIntoDoubleArray(&pArray);
-	if (p_Transform[addr]->setDoubleArray(transIndex, pArray, arraySize) != ADNED_TRANSFORM_OK) {
-	  asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		"%s Error loading array into p_Transform[%d]\n", functionName, addr);
-	  status = asynError;
-	}
+        arraySize = file.getSize();
+        if (pArray == NULL) {
+          pArray = static_cast<epicsFloat64 *>(calloc(arraySize, sizeof(epicsFloat64)));
+        }
+        file.readDataIntoDoubleArray(&pArray);
+        if (p_Transform[addr]->setDoubleArray(transIndex, pArray, arraySize) != ADNED_TRANSFORM_OK) {
+          asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+                "%s Error loading array into p_Transform[%d]\n", functionName, addr);
+          status = asynError;
+        }
       }
     } catch (std::exception &e) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		"%s Error Parsing TOF Transformation File. Det: %d. %s\n", functionName, addr, e.what());
+                "%s Error Parsing TOF Transformation File. Det: %d. %s\n", functionName, addr, e.what());
       status = asynError;
     }
 
@@ -708,30 +708,30 @@ asynStatus ADnED::writeOctet(asynUser *pasynUser, const char *value,
     
   } else if (function == ADnEDDetPixelMapFileParam) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
-	      "%s Set Det %d Pixel Map File: %s.\n", functionName, addr, value);
+              "%s Set Det %d Pixel Map File: %s.\n", functionName, addr, value);
     
     if (p_PixelMap[addr]) {
-	free(p_PixelMap[addr]);
-	p_PixelMap[addr] = NULL;
-	m_PixelMapSize[addr] = 0;
+        free(p_PixelMap[addr]);
+        p_PixelMap[addr] = NULL;
+        m_PixelMapSize[addr] = 0;
       }
 
     try {
       ADnEDFile file = ADnEDFile(value);
       if (file.getSize() != 0) {
-	m_PixelMapSize[addr] = file.getSize();
-	if (p_PixelMap[addr] == NULL) {
-	  p_PixelMap[addr] = static_cast<epicsUInt32 *>(calloc(m_PixelMapSize[addr], sizeof(epicsUInt32)));
-	}
-	file.readDataIntoIntArray(&p_PixelMap[addr]);
-	if ((status = checkPixelMap(addr)) == asynError) {
-	  free(p_PixelMap[addr]);
-	  p_PixelMap[addr] = NULL;
-	}
+        m_PixelMapSize[addr] = file.getSize();
+        if (p_PixelMap[addr] == NULL) {
+          p_PixelMap[addr] = static_cast<epicsUInt32 *>(calloc(m_PixelMapSize[addr], sizeof(epicsUInt32)));
+        }
+        file.readDataIntoIntArray(&p_PixelMap[addr]);
+        if ((status = checkPixelMap(addr)) == asynError) {
+          free(p_PixelMap[addr]);
+          p_PixelMap[addr] = NULL;
+        }
       }
     } catch (std::exception &e) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		"%s Error parsing pixel mapping file. Det: %d. %s\n", functionName, addr, e.what());
+                "%s Error parsing pixel mapping file. Det: %d. %s\n", functionName, addr, e.what());
       free(p_PixelMap[addr]);
       p_PixelMap[addr] = NULL;
     }
@@ -922,12 +922,12 @@ asynStatus ADnED::checkPixelMap(epicsUInt32 det)
   if ((m_PixelMapSize[det] > 0) && (p_PixelMap[det])) {
     for (epicsUInt32 index=0; index<m_PixelMapSize[det]; ++index) {
       if ((p_PixelMap[det])[index] > static_cast<epicsUInt32>(detSizeValue)) {
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		  "%s Det: %d. Pixel ID %d in mapping array was out of allowed range. Must be less than %d.\n", 
-		  functionName, det, index, detSizeValue);
-	memset(p_PixelMap[det], 0, m_PixelMapSize[det]);
-	m_PixelMapSize[det] = 0;
-	status = asynError;
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+                  "%s Det: %d. Pixel ID %d in mapping array was out of allowed range. Must be less than %d.\n", 
+                  functionName, det, index, detSizeValue);
+        memset(p_PixelMap[det], 0, m_PixelMapSize[det]);
+        m_PixelMapSize[det] = 0;
+        status = asynError;
       }
     }
   } else {
@@ -1019,7 +1019,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 
     if (m_detPixelROISizeX[det] <= 0) {
       if (eventUpdate) {
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Invalid Pixel ROI Size X.\n", functionName);
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Invalid Pixel ROI Size X.\n", functionName);
       }
       return;
     } 
@@ -1031,7 +1031,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   try {
     if (!m_PVTimeStamp.attach(pv_struct->getStructureField(ADNED_PV_TIMESTAMP))) {
       if (eventUpdate) {
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Failed to attach PVTimeStamp.\n", functionName);
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Failed to attach PVTimeStamp.\n", functionName);
       }
       unlock();
       return;
@@ -1040,12 +1040,12 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     //Only use channel ID 0 to integrate the proton charge
     if (channelID == 0) {
       if (m_TimeStampLast[0] != m_TimeStamp[0]) {
-	newPulse = true;
+        newPulse = true;
       }
     }
     if (m_TimeStampLast[channelID] > m_TimeStamp[channelID]) {
       if (eventUpdate) {
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Backwards timeStamp detected on channel %d.\n", functionName, channelID);
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Backwards timeStamp detected on channel %d.\n", functionName, channelID);
       }
       setIntegerParam(ADnEDBadTimeStampParam, 1);
       unlock();
@@ -1057,20 +1057,20 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     //Detect missing packets
     if (static_cast<epicsInt32>(m_lastSeqID[channelID]) != -1) {
       if (seqID != m_lastSeqID[channelID]+1) {
-	setIntegerParam(ADnEDSeqIDMissingParam, m_lastSeqID[channelID]+1);
-	getIntegerParam(ADnEDSeqIDNumMissingParam, &numMissingPackets);
-	setIntegerParam(ADnEDSeqIDNumMissingParam, numMissingPackets+(seqID-m_lastSeqID[channelID]+1));
-	if (eventUpdate) {
-	  asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: Missing seq ID numbers on channel %d.\n", functionName, channelID);
-	}
+        setIntegerParam(ADnEDSeqIDMissingParam, m_lastSeqID[channelID]+1);
+        getIntegerParam(ADnEDSeqIDNumMissingParam, &numMissingPackets);
+        setIntegerParam(ADnEDSeqIDNumMissingParam, numMissingPackets+(seqID-m_lastSeqID[channelID]+1));
+        if (eventUpdate) {
+          asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: Missing seq ID numbers on channel %d.\n", functionName, channelID);
+        }
       }
     }
     m_lastSeqID[channelID] = seqID;
   } catch (std::exception &e)  {
     if (eventUpdate) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		"%s: Failed to deal with time stamp objects. Exception: %s\n", 
-		functionName, e.what());
+                "%s: Failed to deal with time stamp objects. Exception: %s\n", 
+                functionName, e.what());
     }
     unlock();
     return;
@@ -1101,7 +1101,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 
     if (pixelsLength != tofLength) {
       if (eventUpdate) {
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s pixelsLength != tofLength.\n", functionName);
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s pixelsLength != tofLength.\n", functionName);
       }
       return;
     }
@@ -1118,70 +1118,70 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     epicsUInt32 tofInt = 0;
     for (size_t i=0; i<pixelsLength; ++i) {
       for (int det=1; det<=numDet; det++) {
-	
-	//Dtermine if this raw pixel ID is in this DET range.
-	if ((pixelsData[i] >= static_cast<epicsUInt32>(m_detStartValues[det])) 
-	    && (pixelsData[i] <= static_cast<epicsUInt32>(m_detEndValues[det]))) {
-	  
-	  //Offset pixel ID here so this detector pixel ID range starts at 0
-	  mappedPixelIndex = pixelsData[i] - m_detStartValues[det];
+        
+        //Dtermine if this raw pixel ID is in this DET range.
+        if ((pixelsData[i] >= static_cast<epicsUInt32>(m_detStartValues[det])) 
+            && (pixelsData[i] <= static_cast<epicsUInt32>(m_detEndValues[det]))) {
+          
+          //Offset pixel ID here so this detector pixel ID range starts at 0
+          mappedPixelIndex = pixelsData[i] - m_detStartValues[det];
 
-	  tof = static_cast<epicsFloat64>(tofData[i]);
-	  //If enabled, do TOF tranformation (to d-space for example).
-	  if (m_detTOFTransType[det] != 0) {
-	    tof = p_Transform[det]->calculate(m_detTOFTransType[det], mappedPixelIndex, tofData[i]);
-	    //Apply scale and offset
-	    if (m_detTOFTransScale[det] >=0) {
-	      tof = (tof * m_detTOFTransScale[det]) + m_detTOFTransOffset[det];
-	    }
-	  }
+          tof = static_cast<epicsFloat64>(tofData[i]);
+          //If enabled, do TOF tranformation (to d-space for example).
+          if (m_detTOFTransType[det] != 0) {
+            tof = p_Transform[det]->calculate(m_detTOFTransType[det], mappedPixelIndex, tofData[i]);
+            //Apply scale and offset
+            if (m_detTOFTransScale[det] >=0) {
+              tof = (tof * m_detTOFTransScale[det]) + m_detTOFTransOffset[det];
+            }
+          }
 
-	  //Do pixel ID mapping if enabled
-	  if (m_detPixelMappingEnabled[det]) {
-	    if ((m_PixelMapSize[det] > 0) && (p_PixelMap[det])) {
-	      mappedPixelIndex = (p_PixelMap[det])[pixelsData[i] - m_detStartValues[det]];
-	    }
-	  }
-	  
-	  //Integrate Pixel ID Data, optionally filtering on TOF ROI filter.
-	  if (m_detTOFROIEnabled[det]) {
-	    if ((tof >= static_cast<epicsFloat64>(m_detTOFROIStartValues[det])) 
-		&& (tof < static_cast<epicsFloat64>(m_detTOFROIStartValues[det] + m_detTOFROISizeValues[det]))) {
-	      p_Data[m_NDArrayStartValues[det]+mappedPixelIndex]++;
-	    }
-	  } else { //No TOF ROI filter enabled
-	    p_Data[m_NDArrayStartValues[det]+mappedPixelIndex]++;
-	  }
+          //Do pixel ID mapping if enabled
+          if (m_detPixelMappingEnabled[det]) {
+            if ((m_PixelMapSize[det] > 0) && (p_PixelMap[det])) {
+              mappedPixelIndex = (p_PixelMap[det])[pixelsData[i] - m_detStartValues[det]];
+            }
+          }
+          
+          //Integrate Pixel ID Data, optionally filtering on TOF ROI filter.
+          if (m_detTOFROIEnabled[det]) {
+            if ((tof >= static_cast<epicsFloat64>(m_detTOFROIStartValues[det])) 
+                && (tof < static_cast<epicsFloat64>(m_detTOFROIStartValues[det] + m_detTOFROISizeValues[det]))) {
+              p_Data[m_NDArrayStartValues[det]+mappedPixelIndex]++;
+            }
+          } else { //No TOF ROI filter enabled
+            p_Data[m_NDArrayStartValues[det]+mappedPixelIndex]++;
+          }
 
-	  //Integrate TOF/D-Space, optionally filtering on Pixel ID X/Y ROI
-	  tofInt = static_cast<epicsUInt32>(floor(tof));
-	  if ((tof <= m_tofMax) && (tof >= 0)) {
-	    if (m_detPixelROIEnable[det]) {
-	      //If pixel mapping is not enabled, this is meaningless, so just integrate as normal.
-	      if (!m_detPixelMappingEnabled[det]) { 
-		p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
-	      } else {
-		//Only integrate TOF if we are inside pixel ID XY ROI.
-		//ROI is assumed to start from 0,0 (not from whatever is the pixel ID range). 
-		//So we need to offset, but this has already been done by the pixel mapping above.
-		if (((mappedPixelIndex % m_detPixelSizeX[det]) >= m_detPixelROIStartX[det]) && 
-		    ((mappedPixelIndex % m_detPixelSizeX[det]) < (m_detPixelROIStartX[det] + m_detPixelROISizeX[det]))) {
-		  if ((mappedPixelIndex >= (m_detPixelROIStartY[det] * m_detPixelSizeX[det])) &&
-		      ((mappedPixelIndex < ((m_detPixelROIStartY[det] + m_detPixelROISizeY[det]) * m_detPixelSizeX[det])))) {
-		    p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
-		  }
-		}
-	      }
-	    } else {
-	      p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
-	    }
-	  }
+          //Integrate TOF/D-Space, optionally filtering on Pixel ID X/Y ROI
+          tofInt = static_cast<epicsUInt32>(floor(tof));
+          if ((tof <= m_tofMax) && (tof >= 0)) {
+            if (m_detPixelROIEnable[det]) {
+              //If pixel mapping is not enabled, this is meaningless, so just integrate as normal.
+              if (!m_detPixelMappingEnabled[det]) { 
+                p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
+              } else {
+                //Only integrate TOF if we are inside pixel ID XY ROI.
+                //ROI is assumed to start from 0,0 (not from whatever is the pixel ID range). 
+                //So we need to offset, but this has already been done by the pixel mapping above.
+                if (((mappedPixelIndex % m_detPixelSizeX[det]) >= m_detPixelROIStartX[det]) && 
+                    ((mappedPixelIndex % m_detPixelSizeX[det]) < (m_detPixelROIStartX[det] + m_detPixelROISizeX[det]))) {
+                  if ((mappedPixelIndex >= (m_detPixelROIStartY[det] * m_detPixelSizeX[det])) &&
+                      ((mappedPixelIndex < ((m_detPixelROIStartY[det] + m_detPixelROISizeY[det]) * m_detPixelSizeX[det])))) {
+                    p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
+                  }
+                }
+              }
+            } else {
+              p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
+            }
+          }
 
-	  //Count events to calculate event rate
-	  m_detEventsSinceLastUpdate[det]++;
-	  //Count total events
-	  m_detTotalEvents[det]++;
-	}
+          //Count events to calculate event rate
+          m_detEventsSinceLastUpdate[det]++;
+          //Count total events
+          m_detTotalEvents[det]++;
+        }
 
       }
       }
@@ -1206,16 +1206,16 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
       setIntegerParam(ADnEDEventRateParam, eventRate);
       m_eventsSinceLastUpdate = 0;
       for (int det=1; det<=numDet; det++) {
-	eventRate = static_cast<epicsUInt32>(floor(m_detEventsSinceLastUpdate[det]/timeDiffSecs));
-	setIntegerParam(det, ADnEDDetEventRateParam, eventRate);
-	m_detEventsSinceLastUpdate[det] = 0;
-	setDoubleParam(det, ADnEDDetEventTotalParam, m_detTotalEvents[det]);
+        eventRate = static_cast<epicsUInt32>(floor(m_detEventsSinceLastUpdate[det]/timeDiffSecs));
+        setIntegerParam(det, ADnEDDetEventRateParam, eventRate);
+        m_detEventsSinceLastUpdate[det] = 0;
+        setDoubleParam(det, ADnEDDetEventTotalParam, m_detTotalEvents[det]);
       }
       setDoubleParam(ADnEDPChargeParam, pChargePtr->get());
       setDoubleParam(ADnEDPChargeIntParam, m_pChargeInt);
       //Callbacks for channel and det related parameters (so start at 0 rather than 1)
       for (int det=0; det<=numDet; det++) {
-	callParamCallbacks(det);
+        callParamCallbacks(det);
       }
       callParamCallbacks();
     }
@@ -1270,14 +1270,14 @@ asynStatus ADnED::allocArray(void)
     getIntegerParam(det, ADnEDDetPixelNumSizeParam, &detSize);
     
     printf("ADnED::allocArray: det: %d, detStart: %d, detEnd: %d, detSize: %d, tofMax: %d\n", 
-	   det, detStart, detEnd, detSize, tofMax);
+           det, detStart, detEnd, detSize, tofMax);
 
     //Calculate sizes and do sanity checks
     if (detStart <= detEnd) {
       //If user has left detSize 0, just set equal to pixel ID range.
       if (detSize == 0) {
-	detSize = detEnd-detStart+1;
-	setIntegerParam(det, ADnEDDetPixelNumSizeParam, detSize);
+        detSize = detEnd-detStart+1;
+        setIntegerParam(det, ADnEDDetPixelNumSizeParam, detSize);
       }
     } else {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s detStart > detEnd.\n", functionName);
@@ -1436,64 +1436,64 @@ void ADnED::eventTask(void)
       numChannels = 0;
       getIntegerParam(ADnEDNumChannelsParam, &numChannels);
       if (numChannels > s_ADNED_MAX_CHANNELS) {
-	numChannels = s_ADNED_MAX_CHANNELS;
+        numChannels = s_ADNED_MAX_CHANNELS;
       }
-	
+        
       if (allocArray() != asynSuccess) {
-	setStringParam(ADStatusMessage, "allocArray Error");
-	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to allocate array.\n", functionName);
-	acquire = false;
-	error = true;
+        setStringParam(ADStatusMessage, "allocArray Error");
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: Failed to allocate array.\n", functionName);
+        acquire = false;
+        error = true;
       } else {
       
-	//Clear arrays at start of acquire every time.
-	if (p_Data != NULL) {
-	  memset(p_Data, 0, m_bufferMaxSize*sizeof(epicsUInt32));
-	}
+        //Clear arrays at start of acquire every time.
+        if (p_Data != NULL) {
+          memset(p_Data, 0, m_bufferMaxSize*sizeof(epicsUInt32));
+        }
       
-	setIntegerParam(ADStatus, ADStatusAcquire);
-	setStringParam(ADStatusMessage, "Acquiring Events");
-	// Start frame thread
-	cout << "Send start frame" << endl;
-	epicsEventSignal(this->m_startFrame);
-	callParamCallbacks();
+        setIntegerParam(ADStatus, ADStatusAcquire);
+        setStringParam(ADStatusMessage, "Acquiring Events");
+        // Start frame thread
+        cout << "Send start frame" << endl;
+        epicsEventSignal(this->m_startFrame);
+        callParamCallbacks();
 
-	//Read the PV names
-	for (int chan=0; chan<numChannels; ++chan) {
-	  getStringParam(chan, ADnEDPVNameParam, sizeof(pvName[chan]), pvName[chan]);
-	}
+        //Read the PV names
+        for (int chan=0; chan<numChannels; ++chan) {
+          getStringParam(chan, ADnEDPVNameParam, sizeof(pvName[chan]), pvName[chan]);
+        }
 
-	//Connect channel here      
-	if (!error) {
-	  try {
-	    for (int channel=0; channel<numChannels; ++channel) {
-	      if (pvName[channel][0] != '0') {
-		if (setupChannelMonitor(pvName[channel], channel) != asynSuccess) {
-		  throw std::runtime_error("Unknown error from setupChannelMonitor.");
-		}
-	      }
-	    }
-	  } catch (std::exception &e)  {
-	    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-		      "%s: ERROR: Problem creating monitor. Exception: %s\n", 
-		      functionName, e.what());
-	    setStringParam(ADStatusMessage, "Failed To Connect To PV.");
-	    setIntegerParam(ADStatus, ADStatusError);
-	    acquire = false;
-	    error = true;
-	  }
-	}
+        //Connect channel here      
+        if (!error) {
+          try {
+            for (int channel=0; channel<numChannels; ++channel) {
+              if (pvName[channel][0] != '0') {
+                if (setupChannelMonitor(pvName[channel], channel) != asynSuccess) {
+                  throw std::runtime_error("Unknown error from setupChannelMonitor.");
+                }
+              }
+            }
+          } catch (std::exception &e)  {
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+                      "%s: ERROR: Problem creating monitor. Exception: %s\n", 
+                      functionName, e.what());
+            setStringParam(ADStatusMessage, "Failed To Connect To PV.");
+            setIntegerParam(ADStatus, ADStatusError);
+            acquire = false;
+            error = true;
+          }
+        }
 
-	if (!error) {
-	  for (int channel=0; channel<numChannels; ++channel) {
-	    if (p_Monitor[channel]) {
-	      p_Monitor[channel]->start();
-	    }
-	  }
-	} else {
-	  cout << "Send Stop Frame" << endl;
-	  epicsEventSignal(this->m_stopFrame);    
-	}	
+        if (!error) {
+          for (int channel=0; channel<numChannels; ++channel) {
+            if (p_Monitor[channel]) {
+              p_Monitor[channel]->start();
+            }
+          }
+        } else {
+          cout << "Send Stop Frame" << endl;
+          epicsEventSignal(this->m_stopFrame);    
+        }       
       
       }
     } // end of if (eventStatus == epicsEventWaitOK)
@@ -1515,16 +1515,16 @@ void ADnED::eventTask(void)
       //eventStatus = epicsEventWaitWithTimeout(m_stopEvent, timeout);      
       eventStatus = epicsEventWaitWithTimeout(m_stopEvent, 0.1);      
       if (eventStatus == epicsEventWaitOK) {
-	cout << "Got stop event" << endl;
+        cout << "Got stop event" << endl;
         asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Stop Event.\n", functionName);
         acquire = false;
       }
 
       if (!acquire) {
-	lock();
-	setIntegerParam(ADStatus, ADStatusIdle);
-	cout << "Send Stop Frame" << endl;
-	epicsEventSignal(this->m_stopFrame);
+        lock();
+        setIntegerParam(ADStatus, ADStatusIdle);
+        cout << "Send Stop Frame" << endl;
+        epicsEventSignal(this->m_stopFrame);
       }
       
     } // End of while(acquire)
@@ -1532,7 +1532,7 @@ void ADnED::eventTask(void)
     //Stop monitor here
     for (int channel=0; channel<numChannels; ++channel) {
       if (p_Monitor[channel]) {
-	p_Monitor[channel]->stop();
+        p_Monitor[channel]->stop();
       }
     }
 
@@ -1606,7 +1606,7 @@ asynStatus ADnED::setupChannelMonitor(const char *pvName, int channel)
     if (channelName != pvName) {
       p_Channel[channel]->destroy();
       p_Channel[channel] = (shared_ptr<epics::pvAccess::Channel>)
-	(p_ChannelProvider->createChannel(pvName, p_ChannelRequester, ADNED_PV_PRIORITY));
+        (p_ChannelProvider->createChannel(pvName, p_ChannelRequester, ADNED_PV_PRIORITY));
       connectStatus = p_ChannelRequester->waitUntilConnected(ADNED_PV_TIMEOUT);
       newMonitor = true;
     }
@@ -1680,38 +1680,38 @@ void ADnED::frameTask(void)
       //Wait for a stop event
       eventStatus = epicsEventWaitWithTimeout(m_stopFrame, timeout);
       if (eventStatus == epicsEventWaitOK) {
-	cout << "Got Stop Frame" << endl;
+        cout << "Got Stop Frame" << endl;
         asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Stop Frame Event.\n", functionName);
         acquire = false;
       }
 
       if (acquire) {
-	//Copy p_Data here into an NDArray of the same size. Do array callbacks.
-	getIntegerParam(NDArrayCallbacks, &arrayCallbacks);
-	if (arrayCallbacks) {
-	  ++arrayCounter;
-	  size_t dims[1] = {m_bufferMaxSize};
-	  if ((pNDArray = this->pNDArrayPool->alloc(1, dims, NDUInt32, 0, NULL)) == NULL) {
-	    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: pNDArrayPool->alloc failed.\n", functionName);
-	  } else {
-	    epicsTimeGetCurrent(&nowTime);
-	    pNDArray->uniqueId = arrayCounter;
-	    pNDArray->timeStamp = nowTime.secPastEpoch + nowTime.nsec / 1.e9;
-	    pNDArray->pAttributeList->add("TIMESTAMP", "Host Timestamp", NDAttrFloat64, &(pNDArray->timeStamp));
-	    lock();
-	    memcpy(pNDArray->pData, p_Data, m_bufferMaxSize * sizeof(epicsUInt32));
-	    unlock();
-	    asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s: Calling NDArray callback\n", functionName);
-	    doCallbacksGenericPointer(pNDArray, NDArrayData, 0);
-	  }
+        //Copy p_Data here into an NDArray of the same size. Do array callbacks.
+        getIntegerParam(NDArrayCallbacks, &arrayCallbacks);
+        if (arrayCallbacks) {
+          ++arrayCounter;
+          size_t dims[1] = {m_bufferMaxSize};
+          if ((pNDArray = this->pNDArrayPool->alloc(1, dims, NDUInt32, 0, NULL)) == NULL) {
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: ERROR: pNDArrayPool->alloc failed.\n", functionName);
+          } else {
+            epicsTimeGetCurrent(&nowTime);
+            pNDArray->uniqueId = arrayCounter;
+            pNDArray->timeStamp = nowTime.secPastEpoch + nowTime.nsec / 1.e9;
+            pNDArray->pAttributeList->add("TIMESTAMP", "Host Timestamp", NDAttrFloat64, &(pNDArray->timeStamp));
+            lock();
+            memcpy(pNDArray->pData, p_Data, m_bufferMaxSize * sizeof(epicsUInt32));
+            unlock();
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s: Calling NDArray callback\n", functionName);
+            doCallbacksGenericPointer(pNDArray, NDArrayData, 0);
+          }
 
-	  lock();
-	  //Free the NDArray 
-	  pNDArray->release();
-	  setIntegerParam(NDArrayCounter, arrayCounter);	  
-	  callParamCallbacks();
-	  unlock();
-	}
+          lock();
+          //Free the NDArray 
+          pNDArray->release();
+          setIntegerParam(NDArrayCounter, arrayCounter);          
+          callParamCallbacks();
+          unlock();
+        }
 
       }
       
