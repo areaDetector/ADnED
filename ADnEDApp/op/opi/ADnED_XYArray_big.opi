@@ -1,0 +1,516 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display typeId="org.csstudio.opibuilder.Display" version="1.0.0">
+  <show_close_button>true</show_close_button>
+  <rules />
+  <wuid>46361c96:135a10c1c6a:-7fdb</wuid>
+  <show_grid>true</show_grid>
+  <auto_zoom_to_fit_all>false</auto_zoom_to_fit_all>
+  <scripts />
+  <height>1000</height>
+  <macros>
+    <include_parent_macros>true</include_parent_macros>
+  </macros>
+  <boy_version>4.0.102.201502042033</boy_version>
+  <show_edit_range>true</show_edit_range>
+  <widget_type>Display</widget_type>
+  <auto_scale_widgets>
+    <auto_scale_widgets>false</auto_scale_widgets>
+    <min_width>-1</min_width>
+    <min_height>-1</min_height>
+  </auto_scale_widgets>
+  <background_color>
+    <color name="Background" red="255" green="255" blue="255" />
+  </background_color>
+  <width>1400</width>
+  <x>-1</x>
+  <name>$(BL) $(DETNAME) XY Large</name>
+  <grid_space>3</grid_space>
+  <show_ruler>true</show_ruler>
+  <y>-1</y>
+  <snap_to_geometry>true</snap_to_geometry>
+  <foreground_color>
+    <color red="192" green="192" blue="192" />
+  </foreground_color>
+  <actions hook="false" hook_all="false" />
+  <widget typeId="org.csstudio.opibuilder.widgets.groupingContainer" version="1.0.0">
+    <border_style>13</border_style>
+    <tooltip></tooltip>
+    <rules />
+    <enabled>true</enabled>
+    <wuid>-15e2329a:1384830feaa:-7972</wuid>
+    <transparent>false</transparent>
+    <lock_children>false</lock_children>
+    <scripts />
+    <height>844</height>
+    <border_width>1</border_width>
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <macros>
+      <include_parent_macros>true</include_parent_macros>
+    </macros>
+    <visible>true</visible>
+    <border_color>
+      <color red="191" green="191" blue="191" />
+    </border_color>
+    <widget_type>Grouping Container</widget_type>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+    <width>1230</width>
+    <x>4</x>
+    <name></name>
+    <y>3</y>
+    <foreground_color>
+      <color red="192" green="192" blue="192" />
+    </foreground_color>
+    <actions hook="false" hook_all="false" />
+    <fc>false</fc>
+    <show_scrollbar>false</show_scrollbar>
+    <font>
+      <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
+    </font>
+    <widget typeId="org.csstudio.opibuilder.widgets.xyGraph" version="1.0.0">
+      <axis_1_scale_format>0.###E0</axis_1_scale_format>
+      <alarm_pulsing>false</alarm_pulsing>
+      <tooltip>Horizontal Profile</tooltip>
+      <trace_0_concatenate_data>false</trace_0_concatenate_data>
+      <trace_0_trace_type>0</trace_0_trace_type>
+      <border_width>1</border_width>
+      <border_style>0</border_style>
+      <axis_0_grid_color>
+        <color red="200" green="200" blue="200" />
+      </axis_0_grid_color>
+      <trace_0_name>$(trace_0_y_pv)</trace_0_name>
+      <trace_0_update_mode>0</trace_0_update_mode>
+      <wuid>7dc41461:14ca56947e5:-5562</wuid>
+      <transparent>false</transparent>
+      <axis_0_title_font>
+        <fontdata fontName="Arial" height="9" style="1" />
+      </axis_0_title_font>
+      <background_color>
+        <color name="OPI_Background" red="255" green="255" blue="255" />
+      </background_color>
+      <x>159</x>
+      <y>630</y>
+      <trace_0_x_axis_index>0</trace_0_x_axis_index>
+      <axis_count>2</axis_count>
+      <pv_value />
+      <trace_0_buffer_size>528</trace_0_buffer_size>
+      <axis_1_maximum>100.0</axis_1_maximum>
+      <axis_0_scale_font>
+        <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
+      </axis_0_scale_font>
+      <trigger_pv></trigger_pv>
+      <widget_type>XY Graph</widget_type>
+      <axis_1_axis_color>
+        <color red="0" green="0" blue="0" />
+      </axis_1_axis_color>
+      <axis_0_scale_format></axis_0_scale_format>
+      <axis_1_log_scale>false</axis_1_log_scale>
+      <title></title>
+      <trace_0_visible>true</trace_0_visible>
+      <show_legend>false</show_legend>
+      <axis_0_axis_title>Horizontal Position</axis_0_axis_title>
+      <axis_0_axis_color>
+        <color red="0" green="0" blue="0" />
+      </axis_0_axis_color>
+      <axis_0_dash_grid_line>true</axis_0_dash_grid_line>
+      <trace_0_point_style>0</trace_0_point_style>
+      <trace_0_line_width>1</trace_0_line_width>
+      <axis_0_time_format>0</axis_0_time_format>
+      <trace_count>1</trace_count>
+      <axis_1_show_grid>true</axis_1_show_grid>
+      <axis_1_dash_grid_line>true</axis_1_dash_grid_line>
+      <show_toolbar>false</show_toolbar>
+      <axis_0_visible>true</axis_0_visible>
+      <axis_0_show_grid>true</axis_0_show_grid>
+      <trace_0_y_axis_index>1</trace_0_y_axis_index>
+      <scale_options>
+        <width_scalable>true</width_scalable>
+        <height_scalable>true</height_scalable>
+        <keep_wh_ratio>false</keep_wh_ratio>
+      </scale_options>
+      <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>
+      <axis_0_maximum>100.0</axis_0_maximum>
+      <height>145</height>
+      <trigger_pv_value />
+      <axis_1_grid_color>
+        <color red="200" green="200" blue="200" />
+      </axis_1_grid_color>
+      <actions hook="false" hook_all="false" />
+      <axis_0_log_scale>false</axis_0_log_scale>
+      <trace_0_x_pv_value />
+      <axis_0_auto_scale_threshold>0.0</axis_0_auto_scale_threshold>
+      <rules />
+      <axis_1_visible>false</axis_1_visible>
+      <trace_0_update_delay>100</trace_0_update_delay>
+      <pv_name>loc://hpy$(DET)</pv_name>
+      <name>XY Graph</name>
+      <axis_0_auto_scale>true</axis_0_auto_scale>
+      <axis_0_minimum>0.0</axis_0_minimum>
+      <axis_1_axis_title>Profile</axis_1_axis_title>
+      <axis_1_auto_scale>true</axis_1_auto_scale>
+      <border_color>
+        <color red="0" green="128" blue="255" />
+      </border_color>
+      <trace_0_y_pv>$(pv_name)</trace_0_y_pv>
+      <trace_0_plot_mode>0</trace_0_plot_mode>
+      <enabled>true</enabled>
+      <trace_0_x_pv>loc://hpx$(DET)</trace_0_x_pv>
+      <axis_1_scale_font>
+        <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
+      </axis_1_scale_font>
+      <axis_1_time_format>0</axis_1_time_format>
+      <border_alarm_sensitive>true</border_alarm_sensitive>
+      <show_plot_area_border>false</show_plot_area_border>
+      <width>991</width>
+      <axis_1_minimum>0.0</axis_1_minimum>
+      <title_font>
+        <fontdata fontName="Arial" height="12" style="1" />
+      </title_font>
+      <trace_0_y_pv_value />
+      <plot_area_background_color>
+        <color red="255" green="255" blue="255" />
+      </plot_area_background_color>
+      <axis_1_title_font>
+        <fontdata fontName="Arial" height="9" style="1" />
+      </axis_1_title_font>
+      <visible>true</visible>
+      <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
+      <scripts />
+      <trace_0_point_size>4</trace_0_point_size>
+      <trace_0_trace_color>
+        <color red="21" green="21" blue="196" />
+      </trace_0_trace_color>
+      <trace_0_anti_alias>true</trace_0_anti_alias>
+      <axis_1_auto_scale_threshold>0.0</axis_1_auto_scale_threshold>
+      <foreground_color>
+        <color red="0" green="0" blue="255" />
+      </foreground_color>
+    </widget>
+    <widget typeId="org.csstudio.opibuilder.widgets.xyGraph" version="1.0.0">
+      <axis_1_scale_format>###</axis_1_scale_format>
+      <alarm_pulsing>false</alarm_pulsing>
+      <tooltip>Horizontal Profile</tooltip>
+      <trace_0_concatenate_data>false</trace_0_concatenate_data>
+      <trace_0_trace_type>0</trace_0_trace_type>
+      <border_width>1</border_width>
+      <border_style>0</border_style>
+      <axis_0_grid_color>
+        <color red="200" green="200" blue="200" />
+      </axis_0_grid_color>
+      <trace_0_name>$(trace_0_y_pv)</trace_0_name>
+      <trace_0_update_mode>0</trace_0_update_mode>
+      <wuid>7dc41461:14ca56947e5:-554e</wuid>
+      <transparent>false</transparent>
+      <axis_0_title_font>
+        <fontdata fontName="Arial" height="9" style="1" />
+      </axis_0_title_font>
+      <background_color>
+        <color name="OPI_Background" red="255" green="255" blue="255" />
+      </background_color>
+      <x>9</x>
+      <y>9</y>
+      <trace_0_x_axis_index>0</trace_0_x_axis_index>
+      <axis_count>2</axis_count>
+      <pv_value />
+      <trace_0_buffer_size>768</trace_0_buffer_size>
+      <axis_1_maximum>0.0</axis_1_maximum>
+      <axis_0_scale_font>
+        <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
+      </axis_0_scale_font>
+      <trigger_pv></trigger_pv>
+      <widget_type>XY Graph</widget_type>
+      <axis_1_axis_color>
+        <color red="0" green="0" blue="0" />
+      </axis_1_axis_color>
+      <axis_0_scale_format></axis_0_scale_format>
+      <axis_1_log_scale>false</axis_1_log_scale>
+      <title></title>
+      <trace_0_visible>true</trace_0_visible>
+      <show_legend>false</show_legend>
+      <axis_0_axis_title>Profile</axis_0_axis_title>
+      <axis_0_axis_color>
+        <color red="0" green="0" blue="0" />
+      </axis_0_axis_color>
+      <axis_0_dash_grid_line>true</axis_0_dash_grid_line>
+      <trace_0_point_style>0</trace_0_point_style>
+      <trace_0_line_width>1</trace_0_line_width>
+      <axis_0_time_format>0</axis_0_time_format>
+      <trace_count>1</trace_count>
+      <axis_1_show_grid>true</axis_1_show_grid>
+      <axis_1_dash_grid_line>true</axis_1_dash_grid_line>
+      <show_toolbar>false</show_toolbar>
+      <axis_0_visible>false</axis_0_visible>
+      <axis_0_show_grid>true</axis_0_show_grid>
+      <trace_0_y_axis_index>1</trace_0_y_axis_index>
+      <scale_options>
+        <width_scalable>true</width_scalable>
+        <height_scalable>true</height_scalable>
+        <keep_wh_ratio>false</keep_wh_ratio>
+      </scale_options>
+      <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>
+      <axis_0_maximum>100.0</axis_0_maximum>
+      <height>616</height>
+      <trigger_pv_value />
+      <axis_1_grid_color>
+        <color red="200" green="200" blue="200" />
+      </axis_1_grid_color>
+      <actions hook="false" hook_all="false" />
+      <axis_0_log_scale>false</axis_0_log_scale>
+      <trace_0_x_pv_value />
+      <axis_0_auto_scale_threshold>0.0</axis_0_auto_scale_threshold>
+      <rules />
+      <axis_1_visible>true</axis_1_visible>
+      <trace_0_update_delay>100</trace_0_update_delay>
+      <pv_name>loc://vpx$(DET)</pv_name>
+      <name>XY Graph_1</name>
+      <axis_0_auto_scale>true</axis_0_auto_scale>
+      <axis_0_minimum>0.0</axis_0_minimum>
+      <axis_1_axis_title>Vertical Position</axis_1_axis_title>
+      <axis_1_auto_scale>true</axis_1_auto_scale>
+      <border_color>
+        <color red="0" green="128" blue="255" />
+      </border_color>
+      <trace_0_y_pv>$(pv_name)</trace_0_y_pv>
+      <trace_0_plot_mode>0</trace_0_plot_mode>
+      <enabled>true</enabled>
+      <trace_0_x_pv>loc://vpy$(DET)</trace_0_x_pv>
+      <axis_1_scale_font>
+        <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
+      </axis_1_scale_font>
+      <axis_1_time_format>0</axis_1_time_format>
+      <border_alarm_sensitive>true</border_alarm_sensitive>
+      <show_plot_area_border>false</show_plot_area_border>
+      <width>151</width>
+      <axis_1_minimum>100.0</axis_1_minimum>
+      <title_font>
+        <fontdata fontName="Arial" height="12" style="1" />
+      </title_font>
+      <trace_0_y_pv_value />
+      <plot_area_background_color>
+        <color red="255" green="255" blue="255" />
+      </plot_area_background_color>
+      <axis_1_title_font>
+        <fontdata fontName="Arial" height="9" style="1" />
+      </axis_1_title_font>
+      <visible>true</visible>
+      <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
+      <scripts />
+      <trace_0_point_size>4</trace_0_point_size>
+      <trace_0_trace_color>
+        <color red="21" green="21" blue="196" />
+      </trace_0_trace_color>
+      <trace_0_anti_alias>true</trace_0_anti_alias>
+      <axis_1_auto_scale_threshold>0.0</axis_1_auto_scale_threshold>
+      <foreground_color>
+        <color red="0" green="0" blue="255" />
+      </foreground_color>
+    </widget>
+    <widget typeId="org.csstudio.opibuilder.widgets.intensityGraph" version="1.0.0">
+      <vertial_profile_y_pv_value />
+      <y_axis_show_minor_ticks>false</y_axis_show_minor_ticks>
+      <alarm_pulsing>false</alarm_pulsing>
+      <tooltip>$(pv_name)</tooltip>
+      <x_axis_show_minor_ticks>false</x_axis_show_minor_ticks>
+      <horizon_profile_x_pv_name>loc://hpx$(DET)</horizon_profile_x_pv_name>
+      <height>616</height>
+      <border_width>1</border_width>
+      <graph_area_width>975</graph_area_width>
+      <y_axis_scale_font>
+        <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
+      </y_axis_scale_font>
+      <border_color>
+        <color red="0" green="128" blue="255" />
+      </border_color>
+      <x_axis_minimum>0.0</x_axis_minimum>
+      <y_axis_maximum>0.0</y_axis_maximum>
+      <pixel_info_pv_value />
+      <x_axis_maximum>1292.0</x_axis_maximum>
+      <vertial_profile_x_pv_value />
+      <actions hook="false" hook_all="false" />
+      <border_style>0</border_style>
+      <rgb_mode>false</rgb_mode>
+      <crop_left>0</crop_left>
+      <x_axis_scale_font>
+        <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
+      </x_axis_scale_font>
+      <data_width>1292</data_width>
+      <enabled>true</enabled>
+      <wuid>7dc41461:14ca56947e5:-4fb8</wuid>
+      <y_axis_title_font>
+        <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
+      </y_axis_title_font>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+      <graph_area_height>607</graph_area_height>
+      <x_axis_visible>false</x_axis_visible>
+      <vertical_profile_x_pv_name>loc://vpx$(DET)</vertical_profile_x_pv_name>
+      <pixel_info_pv_name>loc://info$(DET)</pixel_info_pv_name>
+      <x_axis_axis_color>
+        <color red="0" green="0" blue="0" />
+      </x_axis_axis_color>
+      <background_color>
+        <color red="240" green="240" blue="240" />
+      </background_color>
+      <x_axis_axis_title>X Axis</x_axis_axis_title>
+      <width>991</width>
+      <x>159</x>
+      <y>9</y>
+      <maximum>4095.0</maximum>
+      <data_height>964</data_height>
+      <minimum>0.0</minimum>
+      <crop_right>0</crop_right>
+      <crop_top>0</crop_top>
+      <roi_color>
+        <color name="Attention" red="255" green="160" blue="0" />
+      </roi_color>
+      <font>
+        <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
+      </font>
+      <rules>
+        <rule name="Maximum" prop_id="maximum" out_exp="true">
+          <exp bool_exp="true &amp;&amp; pv1==0">
+            <value>pv0</value>
+          </exp>
+          <exp bool_exp="true &amp;&amp; pv1==1">
+            <value>pv2</value>
+          </exp>
+          <pv trig="true">$(P)$(R)Det$(DET):XY:Scale:SlideMax</pv>
+          <pv trig="true">$(P)$(R)Det$(DET):XY:ROI:0:Use_RBV</pv>
+          <pv trig="true">$(P)$(R)Det$(DET):XY:Scale:Result</pv>
+        </rule>
+        <rule name="SizeX" prop_id="data_width" out_exp="true">
+          <exp bool_exp="true">
+            <value>pv0</value>
+          </exp>
+          <pv trig="true">$(P)$(R)Det$(DET):XY:Array:ArraySize0_RBV</pv>
+        </rule>
+        <rule name="SizeY" prop_id="data_height" out_exp="true">
+          <exp bool_exp="true">
+            <value>pv0</value>
+          </exp>
+          <pv trig="true">$(P)$(R)Det$(DET):XY:Array:ArraySize1_RBV</pv>
+        </rule>
+        <rule name="AxisXMax" prop_id="x_axis_maximum" out_exp="true">
+          <exp bool_exp="true">
+            <value>pv0</value>
+          </exp>
+          <pv trig="true">$(P)$(R)Det$(DET):XY:Array:ArraySize0_RBV</pv>
+        </rule>
+        <rule name="AxisYMin" prop_id="y_axis_minimum" out_exp="true">
+          <exp bool_exp="true">
+            <value>pv0</value>
+          </exp>
+          <pv trig="true">$(P)$(R)Det$(DET):XY:Array:ArraySize1_RBV</pv>
+        </rule>
+      </rules>
+      <horizon_profile_y_pv_value />
+      <roi_count>0</roi_count>
+      <pv_value />
+      <color_map>
+        <interpolate>true</interpolate>
+        <autoscale>true</autoscale>
+        <map>2</map>
+      </color_map>
+      <show_ramp>false</show_ramp>
+      <y_axis_axis_title>Y Axis</y_axis_axis_title>
+      <horizon_profile_y_pv_name>loc://hpy$(DET)</horizon_profile_y_pv_name>
+      <single_line_profiling>false</single_line_profiling>
+      <y_axis_minimum>964.0</y_axis_minimum>
+      <visible>true</visible>
+      <vertical_profile_y_pv_name>loc://vpy$(DET)</vertical_profile_y_pv_name>
+      <x_axis_major_tick_step_hint>100</x_axis_major_tick_step_hint>
+      <pv_name>$(P)$(R)Det$(DET):XY:Array:ArrayData</pv_name>
+      <widget_type>Intensity Graph</widget_type>
+      <name>Intensity Graph</name>
+      <y_axis_axis_color>
+        <color red="0" green="0" blue="0" />
+      </y_axis_axis_color>
+      <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
+      <y_axis_major_tick_step_hint>100</y_axis_major_tick_step_hint>
+      <scripts>
+        <path pathString="EmbeddedPy" checkConnect="true" sfe="false" seoe="false">
+          <scriptName>EmbeddedScript</scriptName>
+          <scriptText><![CDATA[from org.csstudio.opibuilder.scriptUtil import PVUtil
+
+from org.csstudio.opibuilder.scriptUtil import PVUtil
+from org.csstudio.swt.widgets.figures.IntensityGraphFigure import IPixelInfoProvider
+
+class MyPixelInfoProvider(IPixelInfoProvider):
+	'''Provide custom information for each pixel. 
+	   For example the related geometry information on a pixel.
+	'''
+	def getPixelInfo(self, xIndex, yIndex, xCoordinate, yCoordinate, pixelValue):
+		return "\nMy index is (" + str(xIndex) + ", " + str(yIndex) + " )" 
+
+widget.getFigure().addPixelInfoProvider(MyPixelInfoProvider())
+]]></scriptText>
+          <pv trig="true">=1</pv>
+        </path>
+      </scripts>
+      <scale_options>
+        <width_scalable>true</width_scalable>
+        <height_scalable>true</height_scalable>
+        <keep_wh_ratio>true</keep_wh_ratio>
+      </scale_options>
+      <x_axis_title_font>
+        <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
+      </x_axis_title_font>
+      <crop_bottom>0</crop_bottom>
+      <y_axis_visible>false</y_axis_visible>
+      <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>
+      <horizon_profile_x_pv_value />
+      <foreground_color>
+        <color red="0" green="0" blue="0" />
+      </foreground_color>
+    </widget>
+    <widget typeId="org.csstudio.opibuilder.widgets.VTableDisplay" version="1.0.0">
+      <border_style>0</border_style>
+      <tooltip></tooltip>
+      <rules />
+      <enabled>true</enabled>
+      <wuid>7dc41461:14ca56947e5:-4f6a</wuid>
+      <pv_result_prefix></pv_result_prefix>
+      <scripts />
+      <border_alarm_sensitive>true</border_alarm_sensitive>
+      <height>168</height>
+      <border_width>1</border_width>
+      <scale_options>
+        <width_scalable>true</width_scalable>
+        <height_scalable>true</height_scalable>
+        <keep_wh_ratio>false</keep_wh_ratio>
+      </scale_options>
+      <visible>true</visible>
+      <pv_name>loc://info$(DET)</pv_name>
+      <border_color>
+        <color red="0" green="128" blue="255" />
+      </border_color>
+      <widget_type>VTable Display</widget_type>
+      <background_color>
+        <color red="240" green="240" blue="240" />
+      </background_color>
+      <width>150</width>
+      <x>0</x>
+      <name>VTable Display</name>
+      <y>636</y>
+      <foreground_color>
+        <color red="192" green="192" blue="192" />
+      </foreground_color>
+      <actions hook="false" hook_all="false" />
+      <font>
+        <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
+      </font>
+    </widget>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.gridLayout" version="1.0.0">
+    <fill_grids>false</fill_grids>
+    <number_of_columns>3</number_of_columns>
+    <wuid>7dc41461:14ca56947e5:-558c</wuid>
+    <grid_gap>2</grid_gap>
+    <widget_type>Grid Layout</widget_type>
+    <name>Grid Layout</name>
+  </widget>
+</display>
