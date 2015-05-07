@@ -26,7 +26,7 @@ The CS-Studio OPI files provide additional features:
 
 The V4 structure is defined as:
 
-{{{
+```
   structure
   // Time stamp for everything in this structure
   // secsPastEpoch, nanoseconds: POSIX Time
@@ -44,5 +44,5 @@ The V4 structure is defined as:
   // Pixel IDs for N neutron events
   NTScalarArray pixel
     uint[]  value
-}}}
+```
 
