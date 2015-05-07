@@ -1,0 +1,513 @@
+
+#####################################################################
+#
+# areaDetector nED client template file. This is the top level
+# template file that may include other files or override default
+# areaDetector records.
+#
+# Matt Pearson
+# Sept 14
+#
+# Macros:
+# P - base PV name
+# ADNED - middle part of PV name (eg: BL99:Det:$(ADNED)Det1:TOF:Array)
+# PORT - Asyn port name
+# ADDR - Asyn address (set to zero)
+# TIMEOUT - Asyn timeout
+# TOFSIZE - The size of the waveforms for the TOF spectrums
+# DET1SIZE - The size of the DET1 waveform
+# DET2SIZE - The size of the DET2 waveform
+# DET3SIZE - The size of the DET3 waveform
+# DET4SIZE - The size of the DET4 waveform
+# DET1X - The X size of the DET1 XY plot
+# DET2X - The X size of the DET2 XY plot
+# DET3X - The X size of the DET3 XY plot
+# DET4X - The X size of the DET4 XY plot
+# DET1Y - The Y size of the DET1 XY plot
+# DET2Y - The Y size of the DET2 XY plot
+# DET3Y - The Y size of the DET3 XY plot
+# DET4Y - The Y size of the DET4 XY plot
+#
+#####################################################################
+
+substitute "R=$(ADNED)"
+
+include "ADBase.template" 
+
+# /// 
+# /// Reset the counts without starting. This clears the same parameters
+# /// as we do on a start. It also resets the ROI plugins.
+# ///
+record(bo, "$(P)$(R)Reset")
+{
+    field(DTYP,"asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_RESET")
+    field(ZNAM,"Done")  
+    field(ONAM,"Reset")
+    field(FLNK, "$(P)$(R)ResetPlugins")
+}
+
+# /// 
+# /// Events debug (prints to stdout).
+# ///
+record(bo, "$(P)$(R)EventDebug")
+{
+    field(DTYP,"asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_EVENT_DEBUG")
+    field(ZNAM,"Off")  
+    field(ONAM,"On")
+}
+
+# ///
+# /// Number of pulses detected by comparing seq timestamps from the first channel.
+# ///
+record(longin, "$(P)$(R)PulseCounter_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PULSE_COUNTER")
+   field(SCAN, "I/O Intr")
+}
+record(calc, "$(P)$(R)PulseRate_RBV")
+{
+    field(INPA, "$(P)$(R)PulseRate_RBV.B NPP NMS") 
+    field(INPB, "$(P)$(R)PulseCounter_RBV NPP NMS")
+    field(INPC, "1.0")                         
+    field(CALC, "(B-A)/C")
+    field(PREC, "1")
+    field(SCAN, "1 second")
+    field(EGU, "Hz")
+}
+
+# ///
+# /// Event rate
+# ///
+record(longin, "$(P)$(R)EventRate_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_EVENT_RATE")
+   field(SCAN, "I/O Intr")
+   field(EGU, "e/s")
+}
+
+
+# ///
+# /// This will be non-zero if any missing V4 packets are detected. This record
+# /// will be updated with the latest missing sequence ID.
+# ///
+record(longin, "$(P)$(R)SeqIDMissing_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_ID_MISSING")
+   field(SCAN, "I/O Intr")
+   field(LOLO, "-1")
+   field(HIHI, "1")
+   field(LLSV, "MAJOR")
+   field(HHSV, "MAJOR")
+   info(archive, "Monitor, 00:00:01, VAL")
+}
+
+# ///
+# /// This is the number of missing V4 packets, if any have been detected.
+# ///
+record(longin, "$(P)$(R)SeqIDNumMissing_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_SEQ_ID_NUM_MISSING")
+   field(SCAN, "I/O Intr")
+   field(LOLO, "-1")
+   field(HIHI, "1")
+   field(LLSV, "MAJOR")
+   field(HHSV, "MAJOR")
+   info(archive, "Monitor, 00:00:01, VAL")
+}
+
+# ///
+# /// This is a flag to indicate I detected an out of order packet (with backwards timestamp).
+# ///
+record(bi, "$(P)$(R)BadTimeStamp_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_BAD_TIMESTAMP")
+   field(SCAN, "I/O Intr")
+   field(ZNAM, "Ok")
+   field(ONAM, "Error")
+   field(ZSV, "NO_ALARM")
+   field(OSV, "MAJOR")
+   info(archive, "Monitor, 00:00:01, VAL")
+}
+
+# ///
+# /// Time between updates (ms) from the event thread.
+# ///
+record(ao, "$(P)$(R)EventUpdatePeriod")
+{
+   field(DESC, "Event Update Period")
+   field(DTYP, "asynFloat64")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_EVENT_UPDATE_PERIOD")
+   field(PREC, "0")
+   field(VAL, "100")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+}
+
+# ///
+# /// Time between updates (ms) from the event thread (readback).
+# ///
+record(ai, "$(P)$(R)EventUpdatePeriod_RBV")
+{
+   field(DESC, "Event Update Period")
+   field(DTYP, "asynFloat64")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_EVENT_UPDATE_PERIOD")
+   field(PREC, "0")
+   field(SCAN, "I/O Intr")
+   field(EGU, "ms")	
+}
+
+# ///
+# /// Number of PVAccess channels. This cannot exceed a maximum number
+# /// hardcoded in the driver (which is 4, 0-3).
+# ///
+record(longout, "$(P)$(R)NumChannels")
+{
+   field(DESC, "Num Channels")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_NUM_CHANNELS")
+   field(VAL, "1")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
+}
+
+# ///
+# /// Number of PVAccess channels (readback)
+# ///
+record(longin, "$(P)$(R)NumChannels_RBV")
+{
+   field(DESC, "Num Channels")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_NUM_CHANNELS")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Time between NDArray updates (ms) from the frame thread.
+# ///
+record(ao, "$(P)$(R)FrameUpdatePeriod")
+{
+   field(DESC, "Frame Update Period")
+   field(DTYP, "asynFloat64")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_FRAME_UPDATE_PERIOD")
+   field(PREC, "0")
+   field(VAL, "100")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+}
+
+# ///
+# /// Time between NDArray updates (ms) from the frame thread (readback).
+# ///
+record(ai, "$(P)$(R)FrameUpdatePeriod_RBV")
+{
+   field(DESC, "Frame Update Period")
+   field(DTYP, "asynFloat64")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_FRAME_UPDATE_PERIOD")
+   field(PREC, "0")
+   field(SCAN, "I/O Intr")
+   field(EGU, "ms")	
+}
+
+# ///
+# /// Number of detectors. This cannot exceed a maximum number
+# /// hardcoded in the driver.
+# ///
+record(longout, "$(P)$(R)NumDetectors")
+{
+   field(DESC, "Num Detectors")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_NUM_DET")
+   field(VAL, "0")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
+}
+
+# ///
+# /// Number of detectors (readback)
+# ///
+record(longin, "$(P)$(R)NumDetectors_RBV")
+{
+   field(DESC, "Num Detectors")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_NUM_DET")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// TOF Max (eg. 160000 or 320000, in units of 100ns).
+# ///
+record(longout, "$(P)$(R)TOFMax")
+{
+   field(DESC, "Max TOF Value")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_TOF_MAX")
+   field(VAL, "$(TOFSIZE)")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
+}
+
+# ///
+# /// TOF Max (eg. 160000 or 320000, in units of 100ns). (readback)
+# ///
+record(longin, "$(P)$(R)TOFMax_RBV")
+{
+   field(DESC, "Max TOF Value")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_TOF_MAX")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// The latest RTDL proton charge
+# ///
+record(ai, "$(P)$(R)PCharge_RBV")
+{
+   field(DESC, "Latest Proton Charge")
+   field(DTYP, "asynFloat64")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PCHARGE")
+   field(PREC, "4")
+   field(SCAN, "I/O Intr")
+   field(EGU, "C")	
+}
+
+# ///
+# /// The integrated RTDL proton charge
+# ///
+record(ai, "$(P)$(R)PChargeIntegrated_RBV")
+{
+   field(DESC, "Integrated Proton Charge")
+   field(DTYP, "asynFloat64")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PCHARGE_INT")
+   field(PREC, "4")
+   field(SCAN, "I/O Intr")
+   field(EGU, "C")
+   field(FLNK, "$(P)$(R)PChargeIntegrated_pC")	
+}
+
+record(calc, "$(P)$(R)PChargeIntegrated_pC")
+{
+   field(INPA, "$(P)$(R)PChargeIntegrated_RBV")
+   field(CALC, "A*1e12")
+   field(EGU, "pC")
+}
+
+# /// 
+# /// Allocate space for NDArray buffer. This can either be called by hand after
+# /// modifying the pixel ID ranges or max TOF. It's called automatically on
+# /// a start if any of those params have been changed, and the function hasn't already
+# /// been called.
+# ///
+record(bo, "$(P)$(R)AllocSpace")
+{
+    field(DTYP,"asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_ALLOC_SPACE")
+}
+record(mbbi, "$(P)$(R)AllocSpaceStatus_RBV")
+{
+    field(DTYP,"asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_ALLOC_SPACE_STATUS")
+    field(ZRST,"Ok")
+    field(ZRVL, "0")
+    field(ZRSV, "NO_ALARM")
+    field(ONST, "Required")
+    field(ONVL, "1")
+    field(ONSV, "NO_ALARM")
+    field(TWST, "Failed")
+    field(TWVL, "2")
+    field(TWSV, "MAJOR")
+    field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Disable this ADBase record scanning.
+# ///
+#record(ai, "$(P)$(R)PoolUsedMem")
+#{
+#   field(SCAN, "Passive")
+#}
+
+# ///
+# /// Use this Start record to do callback when we have completed
+# /// start process. The standard Acquire record blocks until we stop.
+# /// It initially resets the downstream ROIStat plugins.
+# ///
+record(bo, "$(P)$(R)Start") {
+   field(VAL, "1")
+   field(OUT, "$(P)$(R)ResetPlugins.PROC PP")
+   field(FLNK, "$(P)$(R)StartProc.PROC")
+}
+record(bo, "$(P)$(R)StartProc") {
+   field(VAL, "1")
+   field(OUT, "$(P)$(R)StartBusy PP")
+   field(FLNK, "$(P)$(R)ClearPause")
+}
+record(busy, "$(P)$(R)StartBusy") {
+   field(DTYP, "asynInt32")
+   field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_START")
+   field(ZNAM, "Done")
+   field(ONAM, "Acquire")
+   field(VAL,  "0")
+}
+
+# ///
+# /// Use this Stop record to do callback when we have completed
+# /// stop process. This will ensure that all the monitors have been 
+# /// stopped and the status PVs updated.
+# ///
+record(bo, "$(P)$(R)Stop") {
+   field(VAL, "1")
+   field(OUT, "$(P)$(R)StopBusy PP")
+   field(FLNK, "$(P)$(R)ClearPause")	
+}
+record(busy, "$(P)$(R)StopBusy") {
+   field(DTYP, "asynInt32")
+   field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_STOP")
+   field(ZNAM, "Stopped")
+   field(ONAM, "Stopping")
+   field(VAL,  "0")
+}
+
+# /// 
+# /// Pause counting (to pause a run). Enable this to stop counting
+# /// and enable it to start where counting left off. The monitors
+# /// are still enabled, we just ignore events if this is enabled.
+# /// A Stop or Start will clear this. 
+# ///
+record(bo, "$(P)$(R)Pause")
+{
+    field(DTYP,"asynInt32")
+    field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))ADNED_PAUSE")
+    field(ZNAM,"Not Paused")  
+    field(ONAM,"Paused")
+    field(OSV, "MINOR")
+    info(archive, "Monitor, 00:00:01, VAL")
+}
+record(bo, "$(P)$(R)ClearPause")
+{
+    field(OUT, "$(P)$(R)Pause PP")
+    field(VAL,"0")  
+}
+
+# ///
+# /// Add EGU field to ArrayRate_RBV
+# ///
+record(calc, "$(P)$(R)ArrayRate_RBV")
+{
+    field(EGU, "Hz")
+}
+
+# ///
+# /// Add archive tag to DetectorState_RBV
+# ///
+record(mbbi, "$(P)$(R)DetectorState_RBV")
+{
+   info(archive, "Monitor, 00:00:01, VAL")   
+}
+
+
+##########################################################################
+# Include V4 channel specific records (needs to be 0-based).
+
+substitute "CHAN=0"
+include "ADnEDChannel.template"
+
+substitute "CHAN=1"
+include "ADnEDChannel.template"
+
+substitute "CHAN=2"
+include "ADnEDChannel.template"
+
+substitute "CHAN=3"
+include "ADnEDChannel.template"
+
+
+##########################################################################
+# Include detector specific records (needs to be 1-based).
+
+# ///
+# /// Reset the ROIStat plugins. 
+# /// This is handled for each DET in ADnEDDetector.template.
+# ///
+record(dfanout, "$(P)$(R)ResetPlugins") {
+   field(VAL, "1")
+   field(OUTA, "$(P)$(R)Det1:ResetROIStat PP")
+   field(OUTB, "$(P)$(R)Det2:ResetROIStat PP")
+   field(OUTC, "$(P)$(R)Det3:ResetROIStat PP")
+   field(OUTD, "$(P)$(R)Det4:ResetROIStat PP")
+}
+
+substitute "DET=1"
+include "ADnEDDetector.template"
+
+substitute "DET=2"
+include "ADnEDDetector.template"
+
+substitute "DET=3"
+include "ADnEDDetector.template"
+
+substitute "DET=4"
+include "ADnEDDetector.template"
+
+substitute "R=$(ADNED)"
+substitute "DET=1"
+include "ADnEDDetectorPlugin.template"
+substitute "NELEMENTS=$(TOFSIZE)"
+include "ADnEDDetectorTOFPlugin.template"
+substitute "NELEMENTS=$(DET1SIZE)"
+substitute "HIST_SIZE=$(DET1SIZE)"
+substitute "XSIZE=$(DET1X)"
+substitute "YSIZE=$(DET1Y)"
+include "ADnEDDetectorPixelPlugin.template"
+
+substitute "R=$(ADNED)"
+substitute "DET=2"
+include "ADnEDDetectorPlugin.template"
+substitute "NELEMENTS=$(TOFSIZE)"
+include "ADnEDDetectorTOFPlugin.template"
+substitute "NELEMENTS=$(DET2SIZE)"
+substitute "HIST_SIZE=$(DET2SIZE)"
+substitute "XSIZE=$(DET2X)"
+substitute "YSIZE=$(DET2Y)"
+include "ADnEDDetectorPixelPlugin.template"
+
+substitute "R=$(ADNED)"
+substitute "DET=3"
+include "ADnEDDetectorPlugin.template"
+substitute "NELEMENTS=$(TOFSIZE)"
+include "ADnEDDetectorTOFPlugin.template"
+substitute "NELEMENTS=$(DET3SIZE)"
+substitute "HIST_SIZE=$(DET3SIZE)"
+substitute "XSIZE=$(DET3X)"
+substitute "YSIZE=$(DET3Y)"
+include "ADnEDDetectorPixelPlugin.template"
+
+substitute "R=$(ADNED)"
+substitute "DET=4"
+include "ADnEDDetectorPlugin.template"
+substitute "NELEMENTS=$(TOFSIZE)"
+include "ADnEDDetectorTOFPlugin.template"
+substitute "NELEMENTS=$(DET4SIZE)"
+substitute "HIST_SIZE=$(DET4SIZE)"
+substitute "XSIZE=$(DET4X)"
+substitute "YSIZE=$(DET4Y)"
+include "ADnEDDetectorPixelPlugin.template"
+
+##########################################################################
+
+
+

@@ -1,0 +1,102 @@
+
+#####################################################################
+#
+# This file has records for each detector that are used by the 
+# ADnEDTransform support. Multiple instances of this template can
+# be made to support multiple arrays & parameters for use in ADnEDTransform.
+# This file should be included in ADnEDDetector.template. 
+#
+# Matt Pearson
+# Apr 15
+#
+# Macros:
+# P,R - base PV name
+# PORT - Asyn port name
+# DET - Asyn address (used to identify a detector, 1-based)
+# TIMEOUT - Asyn timeout
+# INDEX - The ADnEDTransform index number (0-based, up to ADNED_MAX_TRANSFORM_PARAMS-1)
+#
+#####################################################################
+
+# ///
+# /// TOF Transformation File for array index $(INDEX)
+# ///
+record(waveform, "$(P)$(R)Det$(DET):TOFTransFile$(INDEX)")
+{
+    field(DESC, "TOF Trans File$(INDEX)")
+    field(PINI, "YES")
+    field(DTYP, "asynOctetWrite")
+    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_FILE$(INDEX)")
+    field(FTVL, "CHAR")
+    field(NELM, "1024")
+    info(autosaveFields, "VAL")
+    field(ASG, "BEAMLINE") 
+}
+
+# ///
+# /// TOF Transformation File for array index $(INDEX) Readback
+# ///
+record(waveform, "$(P)$(R)Det$(DET):TOFTransFile$(INDEX)_RBV")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_FILE$(INDEX)")
+    field(FTVL, "CHAR")
+    field(NELM, "1024")
+    field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// TOF Transformation Integer index $(INDEX)
+# ///
+record(longout, "$(P)$(R)Det$(DET):TOFTransInt$(INDEX)")
+{
+   field(DESC, "TOF Trans Int$(INDEX)")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_INT$(INDEX)")
+   field(VAL, "0")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE") 
+}
+
+# ///
+# /// TOF Transformation Integer index $(INDEX) readback
+# ///
+record(longin, "$(P)$(R)Det$(DET):TOFTransInt$(INDEX)_RBV")
+{
+   field(DESC, "TOF Trans Int$(INDEX)")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_INT$(INDEX)")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// TOF Transformation Float64 index $(INDEX)
+# ///
+record(ao, "$(P)$(R)Det$(DET):TOFTransFloat$(INDEX)")
+{
+   field(DESC, "TOF Trans Float$(INDEX)")
+   field(DTYP, "asynFloat64")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_FLOAT$(INDEX)")
+   field(VAL, "0.0")
+   field(PINI, "YES")
+   field(PREC, "4")
+   info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE") 
+}
+
+# ///
+# /// TOF Transformation Float64 index $(INDEX) readback
+# ///
+record(ai, "$(P)$(R)Det$(DET):TOFTransFloat$(INDEX)_RBV")
+{
+   field(DESC, "TOF Trans Float$(INDEX)")
+   field(DTYP, "asynFloat64")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_FLOAT$(INDEX)")
+   field(SCAN, "I/O Intr")
+   field(PREC, "4")	
+}
+
+
+
+

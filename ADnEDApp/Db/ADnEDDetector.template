@@ -1,0 +1,892 @@
+
+
+#####################################################################
+#
+# areaDetector nED client template file. This should be included by the
+# top level template file. It defines the records that are specific to
+# a single detector.
+#
+# Matt Pearson
+# Sept 14
+#
+# Macros:
+# P,R - base PV name
+# PORT - Asyn port name
+# DET - Asyn address (used to identify a detector, 1-based)
+# TIMEOUT - Asyn timeout
+#
+#####################################################################
+
+# ///
+# /// Set the description name for this detector
+# ///
+record(stringout, "$(P)$(R)Det$(DET):Description")
+{
+   field(DESC, "Description")
+   field(VAL, " ")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+}
+
+
+#####################################################################
+# Set pixel ID ranges for this detector
+
+# ///
+# /// Set the start of the pixel range for this detector DET=$(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):PixelNumStart")
+{
+   field(DESC, "Pixel range start DET$(DET)")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_START")
+   field(VAL, "0")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
+}
+
+# ///
+# /// Get the start of the pixel range for this detector DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PixelNumStart_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_START")
+   field(SCAN, "I/O Intr")
+}
+
+
+# ///
+# /// Set the end of the pixel range for this detector DET=$(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):PixelNumEnd")
+{
+   field(DESC, "Pixel range end DET$(DET)")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_END")
+   field(VAL, "0")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
+}
+
+# ///
+# /// Get the end of the pixel range for this detector DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PixelNumEnd_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_END")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Set the size of the pixel range for this detector DET=$(DET)
+# /// This may be bigger than the pixel ID range if there are gaps in the detector.
+# ///
+record(longout, "$(P)$(R)Det$(DET):PixelNumSize")
+{
+   field(DESC, "Pixel range size DET$(DET)")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_SIZE")
+   field(VAL, "0")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
+}
+
+# ///
+# /// Get the size of the pixel range for this detector DET=$(DET)
+# /// This may be bigger than the pixel ID range if there are gaps in the detector.
+# ///
+record(longin, "$(P)$(R)Det$(DET):PixelNumSize_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_NUM_SIZE")
+   field(SCAN, "I/O Intr")
+}
+
+#####################################################################
+# These records are read only and are used to feed back the NDArray 
+# index values for this detector. This will be required for the 
+# plugins that extract the detector specific data.
+
+# ///
+# /// The NDArray detector data index start for DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):NDArrayStart_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_START")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// The NDArray detector data index end for DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):NDArrayEnd_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_END")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// The NDArray detector data index size for DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):NDArraySize_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_SIZE")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// The NDArray TOF index start for DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):NDArrayTOFStart_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_TOF_START")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// The NDArray TOF index end for DET=$(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):NDArrayTOFEnd_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_NDARRAY_TOF_END")
+   field(SCAN, "I/O Intr")
+}
+
+#####################################################################
+# Detector specific data feedback
+
+# ///
+# /// Event rate
+# ///
+record(longin, "$(P)$(R)Det$(DET):EventRate_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_EVENT_RATE")
+   field(SCAN, "I/O Intr")
+   field(EGU, "e/s")
+}
+
+# ///
+# /// Total events since last start
+# ///
+record(ai, "$(P)$(R)Det$(DET):EventTotal_RBV")
+{
+   field(DTYP, "asynFloat64")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_EVENT_TOTAL")
+   field(SCAN, "I/O Intr")
+   field(EGU, "Events")
+   field(PREC, "3")
+}
+
+#####################################################################
+# Define a TOF ROI to pre-filter the events for this detector DET=$(DET)
+# This is automatically disabled if the pixel ROI filter is enabled (and visa-versa)
+
+# ///
+# /// Set the TOF ROI start for DET $(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):TOFROIFilterStart")
+{
+   field(DESC, "Pre TOF ROI Start")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_START")
+   field(VAL, "0")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
+}
+
+# ///
+# ///  Read the TOF ROI start for DET $(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):TOFROIFilterStart_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_START")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Set the TOF ROI size for DET $(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):TOFROIFilterSize")
+{
+   field(DESC, "Pre TOF ROI Size")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_SIZE")
+   field(VAL, "0")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
+}
+
+# ///
+# ///  Read the TOF ROI size for DET $(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):TOFROIFilterSize_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_SIZE")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Enable the use of this TOF ROI pre-filter for DET $(DET)
+# ///
+record(bo, "$(P)$(R)Det$(DET):TOFROIFilterEnable")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_ENABLE")
+    field(ZNAM, "Disable")
+    field(ONAM, "Enable")
+    info(autosaveFields, "VAL")
+    field(ASG, "ALWAYS")
+}
+
+# ///
+# /// Enable the use of this TOF ROI pre-filter for DET $(DET) (Readback only)
+# ///
+record(bi, "$(P)$(R)Det$(DET):TOFROIFilterEnable_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ROI_ENABLE")
+    field(ZNAM, "Disable")
+    field(ONAM, "Enable")
+    field(SCAN, "I/O Intr")
+}
+
+#####################################################################
+# TOF Transformation File & Control
+
+substitute "INDEX=0"
+include "ADnEDDetectorTOFTransform.template"
+substitute "INDEX=1"
+include "ADnEDDetectorTOFTransform.template"
+substitute "INDEX=2"
+include "ADnEDDetectorTOFTransform.template"
+substitute "INDEX=3"
+include "ADnEDDetectorTOFTransform.template"
+substitute "INDEX=4"
+include "ADnEDDetectorTOFTransform.template"
+substitute "INDEX=5"
+include "ADnEDDetectorTOFTransform.template"
+
+# ///
+# /// To aid debug, print TOF Transformation details to IOC shell
+# ///
+record(bo, "$(P)$(R)Det$(DET):TOFTransPrint")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_PRINT")
+}
+
+# ///
+# /// Control debug param for this detector
+# ///
+record(bo, "$(P)$(R)Det$(DET):TOFTransDebug")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_DEBUG")
+    field(ZNAM, "Off")
+    field(ONAM, "On")
+    field(VAL, "0")
+    field(PINI, "YES")
+    field(ASG, "BEAMLINE")
+}
+record(bi, "$(P)$(R)Det$(DET):TOFTransDebug_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_DEBUG")
+    field(ZNAM, "Off")
+    field(ONAM, "On")
+    field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Choose the type of TOF transformation applied. This list
+# /// should match what is defined in the ADnEDTransform class.
+# /// Default is None, which also disables the scale factor and offset.
+# ///
+record(mbbo, "$(P)$(R)Det$(DET):TOFTransType")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_TYPE")
+   field(ZRST, "None")
+   field(ZRVL, "0")
+   field(ONST, "Static D Space")
+   field(ONVL, "1")
+   field(TWST, "Dynamic D Space")
+   field(TWVL, "2")
+   field(THST, "Delta E")
+   field(THVL, "3")
+   field(VAL,  "0")
+   info(autosaveFields, "VAL")
+}
+
+# ///
+# /// Readback the TOF transformation (readback only)
+# ///
+record(mbbi, "$(P)$(R)Det$(DET):TOFTransType_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_TYPE")
+   field(ZRST, "None")
+   field(ZRVL, "0")
+   field(ONST, "Static D Space")
+   field(ONVL, "1")
+   field(TWST, "Dynamic D Space")
+   field(TWVL, "2")
+   field(THST, "Delta E")
+   field(THVL, "3")
+   field(VAL,  "0")
+   field(SCAN, "I/O Intr")
+}
+
+
+#####################################################################
+# Scale factor and offset (in horizontal direction) for TOF spectrum
+# This can be useful for binning the TOF spectrum, particulary after
+# a TOF transformation. These records have no effect if there is
+# no transformation enabled or loaded.
+
+# ///
+# /// Set the TOF offset
+# /// For no offset, set this to 0
+# /// If no transformation is done, this has no effect.
+# ///
+record(ao, "$(P)$(R)Det$(DET):TOFTransOffset")
+{
+   field(DESC, "TOF Filter Offset")
+   field(DTYP, "asynFloat64")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_OFFSET")
+   field(VAL, "0")
+   field(PREC, "2")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+}
+
+# ///
+# /// Readback of the TOF offset
+# ///
+record(ai, "$(P)$(R)Det$(DET):TOFTransOffset_RBV")
+{
+   field(DTYP, "asynFloat64")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_OFFSET")
+   field(SCAN, "I/O Intr")
+   field(PREC, "2")	
+}
+
+# ///
+# /// Set the TOF scale factor
+# /// Set this to 1 for no scaling.
+# /// If no transformation is done, this has no effect.
+# ///
+record(ao, "$(P)$(R)Det$(DET):TOFTransScale")
+{
+   field(DESC, "TOF Filter Scale")
+   field(DTYP, "asynFloat64")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_SCALE")
+   field(VAL, "1")
+   field(PREC, "2")	
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+}
+
+# ///
+# /// Readback of the TOF scale factor
+# ///
+record(ai, "$(P)$(R)Det$(DET):TOFTransScale_RBV")
+{
+   field(DTYP, "asynFloat64")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_TRANS_SCALE")
+   field(SCAN, "I/O Intr")
+   field(PREC, "2")	
+}
+
+#####################################################################
+# Pixel mapping file & control
+
+# ///
+# /// Pixel Map File
+# /// This is loaded into an array, which is used to map the pixel
+# /// ID to a new location in the detector array. 
+# ///
+record(waveform, "$(P)$(R)Det$(DET):PixelMapFile")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynOctetWrite")
+    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_MAP_FILE")
+    field(FTVL, "CHAR")
+    field(NELM, "1024")
+    info(autosaveFields, "VAL")
+    field(ASG, "BEAMLINE")
+}
+
+# ///
+# /// Pixel Map File Readback
+# ///
+record(waveform, "$(P)$(R)Det$(DET):PixelMapFile_RBV")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_MAP_FILE")
+    field(FTVL, "CHAR")
+    field(NELM, "1024")
+    field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// To aid debug, print pixel map array to IOC shell
+# ///
+record(bo, "$(P)$(R)Det$(DET):PixelMapPrint")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_MAP_PRINT")
+}
+
+# ///
+# /// Enable pixel mapping for DET $(DET)
+# ///
+record(bo, "$(P)$(R)Det$(DET):PixelMapEnable")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_MAP_ENABLE")
+    field(ZNAM, "Disable")
+    field(ONAM, "Enable")
+    info(autosaveFields, "VAL")
+}
+
+# ///
+# /// Enable pixel mapping for DET $(DET) (Readback only)
+# ///
+record(bi, "$(P)$(R)Det$(DET):PixelMapEnable_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_MAP_ENABLE")
+    field(ZNAM, "Disable")
+    field(ONAM, "Enable")
+    field(SCAN, "I/O Intr")
+}
+
+#####################################################################
+# Define a Pixel X/Y ROI to pre-filter the events for this detector DET=$(DET)
+# This is automatically disabled if the TOF ROI filter is enabled (and visa-versa)
+# The filter is applied after the pixel mapping is done. If there is no 
+# pixel mapping enabled, or defined, then the ROI filter is still applied (but
+# it might not make much sense).
+
+# ///
+# /// Set the Pixel XY ROI start X for DET $(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):PixelROIFilterStartX")
+{
+   field(DESC, "Pre Pixel ROI Start X")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_START_X")
+   field(VAL, "0")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
+}
+
+# ///
+# /// Read the Pixel XY ROI start X for DET $(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PixelROIFilterStartX_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_START_X")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Set the Pixel XY ROI size X for DET $(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):PixelROIFilterSizeX")
+{
+   field(DESC, "Pre Pixel ROI Size X")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_SIZE_X")
+   field(VAL, "0")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
+}
+
+# ///
+# /// Read the Pixel XY ROI size X for DET $(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PixelROIFilterSizeX_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_SIZE_X")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Set the Pixel XY ROI start Y for DET $(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):PixelROIFilterStartY")
+{
+   field(DESC, "Pre Pixel ROI Start Y")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_START_Y")
+   field(VAL, "0")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
+}
+
+# ///
+# /// Read the Pixel XY ROI start Y for DET $(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PixelROIFilterStartY_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_START_Y")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Set the Pixel XY ROI size Y for DET $(DET)
+# ///
+record(longout, "$(P)$(R)Det$(DET):PixelROIFilterSizeY")
+{
+   field(DESC, "Pre Pixel ROI Size Y")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_SIZE_Y")
+   field(VAL, "0")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
+}
+
+# ///
+# /// Read the Pixel XY ROI size Y for DET $(DET)
+# ///
+record(longin, "$(P)$(R)Det$(DET):PixelROIFilterSizeY_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_SIZE_Y")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Set the pixel ID X size for DET $(DET). This should match
+# /// the value used for the initial ROI plugin that converts
+# /// from 1-D to 2-D, but I need the value here to apply the ROI filter.
+# /// This is not the ROI X size, but the detector X size.
+# ///
+record(longout, "$(P)$(R)Det$(DET):PixelSizeX")
+{
+   field(DESC, "Pixel Size X")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_SIZE_X")
+   field(VAL, "1")
+   field(LOPR, "1")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
+}
+
+# ///
+# /// Read the pixel ID X size for DET $(DET)
+# /// This is not the ROI X size, but the detector X size.
+# ///
+record(longin, "$(P)$(R)Det$(DET):PixelSizeX_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_SIZE_X")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Enable the use of this Pixel XY ROI pre-filter for DET $(DET)
+# ///
+record(bo, "$(P)$(R)Det$(DET):PixelROIFilterEnable")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_ENABLE")
+    field(ZNAM, "Disable")
+    field(ONAM, "Enable")
+    info(autosaveFields, "VAL")
+    field(ASG, "ALWAYS")
+}
+
+# ///
+# /// Enable the use of this Pixel XY ROI pre-filter for DET $(DET) (Readback only)
+# ///
+record(bi, "$(P)$(R)Det$(DET):PixelROIFilterEnable_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_PIXEL_ROI_ENABLE")
+    field(ZNAM, "Disable")
+    field(ONAM, "Enable")
+    field(SCAN, "I/O Intr")
+}
+
+
+#####################################################################
+# Reset the Pixel and TOF ROIStat plugins
+#####################################################################
+
+# ///
+# /// Reset the pixel and TOF ROIStat plugins. Need to know how many
+# /// plugins we have instantiated in ADnEDDetectorPixelPlugin and 
+# /// ADnEDDetectorTOFPlugin.
+# ///
+record(dfanout, "$(P)$(R)Det$(DET):ResetROIStat")
+{
+   field(VAL, "1")
+   field(OUTA, "$(P)$(R)Det$(DET):XY:ROI:ResetAll PP")
+   field(OUTB, "$(P)$(R)Det$(DET):TOF:ROI:ResetAll PP")
+}
+
+
+#####################################################################
+# Records to define the scale for the X axis plot for TOF/dE/d-space etc
+
+record(ai, "$(P)$(R)Det$(DET):TOF:XAxis_Start")
+{
+   field(PINI, "YES")
+   field(VAL, "0")
+   field(PREC, "4")
+   info(autosaveFields, "VAL")	
+}
+
+record(longin, "$(P)$(R)Det$(DET):TOF:XAxis_Size")
+{
+   field(PINI, "YES")
+   field(VAL, "$(TOFSIZE)")
+   info(autosaveFields, "VAL")	
+}
+
+record(ai, "$(P)$(R)Det$(DET):TOF:XAxis_Bin")
+{
+   field(PINI, "YES")
+   field(VAL, "1.0")
+   field(PREC, "4")
+   info(autosaveFields, "VAL")	
+}
+
+record(ai, "$(P)$(R)Det$(DET):TOF:XAxis_End")
+{
+   field(PINI, "YES")
+   field(VAL, "0")
+   field(PREC, "4")
+   info(autosaveFields, "VAL")	
+}
+
+# ///
+# /// INPA - Start value
+# /// INPB - Size of the desired scale array (must be <=NOVA)
+# /// INPC - Bin size
+# /// NOVA - Max size of the output array
+# ///
+record(aSub, "$(P)$(R)Det$(DET):TOF:XAxis")
+{
+   field(INAM, "ADnEDAxisInit")
+   field(SNAM, "ADnEDAxisProcess")
+   field(PREC, "4")
+   field(PINI, "YES")
+   field(INPA, "$(P)$(R)Det$(DET):TOF:XAxis_Start")
+   field(INPB, "$(P)$(R)Det$(DET):TOF:XAxis_Size")
+   field(INPC, "$(P)$(R)Det$(DET):TOF:XAxis_Bin")
+   field(FTA, "DOUBLE")
+   field(FTB, "LONG")
+   field(FTC, "DOUBLE")
+   field(FTVA, "DOUBLE")
+   field(NOVA, "$(TOFSIZE)")
+}
+
+#####################################################################
+# Monitor initial ROI binning parameter, and optionally 
+# do an automatic X-axis generate for the TOF plot.
+
+# ///
+# /// Auto scale the TOF X-Axis plot waveform
+# ///
+record(bi, "$(P)$(R)Det$(DET):TOF:XAxis_Auto")
+{
+   field(DESC, "XAxis Auto Scale")
+   field(PINI, "YES")
+   field(VAL, "1")
+   field(ZNAM, "No")
+   field(ONAM, "Yes")
+   info(autosaveFields, "VAL")	
+}
+
+# ///
+# /// Process $(P)$(R)Det$(DET):TOF:XAxis if XAxis_Auto is enabled and the TOF binning changes
+# ///
+record(calcout, "$(P)$(R)Det$(DET):TOF:XAxis_Auto_Proc")
+{
+   field(INPA, "$(P)$(R)Det$(DET):TOF:XAxis_Auto CP")
+   field(INPB, "$(P)$(R)Det$(DET):TOF:BinX CP")
+   field(INPC, "$(P)$(R)Det$(DET):TOF:XAxis_End CP")
+   field(INPD, "$(TOFSIZE)")
+   field(CALC, "A=1")
+   field(OOPT, "When Non-zero")
+   field(DOPT, "Use OCAL")
+   field(OCAL, "D/B")
+   field(OUT, "$(P)$(R)Det$(DET):TOF:XAxis_Size PP")
+   field(FLNK, "$(P)$(R)Det$(DET):TOF:XAxis_Auto_Proc2")
+}
+record(calcout, "$(P)$(R)Det$(DET):TOF:XAxis_Auto_Proc2")
+{
+   field(INPA, "$(P)$(R)Det$(DET):TOF:XAxis_End")
+   field(INPB, "$(P)$(R)Det$(DET):TOF:XAxis_Size")
+   field(CALC, "A/B")
+   field(OOPT, "Every Time")
+   field(DOPT, "Use CALC")
+   field(OUT, "$(P)$(R)Det$(DET):TOF:XAxis_Bin PP")
+   field(FLNK, "$(P)$(R)Det$(DET):TOF:XAxis")
+}
+
+
+#####################################################################
+# Provide records to convert high level ROI start and size to bins
+
+substitute "SIZE1=$(P)$(R)Det$(DET):TOF:XAxis_End"
+substitute "SIZE2=$(P)$(R)Det$(DET):TOF:XAxis_Size"
+substitute "SIZE3=$(P)$(R)Det$(DET):TOF:XAxis_Start"
+
+substitute "ROI=0"
+include "ADnEDDetectorTOFROIScale.template"
+
+substitute "ROI=1"
+include "ADnEDDetectorTOFROIScale.template"
+
+substitute "ROI=2"
+include "ADnEDDetectorTOFROIScale.template"
+
+substitute "ROI=3"
+include "ADnEDDetectorTOFROIScale.template"
+
+substitute "ROI=4"
+include "ADnEDDetectorTOFROIScale.template"
+
+substitute "ROI=5"
+include "ADnEDDetectorTOFROIScale.template"
+
+substitute "ROI=6"
+include "ADnEDDetectorTOFROIScale.template"
+
+substitute "ROI=7"
+include "ADnEDDetectorTOFROIScale.template"
+
+
+#####################################################################
+# Add ROI rate calculations for TOF and pixel XY ROIs
+
+substitute "TYPE=TOF"
+substitute "ROI=0"
+include "ADnEDDetectorROIRate.template"
+substitute "ROI=1"
+include "ADnEDDetectorROIRate.template"
+substitute "ROI=2"
+include "ADnEDDetectorROIRate.template"
+substitute "ROI=3"
+include "ADnEDDetectorROIRate.template"
+substitute "ROI=4"
+include "ADnEDDetectorROIRate.template"
+substitute "ROI=5"
+include "ADnEDDetectorROIRate.template"
+substitute "ROI=6"
+include "ADnEDDetectorROIRate.template"
+substitute "ROI=7"
+include "ADnEDDetectorROIRate.template"
+
+substitute "TYPE=XY"
+substitute "ROI=0"
+include "ADnEDDetectorROIRate.template"
+substitute "ROI=1"
+include "ADnEDDetectorROIRate.template"
+substitute "ROI=2"
+include "ADnEDDetectorROIRate.template"
+substitute "ROI=3"
+include "ADnEDDetectorROIRate.template"
+substitute "ROI=4"
+include "ADnEDDetectorROIRate.template"
+substitute "ROI=5"
+include "ADnEDDetectorROIRate.template"
+substitute "ROI=6"
+include "ADnEDDetectorROIRate.template"
+substitute "ROI=7"
+include "ADnEDDetectorROIRate.template"
+
+
+################################################################
+# Monitor the XY:ROI:1 values and use them for the X/Y ROI filter
+# records above. 
+
+record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterStartXSet")
+{
+   field(DOL, "$(P)$(R)Det$(DET):XY:ROI:1:MinX_RBV.VAL CP")
+   field(OMSL, "closed_loop")
+   field(OUTA, "$(P)$(R)Det$(DET):PixelROIFilterStartX.VAL PP")
+}
+record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterSizeXSet")
+{
+   field(DOL, "$(P)$(R)Det$(DET):XY:ROI:1:SizeX_RBV.VAL CP")
+   field(OMSL, "closed_loop")
+   field(OUTA, "$(P)$(R)Det$(DET):PixelROIFilterSizeX.VAL PP")
+}
+record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterStartYSet")
+{
+   field(DOL, "$(P)$(R)Det$(DET):XY:ROI:1:MinY_RBV.VAL CP")
+   field(OMSL, "closed_loop")
+   field(OUTA, "$(P)$(R)Det$(DET):PixelROIFilterStartY.VAL PP")
+}
+record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterSizeYSet")
+{
+   field(DOL, "$(P)$(R)Det$(DET):XY:ROI:1:SizeY_RBV.VAL CP")
+   field(OMSL, "closed_loop")
+   field(OUTA, "$(P)$(R)Det$(DET):PixelROIFilterSizeY.VAL PP")
+}
+# and set the pixel X size (the size of the detector in the X direction)
+record(dfanout, "$(P)$(R)Det$(DET):PixelSizeXSet")
+{
+   field(DOL, "$(P)$(R)Det$(DET):XY:Size1_RBV.VAL CP")
+   field(OMSL, "closed_loop")
+   field(OUTA, "$(P)$(R)Det$(DET):PixelSizeX.VAL PP")
+}
+
+################################################################
+# Monitor the TOF:ROI:1 values and use them for the TOF ROI filter
+# records above. Take into account the ROI binning that may be used.
+
+record(calcout, "$(P)$(R)Det$(DET):TOFROIFilterStartSet")
+{
+   field(INPA, "$(P)$(R)Det$(DET):TOF:ROI:1:MinX_RBV.VAL CP")
+   field(INPB, "$(P)$(R)Det$(DET):TOF:BinX_RBV.VAL CP")
+   field(CALC, "A*B")
+   field(OOPT, "Every Time")
+   field(DOPT, "Use CALC")
+   field(OUT, "$(P)$(R)Det$(DET):TOFROIFilterStart.VAL PP")
+}
+record(calcout, "$(P)$(R)Det$(DET):TOFROIFilterSizeSet")
+{
+   field(INPA, "$(P)$(R)Det$(DET):TOF:ROI:1:SizeX_RBV.VAL CP")
+   field(INPB, "$(P)$(R)Det$(DET):TOF:BinX_RBV.VAL CP")
+   field(CALC, "A*B")
+   field(OOPT, "Every Time")
+   field(DOPT, "Use CALC")
+   field(OUT, "$(P)$(R)Det$(DET):TOFROIFilterSize.VAL PP")
+}
+
+

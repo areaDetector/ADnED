@@ -1,0 +1,80 @@
+
+#####################################################################
+#
+# areaDetector nED client template file. This is the 
+# template that should be instantiated in the ADnED.template 
+# file for each pvAccess channel.
+#
+# Matt Pearson
+# Nov 14
+#
+# Macros:
+# P - base PV name
+# ADNED - middle part of PV name (eg: BL99:Det:$(ADNED)Det1:TOF:Array)
+# PORT - Asyn port name
+# CHAN - Asyn address (0-based. Max value is 3.)
+# TIMEOUT - Asyn timeout
+#
+#####################################################################
+
+# ///
+# /// The V4 pvAccess PV name for channel $(CHAN)
+# ///
+record(waveform, "$(P)$(R)PVName$(CHAN)")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynOctetWrite")
+    field(INP,  "@asyn($(PORT),$(CHAN),$(TIMEOUT))ADNED_PV_NAME")
+    field(FTVL, "CHAR")
+    field(NELM, "256")
+    info(autosaveFields, "VAL")
+    field(ASG, "BEAMLINE")
+}
+
+# ///
+# /// Readback for the V4 pvAccess PV name for channel $(CHAN)
+# ///
+record(waveform, "$(P)$(R)PVName$(CHAN)_RBV")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(CHAN),$(TIMEOUT))ADNED_PV_NAME")
+    field(FTVL, "CHAR")
+    field(NELM, "256")
+    field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Number of V4 packets in current acquisition from channel $(CHAN)
+# ///
+record(longin, "$(P)$(R)SeqCounter$(CHAN)_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(CHAN),$(TIMEOUT))ADNED_SEQ_COUNTER")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Sequence ID values (the timeStamp.userTag) for channel $(CHAN). 
+# /// This is not the pulse ID. It is a unique ID sent by the server 
+# /// with every V4 packet. So there may be multiple packets with the 
+# /// same ID. Note: the timeStamp NT is used to delineate pulses.
+# ///
+record(longin, "$(P)$(R)SeqID$(CHAN)_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(CHAN),$(TIMEOUT))ADNED_SEQ_ID")
+   field(SCAN, "I/O Intr")
+}
+record(calc, "$(P)$(R)SeqID$(CHAN)Rate_RBV")
+{
+    field(INPA, "$(P)$(R)SeqID$(CHAN)Rate_RBV.B NPP NMS") 
+    field(INPB, "$(P)$(R)SeqID$(CHAN)_RBV NPP NMS")
+    field(INPC, "1.0")                         
+    field(CALC, "(B-A)/C")
+    field(PREC, "1")
+    field(SCAN, "1 second")
+}
+
+

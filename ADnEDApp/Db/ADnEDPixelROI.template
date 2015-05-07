@@ -1,0 +1,283 @@
+#####################################################################
+#
+# areaDetector nED client template file. This is the template
+# for the ADnEDPixelROI plugin. This was based on the original
+# ROI plugin template, but has had some things removed and
+# things added to deal with 1-D to 2-D conversion.
+#
+# Matt Pearson
+# Oct 14
+#
+# Macros:
+# P,R - base PV name
+# PORT - Asyn port name
+# ADDR - Asyn address (set to zero)
+# TIMEOUT - Asyn timeout
+# 
+#
+#####################################################################
+
+###################################################################
+#  These records control the label for the ROI                    #
+###################################################################
+record(stringout, "$(P)$(R)Name")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynOctetWrite")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_NAME")
+   info(autosaveFields, "VAL")
+}
+
+record(stringin, "$(P)$(R)Name_RBV")
+{
+   field(DTYP, "asynOctetRead")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_NAME")
+   field(SCAN, "I/O Intr")
+}
+
+###################################################################
+#  These records control the ROI definition                       #
+#  including region start and size                                # 
+###################################################################
+
+
+record(longout, "$(P)$(R)Min0")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM0_MIN")
+   field(LOPR, "0")
+   field(VAL,  "0")
+   info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
+}
+
+record(longin, "$(P)$(R)Min0_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM0_MIN")
+   field(SCAN, "I/O Intr")
+}
+
+record(longout, "$(P)$(R)Min1")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM1_MIN")
+   field(LOPR, "0")
+   field(VAL,  "0")
+   info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
+}
+
+record(longin, "$(P)$(R)Min1_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM1_MIN")
+   field(SCAN, "I/O Intr")
+}
+
+record(longout, "$(P)$(R)Min2")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM2_MIN")
+   field(LOPR, "0")
+   field(VAL,  "0")
+   info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
+}
+
+record(longin, "$(P)$(R)Min2_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM2_MIN")
+   field(SCAN, "I/O Intr")
+}
+
+record(longout, "$(P)$(R)Size0")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM0_SIZE")
+   field(VAL,  "1000000")
+   info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
+}
+
+record(longin, "$(P)$(R)Size0_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM0_SIZE")
+   field(SCAN, "I/O Intr")
+}
+
+record(longout, "$(P)$(R)Size1")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM1_SIZE")
+   field(VAL,  "1000000")
+   info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
+}
+
+record(longin, "$(P)$(R)Size1_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM1_SIZE")
+   field(SCAN, "I/O Intr")
+}
+
+record(longout, "$(P)$(R)Size2")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM2_SIZE")
+   field(VAL,  "1000000")
+   info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
+}
+
+record(longin, "$(P)$(R)Size2_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM2_SIZE")
+   field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P)$(R)MaxSize0_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM0_MAX_SIZE")
+   field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P)$(R)MaxSize1_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM1_MAX_SIZE")
+   field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P)$(R)MaxSize2_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_DIM2_MAX_SIZE")
+   field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P)$(R)ArraySizeX_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ARRAY_SIZE_X")
+   field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P)$(R)ArraySizeY_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ARRAY_SIZE_Y")
+   field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P)$(R)ArraySizeZ_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ARRAY_SIZE_Z")
+   field(SCAN, "I/O Intr")
+}
+
+###################################################################
+#  These records control the data type of the array data          # 
+#  The last entry is "Automatic" meaning preserve the data type   #
+#  of the input array.                                            # 
+###################################################################
+
+record(mbbo, "$(P)$(R)DataTypeOut")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_ROI_DATA_TYPE")
+   field(ZRST, "Int8")
+   field(ZRVL, "0")
+   field(ONST, "UInt8")
+   field(ONVL, "1")
+   field(TWST, "Int16")
+   field(TWVL, "2")
+   field(THST, "UInt16")
+   field(THVL, "3")
+   field(FRST, "Int32")
+   field(FRVL, "4")
+   field(FVST, "UInt32")
+   field(FVVL, "5")
+   field(SXST, "Float32")
+   field(SXVL, "6")
+   field(SVST, "Float64")
+   field(SVVL, "7")
+   field(EIST, "Automatic")
+   field(EIVL, "-1")
+   field(VAL,  "8")
+   info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
+}
+
+record(mbbi, "$(P)$(R)DataTypeOut_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))PIXELROI_ROI_DATA_TYPE")
+   field(ZRST, "Int8")
+   field(ZRVL, "0")
+   field(ONST, "UInt8")
+   field(ONVL, "1")
+   field(TWST, "Int16")
+   field(TWVL, "2")
+   field(THST, "UInt16")
+   field(THVL, "3")
+   field(FRST, "Int32")
+   field(FRVL, "4")
+   field(FVST, "UInt32")
+   field(FVVL, "5")
+   field(SXST, "Float32")
+   field(SXVL, "6")
+   field(SVST, "Float64")
+   field(SVVL, "7")
+   field(EIST, "Automatic")
+   field(EIVL, "-1")
+   field(SCAN, "I/O Intr")
+}
+
+###################################################################
+#  These records set the HOPR and LOPR values for the position    #
+#  and size to the maximum for the input array                    #
+###################################################################
+
+#record(longin, "$(P)$(R)MaxX")
+#{
+#    field(INP,  "$(P)$(R)MaxSizeX_RBV CP")
+#    field(FLNK, "$(P)$(R)SetXHOPR.PROC PP")
+#}
+
+#record(dfanout, "$(P)$(R)SetXHOPR")
+#{
+#    field(DOL,  "$(P)$(R)MaxX NPP")
+#    field(OMSL, "closed_loop")
+#    field(OUTA, "$(P)$(R)MinX.HOPR NPP")
+#    field(OUTB, "$(P)$(R)SizeX.HOPR NPP")
+#}
+
+#record(longin, "$(P)$(R)MaxY")
+#{
+#    field(INP,  "$(P)$(R)MaxSizeY_RBV CP")
+#    field(FLNK, "$(P)$(R)SetYHOPR.PROC PP")
+#}
+
+#record(dfanout, "$(P)$(R)SetYHOPR")
+#{
+#    field(DOL,  "$(P)$(R)MaxY NPP")
+#    field(OMSL, "closed_loop")
+#    field(OUTA, "$(P)$(R)MinY.HOPR NPP")
+#    field(OUTB, "$(P)$(R)SizeY.HOPR NPP")
+#}
+
+

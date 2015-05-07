@@ -1,0 +1,125 @@
+
+#####################################################################
+#
+# areaDetector nED client template file. This is used to automatically
+# configure the plugin ROIs for a single detector. It copies the NDArray
+# index numbers published by the main driver into the ROI Min and End records.
+# This works for both a detector and beam monitor. It assumes there is
+# a ROI plugin extracting the block of data for this detector for
+# both the pixel and the TOF data (2 ROI plugins).
+#
+# Matt Pearson
+# Oct 14
+#
+# Macros:
+# P,R - base PV name
+# DET - Detector number (1-based)
+# TOFSIZE - Max size of TOF spectrum
+#
+#####################################################################
+
+# ///
+# /// Copy NDArray TOF Start Index to MinX of ROI plugin
+# ///
+record(calcout, "$(P)$(R)Det$(DET):ConfigTOFStart")
+{
+  field(INPA, "$(P)$(R)Det$(DET):NDArrayTOFStart_RBV")
+  field(CALC, "A")
+  field(OUT, "$(P)$(R)Det$(DET):TOF:MinX PP")
+  field(FLNK, "$(P)$(R)Det$(DET):ConfigTOFSize")
+}
+
+# ///
+# /// Copy NDArray TOF Size to EndX of ROI plugin
+# ///
+record(calcout, "$(P)$(R)Det$(DET):ConfigTOFSize")
+{
+  field(INPA, "$(P)$(R)TOFMax_RBV")
+  field(CALC, "A")
+  field(OUT, "$(P)$(R)Det$(DET):TOF:SizeX PP")
+}
+
+# ///
+# /// Copy NDArray Pixel Data Start Index to MinX of ROI plugin
+# ///
+record(calcout, "$(P)$(R)Det$(DET):ConfigXYStart")
+{
+  field(INPA, "$(P)$(R)Det$(DET):NDArrayStart_RBV")
+  field(CALC, "A")
+  field(OUT, "$(P)$(R)Det$(DET):XY:Min0 PP")
+  field(FLNK, "$(P)$(R)Det$(DET):ConfigXYSize")
+}
+
+# ///
+# /// Copy NDArray Pixel Data Size to SizeX of ROI plugin
+# ///
+record(calcout, "$(P)$(R)Det$(DET):ConfigXYSize")
+{
+  field(INPA, "$(P)$(R)Det$(DET):NDArrayStart_RBV")
+  field(INPB, "$(P)$(R)Det$(DET):NDArrayEnd_RBV")
+  field(CALC, "(B-A)+1")
+  field(OUT, "$(P)$(R)Det$(DET):XY:Size0 PP")
+}
+
+
+
+#####################################################################
+# Records to provide scale and offset for auto image max scaling using ROI:0
+
+# ///
+# /// The scale factor to use for auto scaling
+# ///
+record(longout, "$(P)$(R)Det$(DET):XY:Scale:Scale")
+{
+   field(VAL, "1")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
+}
+
+# ///
+# /// The offset to use for auto scaling
+# ///
+record(longout, "$(P)$(R)Det$(DET):XY:Scale:Offset")
+{
+   field(VAL, "0")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
+}
+
+# ///
+# /// Calculate the image max using the mean intensity from the auto scaling stats plugin
+# ///
+record(calc, "$(P)$(R)Det$(DET):XY:Scale:Result")
+{
+   field(INPA, "$(P)$(R)Det$(DET):XY:ROI:0:MeanValue_RBV CP MS")
+   field(INPB, "$(P)$(R)Det$(DET):XY:Scale:Scale.VAL CP MS")
+   field(INPC, "$(P)$(R)Det$(DET):XY:Scale:Offset.VAL CP MS")
+   field(CALC, "FLOOR((A*B)+C)")
+}
+
+# ///
+# /// Default max value for the manual scale slider and image max.
+# ///
+record(longout, "$(P)$(R)Det$(DET):XY:Scale:ManualMax")
+{
+   field(VAL, "4092")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
+}
+
+# ///
+# /// Slide max value for the manual control.
+# ///
+record(longout, "$(P)$(R)Det$(DET):XY:Scale:SlideMax")
+{
+   field(VAL, "4092")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "ALWAYS")
+}
+
+
+
