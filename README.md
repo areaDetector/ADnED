@@ -46,3 +46,22 @@ The V4 structure is defined as:
     uint[]  value
 ```
 
+In order to build ADnED the following needs to be defined in the configure/RELEASE file:
+
+* EPICS base 3.14.12.x
+* asyn
+* ADCore
+* pvAccessCPP
+* pvDataCPP
+* pvCommonCPP
+* pvDatabaseCPP
+
+To build the example IOC, the following will also be required:
+
+* devIocStats
+* autosave
+* sscan
+* calc
+* busy
+
+
