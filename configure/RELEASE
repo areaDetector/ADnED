@@ -19,14 +19,12 @@
 # Build settings that are NOT module paths should appear in a
 # CONFIG_SITE file.
 
-SUPPORT=/home/controls/epics
-
 BASEV4=		/home/controls/prod/epics/basev4/relhead_20150218
 
 TEMPLATE_TOP=$(EPICS_BASE)/templates/makeBaseApp/top
 
-ASYN=		/home/controls/prod/epics/asyn/rel4-23_20150218
-ADCORE=		/home/controls/prod/epics/ADCore/rel2-2_20150428
+ASYN=		/home/controls/prod/epics/asyn/rel4-26_20150804
+ADCORE=		/home/controls/prod/epics/ADCore/rel2-2_20150804
 
 include $(BASEV4)/RELEASE.local
 
