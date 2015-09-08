@@ -839,24 +839,28 @@ record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterStartXSet")
    field(DOL, "$(P)$(R)Det$(DET):XY:ROI:1:MinX_RBV.VAL CP")
    field(OMSL, "closed_loop")
    field(OUTA, "$(P)$(R)Det$(DET):PixelROIFilterStartX.VAL PP")
+   field(PINI, "YES")
 }
 record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterSizeXSet")
 {
    field(DOL, "$(P)$(R)Det$(DET):XY:ROI:1:SizeX_RBV.VAL CP")
    field(OMSL, "closed_loop")
    field(OUTA, "$(P)$(R)Det$(DET):PixelROIFilterSizeX.VAL PP")
+   field(PINI, "YES")
 }
 record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterStartYSet")
 {
    field(DOL, "$(P)$(R)Det$(DET):XY:ROI:1:MinY_RBV.VAL CP")
    field(OMSL, "closed_loop")
    field(OUTA, "$(P)$(R)Det$(DET):PixelROIFilterStartY.VAL PP")
+   field(PINI, "YES")
 }
 record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterSizeYSet")
 {
    field(DOL, "$(P)$(R)Det$(DET):XY:ROI:1:SizeY_RBV.VAL CP")
    field(OMSL, "closed_loop")
    field(OUTA, "$(P)$(R)Det$(DET):PixelROIFilterSizeY.VAL PP")
+   field(PINI, "YES")
 }
 # and set the pixel X size (the size of the detector in the X direction)
 record(dfanout, "$(P)$(R)Det$(DET):PixelSizeXSet")
@@ -864,6 +868,19 @@ record(dfanout, "$(P)$(R)Det$(DET):PixelSizeXSet")
    field(DOL, "$(P)$(R)Det$(DET):XY:Size1_RBV.VAL CP")
    field(OMSL, "closed_loop")
    field(OUTA, "$(P)$(R)Det$(DET):PixelSizeX.VAL PP")
+   field(PINI, "YES")
+}
+
+# Not sure why but the above records seem to require an additonal process at startup
+# This is triggered in IOC startup script.
+record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterProc")
+{
+   field(VAL, "1")
+   field(OUTA, "$(P)$(R)Det$(DET):PixelROIFilterStartXSet.PROC PP")
+   field(OUTB, "$(P)$(R)Det$(DET):PixelROIFilterSizeXSet.PROC PP")
+   field(OUTC, "$(P)$(R)Det$(DET):PixelROIFilterStartYSet.PROC PP")
+   field(OUTD, "$(P)$(R)Det$(DET):PixelROIFilterSizeYSet.PROC PP")
+   field(OUTE, "$(P)$(R)Det$(DET):PixelSizeXSet.PROC PP")
 }
 
 ################################################################
@@ -878,6 +895,7 @@ record(calcout, "$(P)$(R)Det$(DET):TOFROIFilterStartSet")
    field(OOPT, "Every Time")
    field(DOPT, "Use CALC")
    field(OUT, "$(P)$(R)Det$(DET):TOFROIFilterStart.VAL PP")
+   field(PINI, "YES")
 }
 record(calcout, "$(P)$(R)Det$(DET):TOFROIFilterSizeSet")
 {
@@ -887,6 +905,25 @@ record(calcout, "$(P)$(R)Det$(DET):TOFROIFilterSizeSet")
    field(OOPT, "Every Time")
    field(DOPT, "Use CALC")
    field(OUT, "$(P)$(R)Det$(DET):TOFROIFilterSize.VAL PP")
+   field(PINI, "YES")
 }
 
+# Not sure why but the above records seem to require an additonal process at startup
+# This is triggered in IOC startup script.
+record(dfanout, "$(P)$(R)Det$(DET):TOFROIFilterProc")
+{
+   field(VAL, "1")
+   field(OUTA, "$(P)$(R)Det$(DET):TOFROIFilterStartSet.PROC PP")
+   field(OUTB, "$(P)$(R)Det$(DET):TOFROIFilterSizeSet.PROC PP")
+}
 
+################################################################
+# Trigger some records at startup in IOC script
+
+record(dfanout, "$(P)$(R)Det$(DET):StartupProc")
+{
+   field(VAL, "1")
+   field(OUTA, "$(P)$(R)Det$(DET):PixelMapFile.PROC PP")
+   field(OUTB, "$(P)$(R)Det$(DET):PixelROIFilterProc.PROC PP")
+   field(OUTC, "$(P)$(R)Det$(DET):TOFROIFilterProc.PROC PP")
+}
