@@ -1164,13 +1164,15 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
                 //Only integrate TOF if we are inside pixel ID XY ROI.
                 //ROI is assumed to start from 0,0 (not from whatever is the pixel ID range). 
                 //So we need to offset, but this has already been done by the pixel mapping above.
-                if (((mappedPixelIndex % m_detPixelSizeX[det]) >= m_detPixelROIStartX[det]) && 
-                    ((mappedPixelIndex % m_detPixelSizeX[det]) < (m_detPixelROIStartX[det] + m_detPixelROISizeX[det]))) {
-                  if ((mappedPixelIndex >= (m_detPixelROIStartY[det] * m_detPixelSizeX[det])) &&
-                      ((mappedPixelIndex < ((m_detPixelROIStartY[det] + m_detPixelROISizeY[det]) * m_detPixelSizeX[det])))) {
-                    p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
-                  }
-                }
+		if (m_detPixelSizeX[det] > 0) {
+		  if (((mappedPixelIndex % m_detPixelSizeX[det]) >= m_detPixelROIStartX[det]) && 
+		      ((mappedPixelIndex % m_detPixelSizeX[det]) < (m_detPixelROIStartX[det] + m_detPixelROISizeX[det]))) {
+		    if ((mappedPixelIndex >= (m_detPixelROIStartY[det] * m_detPixelSizeX[det])) &&
+			((mappedPixelIndex < ((m_detPixelROIStartY[det] + m_detPixelROISizeY[det]) * m_detPixelSizeX[det])))) {
+		      p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
+		    }
+		  }
+		}
               }
             } else {
               p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
