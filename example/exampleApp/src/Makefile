@@ -59,3 +59,4 @@ include $(TOP)/configure/RULES
 #	-sed 's/$$(P)/BL99:Det:ADnED:/g' $(ADNED)/ADnED.req.template > /home/controls/var/ADnED/example.req
 
 #buildInstall: EXAMPLE_REQ
+
