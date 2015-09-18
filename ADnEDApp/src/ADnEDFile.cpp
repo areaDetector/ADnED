@@ -114,7 +114,7 @@ epicsUInt32 ADnEDFile::getSize()
  * the array has already been allocated with at least
  * a number of elements (returned by the ADnEDFile::getSize()
  * function).
- * @param Pointer to array of epicsUInt32.
+ * @param pArray Pointer to array of epicsUInt32.
  */
 void ADnEDFile::readDataIntoIntArray(epicsUInt32 **pArray)
 {
@@ -166,7 +166,7 @@ void ADnEDFile::readDataIntoIntArray(epicsUInt32 **pArray)
  * the array has already been allocated with at least
  * a number of elements (returned by the ADnEDFile::getSize()
  * function).
- * @param Pointer to array of epicsFloat64.
+ * @param pArray Pointer to array of epicsFloat64.
  */
 void ADnEDFile::readDataIntoDoubleArray(epicsFloat64 **pArray)
 {

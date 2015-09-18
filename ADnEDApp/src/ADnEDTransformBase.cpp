@@ -61,6 +61,7 @@ int ADnEDTransformBase::setDoubleParam(epicsUInt32 paramIndex, epicsFloat64 para
 
 /**
  * Set array of doubles.
+ * @param paramIndex Parameter index number
  * @param pSource Pointer to array of type epicsFloat64
  * @param size The number of elements to copy
  */
