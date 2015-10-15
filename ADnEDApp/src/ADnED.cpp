@@ -956,7 +956,6 @@ void ADnED::resetTOFArray(epicsUInt32 det)
 
   if (m_tofMax > 0) {
     getIntegerParam(det, ADnEDDetNDArrayTOFStartParam, &tofStart);
-    printf("tofStart: %d\n", tofStart);
     if ((p_Data != NULL) && (tofStart > 0)) {
       p_tof = p_Data + tofStart;
       memset(p_tof, 0, (m_tofMax+1)*sizeof(epicsUInt32));
