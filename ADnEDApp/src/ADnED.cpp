@@ -134,6 +134,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDDetTOFROIStartParamString,     asynParamInt32,    &ADnEDDetTOFROIStartParam);
   createParam(ADnEDDetTOFROISizeParamString,      asynParamInt32,    &ADnEDDetTOFROISizeParam);
   createParam(ADnEDDetTOFROIEnableParamString,    asynParamInt32,    &ADnEDDetTOFROIEnableParam);
+  createParam(ADnEDDetTOFArrayResetParamString,   asynParamInt32,    &ADnEDDetTOFArrayResetParam);
   //Params to use with ADnEDTransform
   createParam(ADnEDDetTOFTransFile0ParamString,   asynParamOctet,    &ADnEDDetTOFTransFile0Param);
   createParam(ADnEDDetTOFTransFile1ParamString,   asynParamOctet,    &ADnEDDetTOFTransFile1Param);
@@ -298,6 +299,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIStartParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROISizeParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIEnableParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetTOFArrayResetParam, 0) == asynSuccess) && paramStatus);
     //Params to use with ADnEDTransform
     paramStatus = ((setStringParam(det, ADnEDDetTOFTransFile0Param, " ") == asynSuccess) && paramStatus);
     paramStatus = ((setStringParam(det, ADnEDDetTOFTransFile1Param, " ") == asynSuccess) && paramStatus);
@@ -563,7 +565,10 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
     if (value == 1) {
       setIntegerParam(addr, ADnEDDetPixelROIEnableParam, 0);
     }
-  }
+  } else if (function == ADnEDDetTOFArrayResetParam) {
+    //Clear the TOF Array for this detector
+    resetTOFArray(addr);
+  } 
 
   epicsUInt32 transIndex = 0;
   if (matchTransInt(function, transIndex)) {
@@ -939,6 +944,29 @@ asynStatus ADnED::checkPixelMap(epicsUInt32 det)
 }
 
 /**
+ * Reset the TOF array for a specific detector
+ * @param det The detector number (1 based)
+ */
+void ADnED::resetTOFArray(epicsUInt32 det)
+{ 
+  int tofStart = 0;
+  epicsUInt32 *p_tof;
+  
+  printf("ADnED::resetTOFArray. det: %d\n", det);
+
+  if (m_tofMax > 0) {
+    getIntegerParam(det, ADnEDDetNDArrayTOFStartParam, &tofStart);
+    printf("tofStart: %d\n", tofStart);
+    if ((p_Data != NULL) && (tofStart > 0)) {
+      p_tof = p_Data + tofStart;
+      memset(p_tof, 0, (m_tofMax+1)*sizeof(epicsUInt32));
+    }
+  } else {
+    printf("ADnED::resetTOFArray. Need to alloc memory first.\n");
+  }
+}
+
+/**
  * Event handler callback for monitor
  */
 void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct, epicsUInt32 channelID)
@@ -1130,7 +1158,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
           //If enabled, do TOF tranformation (to d-space for example).
           if (m_detTOFTransType[det] != 0) {
             tof = p_Transform[det]->calculate(m_detTOFTransType[det], mappedPixelIndex, tofData[i]);
-            //Apply scale and offset
+            //Apply scale and offset. This is used to rebin into the available TOF array.
             if (m_detTOFTransScale[det] >=0) {
               tof = (tof * m_detTOFTransScale[det]) + m_detTOFTransOffset[det];
             }

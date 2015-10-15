@@ -927,3 +927,22 @@ record(dfanout, "$(P)$(R)Det$(DET):StartupProc")
    field(OUTB, "$(P)$(R)Det$(DET):PixelROIFilterProc.PROC PP")
    field(OUTC, "$(P)$(R)Det$(DET):TOFROIFilterProc.PROC PP")
 }
+
+
+#################################################################
+# Provide a parameter to reset the array for the TOF spectrum
+# This is useful when moving an ROI around on the X/Y plot, when that
+# ROI is filtering the TOF spectrum data during an acqusition. 
+# Providing we are not using the TOF spectrum for a counting criteria, 
+# this can useful to examine Bragg reflections.
+#################################################################
+
+# ///
+# /// Reset the TOF spectrum array for detector $(DET)
+# ///
+record(bo, "$(P)$(R)Det$(DET):ResetTOFArray")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ARRAY_RESET")
+}
+
