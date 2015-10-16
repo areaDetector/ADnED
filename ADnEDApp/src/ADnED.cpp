@@ -124,6 +124,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDDetPixelNumStartParamString,   asynParamInt32,    &ADnEDDetPixelNumStartParam);
   createParam(ADnEDDetPixelNumEndParamString,     asynParamInt32,    &ADnEDDetPixelNumEndParam);
   createParam(ADnEDDetPixelNumSizeParamString,    asynParamInt32,    &ADnEDDetPixelNumSizeParam);
+  createParam(ADnEDDetTOFNumBinsParamString,      asynParamInt32,    &ADnEDDetTOFNumBinsParam);
+  createParam(ADnEDDet2DTypeParamString,          asynParamInt32,    &ADnEDDet2DTypeParam);
   createParam(ADnEDDetNDArrayStartParamString,    asynParamInt32,    &ADnEDDetNDArrayStartParam);
   createParam(ADnEDDetNDArrayEndParamString,      asynParamInt32,    &ADnEDDetNDArrayEndParam);
   createParam(ADnEDDetNDArraySizeParamString,     asynParamInt32,    &ADnEDDetNDArraySizeParam);
@@ -289,6 +291,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     paramStatus = ((setIntegerParam(det, ADnEDDetPixelNumStartParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetPixelNumEndParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetPixelNumSizeParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetTOFNumBinsParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDet2DTypeParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArrayStartParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArrayEndParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArraySizeParam, 0) == asynSuccess) && paramStatus);
@@ -568,7 +572,7 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
   } else if (function == ADnEDDetTOFArrayResetParam) {
     //Clear the TOF Array for this detector
     resetTOFArray(addr);
-  } 
+  }
 
   epicsUInt32 transIndex = 0;
   if (matchTransInt(function, transIndex)) {

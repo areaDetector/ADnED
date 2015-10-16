@@ -107,6 +107,75 @@ record(longin, "$(P)$(R)Det$(DET):PixelNumSize_RBV")
    field(SCAN, "I/O Intr")
 }
 
+# ///
+# /// Set the number of time-of-flight bins for this detector DET=$(DET)
+# /// This is only used if we are plotting X or Y v TOF. It is not used 
+# /// for the TOF integration, only the pixel 2-D plots
+# ///
+record(longout, "$(P)$(R)Det$(DET):TOFNumBins")
+{
+   field(DESC, "Number of TOF bins DET$(DET)")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_NUM_BINS")
+   field(VAL, "0")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
+}
+
+# ///
+# /// Get the number of time-of-flight bins for this detector DET=$(DET)
+# /// This is only used if we are plotting X or Y v TOF. It is not used 
+# /// for the TOF integration, only the pixel 2-D plots
+# ///
+record(longin, "$(P)$(R)Det$(DET):TOFNumBins_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_NUM_BINS")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Choose the type of 2-D plot. The standard plot is integrating 
+# /// pixel ID in X/Y space. We can also do X/TOF, Y/TOF and PixelID/TOF, providing
+# /// the TOFNumBins and PixelNumSize params have been set appropriately.
+# ///
+record(mbbo, "$(P)$(R)Det$(DET):2DType")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_2D_TYPE")
+   field(ZRST, "X/Y")
+   field(ZRVL, "0")
+   field(ONST, "X/TOF")
+   field(ONVL, "1")
+   field(TWST, "Y/TOF")
+   field(TWVL, "2")
+   field(THST, "PixeID/TOF")
+   field(THVL, "3")
+   field(VAL,  "0")
+   info(autosaveFields, "VAL")
+}
+
+# ///
+# /// Readback the 2-D plot type (readback only)
+# ///
+record(mbbi, "$(P)$(R)Det$(DET):2DType_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_2D_TYPE")
+   field(ZRST, "X/Y")
+   field(ZRVL, "0")
+   field(ONST, "X/TOF")
+   field(ONVL, "1")
+   field(TWST, "Y/TOF")
+   field(TWVL, "2")
+   field(THST, "PixelID/TOF")
+   field(THVL, "3")
+   field(VAL,  "0")
+   field(SCAN, "I/O Intr")
+}
+
 #####################################################################
 # These records are read only and are used to feed back the NDArray 
 # index values for this detector. This will be required for the 

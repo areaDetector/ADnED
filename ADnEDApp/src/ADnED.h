@@ -65,6 +65,8 @@
 #define ADnEDDetPixelNumStartParamString   "ADNED_DET_PIXEL_NUM_START"
 #define ADnEDDetPixelNumEndParamString     "ADNED_DET_PIXEL_NUM_END"
 #define ADnEDDetPixelNumSizeParamString    "ADNED_DET_PIXEL_NUM_SIZE"
+#define ADnEDDetTOFNumBinsParamString      "ADNED_DET_TOF_NUM_BINS"
+#define ADnEDDet2DTypeParamString          "ADNED_DET_2D_TYPE"
 #define ADnEDDetNDArrayStartParamString    "ADNED_DET_NDARRAY_START"
 #define ADnEDDetNDArrayEndParamString      "ADNED_DET_NDARRAY_END"
 #define ADnEDDetNDArraySizeParamString     "ADNED_DET_NDARRAY_SIZE"
@@ -248,6 +250,8 @@ class ADnED : public ADDriver {
   int ADnEDDetPixelNumStartParam;
   int ADnEDDetPixelNumEndParam;
   int ADnEDDetPixelNumSizeParam;
+  int ADnEDDetTOFNumBinsParam;
+  int ADnEDDet2DTypeParam;
   int ADnEDDetNDArrayStartParam;
   int ADnEDDetNDArrayEndParam;
   int ADnEDDetNDArraySizeParam;
