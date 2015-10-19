@@ -659,6 +659,12 @@ record(longin, "$(P)$(R)Det$(DET):PixelROIFilterSizeY_RBV")
 # /// from 1-D to 2-D, but I need the value here to apply the ROI filter.
 # /// This is not the ROI X size, but the detector X size.
 # ///
+# /// For 2-D plots other than X/Y then this parameter does not
+# /// match the initial ROI plugin size. This should be the number
+# /// of pixels in the X dimension on the detector. For X/TOF and Y/TOF
+# /// plots the X size of the resulting array is different from the 
+# /// detector X size.
+# ///
 record(longout, "$(P)$(R)Det$(DET):PixelSizeX")
 {
    field(DESC, "Pixel Size X")
@@ -932,13 +938,15 @@ record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterSizeYSet")
    field(PINI, "YES")
 }
 # and set the pixel X size (the size of the detector in the X direction)
-record(dfanout, "$(P)$(R)Det$(DET):PixelSizeXSet")
-{
-   field(DOL, "$(P)$(R)Det$(DET):XY:Size1_RBV.VAL CP")
-   field(OMSL, "closed_loop")
-   field(OUTA, "$(P)$(R)Det$(DET):PixelSizeX.VAL PP")
-   field(PINI, "YES")
-}
+# 2015/10/19 I commented this out because XY:Size1 cannot be used for the X/TOF or Y/TOF
+# type 2-D plots. I need to set this manually on the setup screen.
+#record(dfanout, "$(P)$(R)Det$(DET):PixelSizeXSet")
+#{
+#   field(DOL, "$(P)$(R)Det$(DET):XY:Size1_RBV.VAL CP")
+#   field(OMSL, "closed_loop")
+#   field(OUTA, "$(P)$(R)Det$(DET):PixelSizeX.VAL PP")
+#   field(PINI, "YES")
+#}
 
 # Not sure why but the above records seem to require an additonal process at startup
 # This is triggered in IOC startup script.
@@ -949,7 +957,7 @@ record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterProc")
    field(OUTB, "$(P)$(R)Det$(DET):PixelROIFilterSizeXSet.PROC PP")
    field(OUTC, "$(P)$(R)Det$(DET):PixelROIFilterStartYSet.PROC PP")
    field(OUTD, "$(P)$(R)Det$(DET):PixelROIFilterSizeYSet.PROC PP")
-   field(OUTE, "$(P)$(R)Det$(DET):PixelSizeXSet.PROC PP")
+#   field(OUTE, "$(P)$(R)Det$(DET):PixelSizeXSet.PROC PP")
 }
 
 ################################################################
