@@ -46,6 +46,7 @@ const epicsInt32 ADnED::s_ADNED_MAX_CHANNELS = ADNED_MAX_CHANNELS;
 const epicsUInt32 ADnED::s_ADNED_ALLOC_STATUS_OK = 0;
 const epicsUInt32 ADnED::s_ADNED_ALLOC_STATUS_REQ = 1;
 const epicsUInt32 ADnED::s_ADNED_ALLOC_STATUS_FAIL = 2;
+//These 2D plot options need to match the mbbo record that uses ADNED_DET_2D_TYPE parameter.
 const epicsUInt32 ADnED::s_ADNED_2D_PLOT_XY = 0;
 const epicsUInt32 ADnED::s_ADNED_2D_PLOT_XTOF = 1;
 const epicsUInt32 ADnED::s_ADNED_2D_PLOT_YTOF = 2;
@@ -1159,7 +1160,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     for (size_t i=0; i<pixelsLength; ++i) {
       for (int det=1; det<=numDet; det++) {
         
-        //Dtermine if this raw pixel ID is in this DET range.
+        //Dtermine if this pixel ID is in this DET range.
         if ((pixelsData[i] >= static_cast<epicsUInt32>(m_detStartValues[det])) 
             && (pixelsData[i] <= static_cast<epicsUInt32>(m_detEndValues[det]))) {
           
