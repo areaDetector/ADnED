@@ -1194,7 +1194,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	    tofBins = m_tofMax;
 	  }
 
-          //Integrate Pixel ID Data, optionally filtering on TOF ROI filter.
+          //Integrate Pixel ID Data, optionally filtering on TOF ROI filter (for X/Y plot only).
           if (m_detTOFROIEnabled[det]) {
             if ((tof >= static_cast<epicsFloat64>(m_detTOFROIStartValues[det])) 
                 && (tof < static_cast<epicsFloat64>(m_detTOFROIStartValues[det] + m_detTOFROISizeValues[det]))) {
@@ -1205,25 +1205,20 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 	      //Standard X/Y plot
 	      p_Data[m_NDArrayStartValues[det]+mappedPixelIndex]++;
 	    } else if (static_cast<epicsUInt32>(plotType) == s_ADNED_2D_PLOT_XTOF) {
-	      //X/TOF plot
+	      // X/TOF plot
 	      x_pos = mappedPixelIndex % m_detPixelSizeX[det]; 
               tofIndex = (x_pos * tofBins) + int(floor(tof / (m_tofMax / tofBins))); 
-	      if (tofIndex < (m_detSizeValues[det] - 1)) {
-		p_Data[m_NDArrayStartValues[det] + tofIndex]++;
-	      }
 	    } else if (static_cast<epicsUInt32>(plotType) == s_ADNED_2D_PLOT_YTOF) {
+	      // Y/TOF plot
 	      y_pos = int(floor(mappedPixelIndex / m_detPixelSizeX[det]));
 	      tofIndex = (y_pos * tofBins) + int(floor(tof / (m_tofMax / tofBins)));
-	      if (tofIndex < (m_detSizeValues[det] - 1)) {
-		p_Data[m_NDArrayStartValues[det] + tofIndex]++;
-	      }
 	    } else if (static_cast<epicsUInt32>(plotType) == s_ADNED_2D_PLOT_PIXELIDTOF) {
+	      // PixelID/TOF plot
 	      tofIndex = (mappedPixelIndex * tofBins) + int(floor(tof / (m_tofMax / tofBins)));
-	      //printf("index: %d, pixelID: %d, tofBins: %d, tof: %f\n", tofIndex, mappedPixelIndex, tofBins, tof);
-	      if (tofIndex < (m_detSizeValues[det] - 1)) {
-		p_Data[m_NDArrayStartValues[det] + tofIndex]++;
-	      }
-	    } 
+	    }
+	    if (tofIndex < (m_detSizeValues[det] - 1)) {
+	      p_Data[m_NDArrayStartValues[det] + tofIndex]++;
+	    }
           }
 
           //Integrate TOF/D-Space, optionally filtering on Pixel ID X/Y ROI
