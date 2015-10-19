@@ -167,6 +167,10 @@ class ADnED : public ADDriver {
   static const epicsUInt32 s_ADNED_ALLOC_STATUS_OK;
   static const epicsUInt32 s_ADNED_ALLOC_STATUS_REQ;
   static const epicsUInt32 s_ADNED_ALLOC_STATUS_FAIL;
+  static const epicsUInt32 s_ADNED_2D_PLOT_XY;
+  static const epicsUInt32 s_ADNED_2D_PLOT_XTOF;
+  static const epicsUInt32 s_ADNED_2D_PLOT_YTOF;
+  static const epicsUInt32 s_ADNED_2D_PLOT_PIXELIDTOF;
 
   //Put private dynamic here
   epicsUInt32 m_acquiring; 

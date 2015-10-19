@@ -46,6 +46,10 @@ const epicsInt32 ADnED::s_ADNED_MAX_CHANNELS = ADNED_MAX_CHANNELS;
 const epicsUInt32 ADnED::s_ADNED_ALLOC_STATUS_OK = 0;
 const epicsUInt32 ADnED::s_ADNED_ALLOC_STATUS_REQ = 1;
 const epicsUInt32 ADnED::s_ADNED_ALLOC_STATUS_FAIL = 2;
+const epicsUInt32 ADnED::s_ADNED_2D_PLOT_XY = 0;
+const epicsUInt32 ADnED::s_ADNED_2D_PLOT_XTOF = 1;
+const epicsUInt32 ADnED::s_ADNED_2D_PLOT_YTOF = 2;
+const epicsUInt32 ADnED::s_ADNED_2D_PLOT_PIXELIDTOF = 3;
 
 //C Function prototypes to tie in with EPICS
 static void ADnEDEventTaskC(void *drvPvt);
@@ -1147,6 +1151,11 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     int mappedPixelIndex = 0;
     epicsFloat64 tof = 0.0;
     epicsUInt32 tofInt = 0;
+    int plotType = 0;
+    int tofBins = 0;
+    epicsUInt32 x_pos = 0;
+    epicsUInt32 y_pos = 0;
+    int tofIndex = 0;
     for (size_t i=0; i<pixelsLength; ++i) {
       for (int det=1; det<=numDet; det++) {
         
@@ -1173,19 +1182,51 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
               mappedPixelIndex = (p_PixelMap[det])[pixelsData[i] - m_detStartValues[det]];
             }
           }
-          
+
+	  tofInt = static_cast<epicsUInt32>(floor(tof));
+
+	  //Read type of 2-D plot and TOF binning
+	  getIntegerParam(det, ADnEDDet2DTypeParam, &plotType);
+	  getIntegerParam(det, ADnEDDetTOFNumBinsParam, &tofBins);
+	  if (tofBins < 1) {
+	    tofBins = 1;
+	  } else if (static_cast<epicsUInt32>(tofBins) > m_tofMax) { 
+	    tofBins = m_tofMax;
+	  }
+
           //Integrate Pixel ID Data, optionally filtering on TOF ROI filter.
           if (m_detTOFROIEnabled[det]) {
             if ((tof >= static_cast<epicsFloat64>(m_detTOFROIStartValues[det])) 
                 && (tof < static_cast<epicsFloat64>(m_detTOFROIStartValues[det] + m_detTOFROISizeValues[det]))) {
               p_Data[m_NDArrayStartValues[det]+mappedPixelIndex]++;
             }
-          } else { //No TOF ROI filter enabled
-            p_Data[m_NDArrayStartValues[det]+mappedPixelIndex]++;
+          } else { //No TOF ROI filter enabled. Choose which 2-D plot to produce.
+	    if (static_cast<epicsUInt32>(plotType) == s_ADNED_2D_PLOT_XY) {
+	      //Standard X/Y plot
+	      p_Data[m_NDArrayStartValues[det]+mappedPixelIndex]++;
+	    } else if (static_cast<epicsUInt32>(plotType) == s_ADNED_2D_PLOT_XTOF) {
+	      //X/TOF plot
+	      x_pos = mappedPixelIndex % m_detPixelSizeX[det]; 
+              tofIndex = (x_pos * tofBins) + int(floor(tof / (m_tofMax / tofBins))); 
+	      if (tofIndex < (m_detSizeValues[det] - 1)) {
+		p_Data[m_NDArrayStartValues[det] + tofIndex]++;
+	      }
+	    } else if (static_cast<epicsUInt32>(plotType) == s_ADNED_2D_PLOT_YTOF) {
+	      y_pos = int(floor(mappedPixelIndex / m_detPixelSizeX[det]));
+	      tofIndex = (y_pos * tofBins) + int(floor(tof / (m_tofMax / tofBins)));
+	      if (tofIndex < (m_detSizeValues[det] - 1)) {
+		p_Data[m_NDArrayStartValues[det] + tofIndex]++;
+	      }
+	    } else if (static_cast<epicsUInt32>(plotType) == s_ADNED_2D_PLOT_PIXELIDTOF) {
+	      tofIndex = (mappedPixelIndex * tofBins) + int(floor(tof / (m_tofMax / tofBins)));
+	      //printf("index: %d, pixelID: %d, tofBins: %d, tof: %f\n", tofIndex, mappedPixelIndex, tofBins, tof);
+	      if (tofIndex < (m_detSizeValues[det] - 1)) {
+		p_Data[m_NDArrayStartValues[det] + tofIndex]++;
+	      }
+	    } 
           }
 
           //Integrate TOF/D-Space, optionally filtering on Pixel ID X/Y ROI
-          tofInt = static_cast<epicsUInt32>(floor(tof));
           if ((tof <= m_tofMax) && (tof >= 0)) {
             if (m_detPixelROIEnable[det]) {
               //If pixel mapping is not enabled, this is meaningless, so just integrate as normal.
