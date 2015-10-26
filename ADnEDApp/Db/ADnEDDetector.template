@@ -117,7 +117,9 @@ record(longout, "$(P)$(R)Det$(DET):TOFNumBins")
    field(DESC, "Number of TOF bins DET$(DET)")
    field(DTYP, "asynInt32")
    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_NUM_BINS")
-   field(VAL, "0")
+   field(VAL, "1")
+   field(DRVL, "1")
+   field(DRVH, "$(TOFSIZE)")
    field(PINI, "YES")
    info(autosaveFields, "VAL")
    field(ASG, "BEAMLINE")
@@ -133,6 +135,22 @@ record(longin, "$(P)$(R)Det$(DET):TOFNumBins_RBV")
    field(DTYP, "asynInt32")
    field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_NUM_BINS")
    field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Information PV for the X or Y or Pixel ID / TOF plots to show
+# /// how large a bin is in milliseconds.
+# /// Bin Size in ms = (Max size / #Bins) * (Size of one bin in ms)
+# /// For example: 160000 / 160 * 0.0001 = 0.1ms 
+# ///
+record(calc, "$(P)$(R)Det$(DET):XYTOFBinSize")
+{
+   field(DESC, "2D Plot TOF Bin Size")
+   field(INPA, "$(P)$(R)Det$(DET):TOFNumBins_RBV CP MS")
+   field(INPB, "$(TOFSIZE)")
+   field(CALC, "(B/A)*0.0001")
+   field(PREC, "2")
+   field(EGU, "ms")
 }
 
 # ///
