@@ -96,7 +96,7 @@ namespace nEDChannel {
     cout << "Monitor connects, " << status << endl;
     if (status.isSuccess()) {
       PVStructurePtr pvStructure = getPVDataCreate()->createPVStructure(structure);
-      shared_ptr<PVInt> value = pvStructure->getIntField("timeStamp.userTag");
+      shared_ptr<PVInt> value = pvStructure->getSubField<epics::pvData::PVInt>("timeStamp.userTag");
       if (!value) {
         return;
       }
