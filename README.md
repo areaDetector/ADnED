@@ -10,7 +10,7 @@ ADnED provides the following features:
 * start/stop/reset acqusition
 * neutron pulse event number, proton charge data, timestamp data, cummulative proton charge
 * event rate and total events for each defined detector
-* X/Y integrating plots for each detector
+* 2-D integrating plots for each detector, which can be X/Y, X/TOF, Y/TOF or PixelID/TOF.
 * Time of flight (TOF) integrating plots for each detector
 * ROI statistics on all plots (max, min, mean, total events, event rate)
 * Filter events going into a TOF spectra based on a X/Y ROI
