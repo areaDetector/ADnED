@@ -86,6 +86,15 @@ include "ADnEDDetectorROIPluginASG.template"
 substitute "ROI=4"
 include "ADnEDDetectorROIPluginASG.template"
 
+substitute "ROI=5"
+include "ADnEDDetectorROIPluginASG.template"
+
+substitute "ROI=6"
+include "ADnEDDetectorROIPluginASG.template"
+
+substitute "ROI=7"
+include "ADnEDDetectorROIPluginASG.template"
+
 
 
 

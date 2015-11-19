@@ -65,6 +65,8 @@
 #define ADnEDDetPixelNumStartParamString   "ADNED_DET_PIXEL_NUM_START"
 #define ADnEDDetPixelNumEndParamString     "ADNED_DET_PIXEL_NUM_END"
 #define ADnEDDetPixelNumSizeParamString    "ADNED_DET_PIXEL_NUM_SIZE"
+#define ADnEDDetTOFNumBinsParamString      "ADNED_DET_TOF_NUM_BINS"
+#define ADnEDDet2DTypeParamString          "ADNED_DET_2D_TYPE"
 #define ADnEDDetNDArrayStartParamString    "ADNED_DET_NDARRAY_START"
 #define ADnEDDetNDArrayEndParamString      "ADNED_DET_NDARRAY_END"
 #define ADnEDDetNDArraySizeParamString     "ADNED_DET_NDARRAY_SIZE"
@@ -75,6 +77,7 @@
 #define ADnEDDetTOFROIStartParamString     "ADNED_DET_TOF_ROI_START"
 #define ADnEDDetTOFROISizeParamString      "ADNED_DET_TOF_ROI_SIZE"
 #define ADnEDDetTOFROIEnableParamString    "ADNED_DET_TOF_ROI_ENABLE"
+#define ADnEDDetTOFArrayResetParamString   "ADNED_DET_TOF_ARRAY_RESET"
 //Params to use with ADnEDTransform
 #define ADnEDDetTOFTransFile0ParamString   "ADNED_DET_TOF_TRANS_FILE0"
 #define ADnEDDetTOFTransFile1ParamString   "ADNED_DET_TOF_TRANS_FILE1"
@@ -155,6 +158,7 @@ class ADnED : public ADDriver {
   bool matchTransFile(const int asynParam, epicsUInt32 &transIndex);
   bool matchTransInt(const int asynParam, epicsUInt32 &transIndex);
   bool matchTransFloat(const int asynParam, epicsUInt32 &transIndex);
+  void resetTOFArray(epicsUInt32 det);
  
   //Put private static data members here
   static const epicsInt32 s_ADNED_MAX_STRING_SIZE;
@@ -163,6 +167,10 @@ class ADnED : public ADDriver {
   static const epicsUInt32 s_ADNED_ALLOC_STATUS_OK;
   static const epicsUInt32 s_ADNED_ALLOC_STATUS_REQ;
   static const epicsUInt32 s_ADNED_ALLOC_STATUS_FAIL;
+  static const epicsUInt32 s_ADNED_2D_PLOT_XY;
+  static const epicsUInt32 s_ADNED_2D_PLOT_XTOF;
+  static const epicsUInt32 s_ADNED_2D_PLOT_YTOF;
+  static const epicsUInt32 s_ADNED_2D_PLOT_PIXELIDTOF;
 
   //Put private dynamic here
   epicsUInt32 m_acquiring; 
@@ -246,6 +254,8 @@ class ADnED : public ADDriver {
   int ADnEDDetPixelNumStartParam;
   int ADnEDDetPixelNumEndParam;
   int ADnEDDetPixelNumSizeParam;
+  int ADnEDDetTOFNumBinsParam;
+  int ADnEDDet2DTypeParam;
   int ADnEDDetNDArrayStartParam;
   int ADnEDDetNDArrayEndParam;
   int ADnEDDetNDArraySizeParam;
@@ -256,6 +266,7 @@ class ADnED : public ADDriver {
   int ADnEDDetTOFROIStartParam;
   int ADnEDDetTOFROISizeParam;
   int ADnEDDetTOFROIEnableParam;
+  int ADnEDDetTOFArrayResetParam;
   //Params to use with ADnEDTransform
   int ADnEDDetTOFTransFile0Param;
   int ADnEDDetTOFTransFile1Param;

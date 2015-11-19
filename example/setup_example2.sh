@@ -13,6 +13,7 @@ echo "Det1..."
 caput -c BL99:Det:M1:Det1:Description "Det 1"
 caput -c BL99:Det:M1:Det1:PixelNumStart 0
 caput -c BL99:Det:M1:Det1:PixelNumEnd 1023
+caput -c BL99:Det:M1:Det1:PixelNumSize 1024
 
 caput -c BL99:Det:M1:Det1:TOF:EnableCallbacks 1
 caput -c BL99:Det:M1:Det1:TOF:Array:EnableCallbacks 1
@@ -46,6 +47,7 @@ echo "Det2..."
 caput -c BL99:Det:M1:Det2:Description "Det 2"
 caput -c BL99:Det:M1:Det2:PixelNumStart 2048
 caput -c BL99:Det:M1:Det2:PixelNumEnd 3072
+caput -c BL99:Det:M1:Det2:PixelNumSize 1024
 
 caput -c BL99:Det:M1:Det2:TOF:EnableCallbacks 1
 caput -c BL99:Det:M1:Det2:TOF:Array:EnableCallbacks 1

@@ -2,7 +2,7 @@
 file ADnED.template
 {
 pattern {P, ADNED, PORT, ADDR, TIMEOUT, TOFSIZE, ADNED_PORT, DET1SIZE, DET2SIZE, DET3SIZE, DET4SIZE, DET1X, DET2X, DET3X, DET4X, DET1Y, DET2Y, DET3Y, DET4Y}
-	{BL99:Det:, N1:, N1, 0, 5, 160000, N1,               1024,     1024,     0,        0,        32,    32,    0,     0,     32,    32,    0,     0}
+	{BL99:Det:, N1:, N1, 0, 5, 160000, N1,               1024,     1024,     5120,    163840,    32,    32,    160,  160,     32,    32,    32,     32}
 	{BL99:Det:, M1:, M1, 0, 5, 160000, M1,               1024,     1024,     0,        0,        32,    32,    0,     0,     32,    32,    0,     0}
 }
 

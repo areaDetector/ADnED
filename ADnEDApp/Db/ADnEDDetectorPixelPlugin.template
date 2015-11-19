@@ -78,6 +78,8 @@ substitute "NCHANS=1024"
 include "NDPluginBase.template"
 include "NDStats.template"
 
+substitute "ADDR=0"
+substitute "R=$(ADNED)Det$(DET):XY:ROI:"
 
 #####################################################################
 # Put ROI0 to ROI4 into ASG=ALWAYS group for pixel XY plot.
@@ -95,6 +97,15 @@ substitute "ROI=3"
 include "ADnEDDetectorROIPluginASG.template"
 
 substitute "ROI=4"
+include "ADnEDDetectorROIPluginASG.template"
+
+substitute "ROI=5"
+include "ADnEDDetectorROIPluginASG.template"
+
+substitute "ROI=6"
+include "ADnEDDetectorROIPluginASG.template"
+
+substitute "ROI=7"
 include "ADnEDDetectorROIPluginASG.template"
 
 

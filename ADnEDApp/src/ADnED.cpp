@@ -46,6 +46,11 @@ const epicsInt32 ADnED::s_ADNED_MAX_CHANNELS = ADNED_MAX_CHANNELS;
 const epicsUInt32 ADnED::s_ADNED_ALLOC_STATUS_OK = 0;
 const epicsUInt32 ADnED::s_ADNED_ALLOC_STATUS_REQ = 1;
 const epicsUInt32 ADnED::s_ADNED_ALLOC_STATUS_FAIL = 2;
+//These 2D plot options need to match the mbbo record that uses ADNED_DET_2D_TYPE parameter.
+const epicsUInt32 ADnED::s_ADNED_2D_PLOT_XY = 0;
+const epicsUInt32 ADnED::s_ADNED_2D_PLOT_XTOF = 1;
+const epicsUInt32 ADnED::s_ADNED_2D_PLOT_YTOF = 2;
+const epicsUInt32 ADnED::s_ADNED_2D_PLOT_PIXELIDTOF = 3;
 
 //C Function prototypes to tie in with EPICS
 static void ADnEDEventTaskC(void *drvPvt);
@@ -124,6 +129,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDDetPixelNumStartParamString,   asynParamInt32,    &ADnEDDetPixelNumStartParam);
   createParam(ADnEDDetPixelNumEndParamString,     asynParamInt32,    &ADnEDDetPixelNumEndParam);
   createParam(ADnEDDetPixelNumSizeParamString,    asynParamInt32,    &ADnEDDetPixelNumSizeParam);
+  createParam(ADnEDDetTOFNumBinsParamString,      asynParamInt32,    &ADnEDDetTOFNumBinsParam);
+  createParam(ADnEDDet2DTypeParamString,          asynParamInt32,    &ADnEDDet2DTypeParam);
   createParam(ADnEDDetNDArrayStartParamString,    asynParamInt32,    &ADnEDDetNDArrayStartParam);
   createParam(ADnEDDetNDArrayEndParamString,      asynParamInt32,    &ADnEDDetNDArrayEndParam);
   createParam(ADnEDDetNDArraySizeParamString,     asynParamInt32,    &ADnEDDetNDArraySizeParam);
@@ -134,6 +141,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   createParam(ADnEDDetTOFROIStartParamString,     asynParamInt32,    &ADnEDDetTOFROIStartParam);
   createParam(ADnEDDetTOFROISizeParamString,      asynParamInt32,    &ADnEDDetTOFROISizeParam);
   createParam(ADnEDDetTOFROIEnableParamString,    asynParamInt32,    &ADnEDDetTOFROIEnableParam);
+  createParam(ADnEDDetTOFArrayResetParamString,   asynParamInt32,    &ADnEDDetTOFArrayResetParam);
   //Params to use with ADnEDTransform
   createParam(ADnEDDetTOFTransFile0ParamString,   asynParamOctet,    &ADnEDDetTOFTransFile0Param);
   createParam(ADnEDDetTOFTransFile1ParamString,   asynParamOctet,    &ADnEDDetTOFTransFile1Param);
@@ -288,6 +296,8 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     paramStatus = ((setIntegerParam(det, ADnEDDetPixelNumStartParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetPixelNumEndParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetPixelNumSizeParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetTOFNumBinsParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDet2DTypeParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArrayStartParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArrayEndParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetNDArraySizeParam, 0) == asynSuccess) && paramStatus);
@@ -298,6 +308,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIStartParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROISizeParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDDetTOFROIEnableParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDDetTOFArrayResetParam, 0) == asynSuccess) && paramStatus);
     //Params to use with ADnEDTransform
     paramStatus = ((setStringParam(det, ADnEDDetTOFTransFile0Param, " ") == asynSuccess) && paramStatus);
     paramStatus = ((setStringParam(det, ADnEDDetTOFTransFile1Param, " ") == asynSuccess) && paramStatus);
@@ -563,6 +574,9 @@ asynStatus ADnED::writeInt32(asynUser *pasynUser, epicsInt32 value)
     if (value == 1) {
       setIntegerParam(addr, ADnEDDetPixelROIEnableParam, 0);
     }
+  } else if (function == ADnEDDetTOFArrayResetParam) {
+    //Clear the TOF Array for this detector
+    resetTOFArray(addr);
   }
 
   epicsUInt32 transIndex = 0;
@@ -939,6 +953,28 @@ asynStatus ADnED::checkPixelMap(epicsUInt32 det)
 }
 
 /**
+ * Reset the TOF array for a specific detector
+ * @param det The detector number (1 based)
+ */
+void ADnED::resetTOFArray(epicsUInt32 det)
+{ 
+  int tofStart = 0;
+  epicsUInt32 *p_tof;
+  
+  printf("ADnED::resetTOFArray. det: %d\n", det);
+
+  if (m_tofMax > 0) {
+    getIntegerParam(det, ADnEDDetNDArrayTOFStartParam, &tofStart);
+    if ((p_Data != NULL) && (tofStart > 0)) {
+      p_tof = p_Data + tofStart;
+      memset(p_tof, 0, (m_tofMax+1)*sizeof(epicsUInt32));
+    }
+  } else {
+    printf("ADnED::resetTOFArray. Need to alloc memory first.\n");
+  }
+}
+
+/**
  * Event handler callback for monitor
  */
 void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct, epicsUInt32 channelID)
@@ -1116,10 +1152,15 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
     int mappedPixelIndex = 0;
     epicsFloat64 tof = 0.0;
     epicsUInt32 tofInt = 0;
+    int plotType = 0;
+    int tofBins = 0;
+    epicsUInt32 x_pos = 0;
+    epicsUInt32 y_pos = 0;
+    int tofIndex = 0;
     for (size_t i=0; i<pixelsLength; ++i) {
       for (int det=1; det<=numDet; det++) {
         
-        //Dtermine if this raw pixel ID is in this DET range.
+        //Dtermine if this pixel ID is in this DET range.
         if ((pixelsData[i] >= static_cast<epicsUInt32>(m_detStartValues[det])) 
             && (pixelsData[i] <= static_cast<epicsUInt32>(m_detEndValues[det]))) {
           
@@ -1130,7 +1171,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
           //If enabled, do TOF tranformation (to d-space for example).
           if (m_detTOFTransType[det] != 0) {
             tof = p_Transform[det]->calculate(m_detTOFTransType[det], mappedPixelIndex, tofData[i]);
-            //Apply scale and offset
+            //Apply scale and offset. This is used to rebin into the available TOF array.
             if (m_detTOFTransScale[det] >=0) {
               tof = (tof * m_detTOFTransScale[det]) + m_detTOFTransOffset[det];
             }
@@ -1142,19 +1183,46 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
               mappedPixelIndex = (p_PixelMap[det])[pixelsData[i] - m_detStartValues[det]];
             }
           }
-          
-          //Integrate Pixel ID Data, optionally filtering on TOF ROI filter.
+
+	  tofInt = static_cast<epicsUInt32>(floor(tof));
+
+	  //Read type of 2-D plot and TOF binning
+	  getIntegerParam(det, ADnEDDet2DTypeParam, &plotType);
+	  getIntegerParam(det, ADnEDDetTOFNumBinsParam, &tofBins);
+	  if (tofBins < 1) {
+	    tofBins = 1;
+	  } else if (static_cast<epicsUInt32>(tofBins) > m_tofMax) { 
+	    tofBins = m_tofMax;
+	  }
+
+          //Integrate Pixel ID Data, optionally filtering on TOF ROI filter (for X/Y plot only).
           if (m_detTOFROIEnabled[det]) {
             if ((tof >= static_cast<epicsFloat64>(m_detTOFROIStartValues[det])) 
                 && (tof < static_cast<epicsFloat64>(m_detTOFROIStartValues[det] + m_detTOFROISizeValues[det]))) {
               p_Data[m_NDArrayStartValues[det]+mappedPixelIndex]++;
             }
-          } else { //No TOF ROI filter enabled
-            p_Data[m_NDArrayStartValues[det]+mappedPixelIndex]++;
+          } else { //No TOF ROI filter enabled. Choose which 2-D plot to produce.
+	    if (static_cast<epicsUInt32>(plotType) == s_ADNED_2D_PLOT_XY) {
+	      //Standard X/Y plot
+	      p_Data[m_NDArrayStartValues[det]+mappedPixelIndex]++;
+	    } else if (static_cast<epicsUInt32>(plotType) == s_ADNED_2D_PLOT_XTOF) {
+	      // X/TOF plot
+	      x_pos = mappedPixelIndex % m_detPixelSizeX[det]; 
+              tofIndex = (x_pos * tofBins) + int(floor(tof / (m_tofMax / tofBins))); 
+	    } else if (static_cast<epicsUInt32>(plotType) == s_ADNED_2D_PLOT_YTOF) {
+	      // Y/TOF plot
+	      y_pos = int(floor(mappedPixelIndex / m_detPixelSizeX[det]));
+	      tofIndex = (y_pos * tofBins) + int(floor(tof / (m_tofMax / tofBins)));
+	    } else if (static_cast<epicsUInt32>(plotType) == s_ADNED_2D_PLOT_PIXELIDTOF) {
+	      // PixelID/TOF plot
+	      tofIndex = (mappedPixelIndex * tofBins) + int(floor(tof / (m_tofMax / tofBins)));
+	    }
+	    if (tofIndex < (m_detSizeValues[det] - 1)) {
+	      p_Data[m_NDArrayStartValues[det] + tofIndex]++;
+	    }
           }
 
           //Integrate TOF/D-Space, optionally filtering on Pixel ID X/Y ROI
-          tofInt = static_cast<epicsUInt32>(floor(tof));
           if ((tof <= m_tofMax) && (tof >= 0)) {
             if (m_detPixelROIEnable[det]) {
               //If pixel mapping is not enabled, this is meaningless, so just integrate as normal.
@@ -1164,13 +1232,15 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
                 //Only integrate TOF if we are inside pixel ID XY ROI.
                 //ROI is assumed to start from 0,0 (not from whatever is the pixel ID range). 
                 //So we need to offset, but this has already been done by the pixel mapping above.
-                if (((mappedPixelIndex % m_detPixelSizeX[det]) >= m_detPixelROIStartX[det]) && 
-                    ((mappedPixelIndex % m_detPixelSizeX[det]) < (m_detPixelROIStartX[det] + m_detPixelROISizeX[det]))) {
-                  if ((mappedPixelIndex >= (m_detPixelROIStartY[det] * m_detPixelSizeX[det])) &&
-                      ((mappedPixelIndex < ((m_detPixelROIStartY[det] + m_detPixelROISizeY[det]) * m_detPixelSizeX[det])))) {
-                    p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
-                  }
-                }
+		if (m_detPixelSizeX[det] > 0) {
+		  if (((mappedPixelIndex % m_detPixelSizeX[det]) >= m_detPixelROIStartX[det]) && 
+		      ((mappedPixelIndex % m_detPixelSizeX[det]) < (m_detPixelROIStartX[det] + m_detPixelROISizeX[det]))) {
+		    if ((mappedPixelIndex >= (m_detPixelROIStartY[det] * m_detPixelSizeX[det])) &&
+			((mappedPixelIndex < ((m_detPixelROIStartY[det] + m_detPixelROISizeY[det]) * m_detPixelSizeX[det])))) {
+		      p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;
+		    }
+		  }
+		}
               }
             } else {
               p_Data[m_NDArrayTOFStartValues[det]+tofInt]++;

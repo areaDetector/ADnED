@@ -62,10 +62,10 @@ create_monitor_set("$(IOCNAME).req", 10)
 epicsThreadSleep(5)
 
 epicsEnvSet PVNAME "BL99:Det:N1:"
-dbpf "$(PVNAME)Det1:PixelMapFile.PROC","1"
-dbpf "$(PVNAME)Det2:PixelMapFile.PROC","1"
-dbpf "$(PVNAME)Det3:PixelMapFile.PROC","1"
-dbpf "$(PVNAME)Det4:PixelMapFile.PROC","1"
+dbpf "$(PVNAME)Det1:StartupProc.PROC","1"
+dbpf "$(PVNAME)Det2:StartupProc.PROC","1"
+dbpf "$(PVNAME)Det3:StartupProc.PROC","1"
+dbpf "$(PVNAME)Det4:StartupProc.PROC","1"
 
 
 

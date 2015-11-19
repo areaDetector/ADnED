@@ -107,6 +107,93 @@ record(longin, "$(P)$(R)Det$(DET):PixelNumSize_RBV")
    field(SCAN, "I/O Intr")
 }
 
+# ///
+# /// Set the number of time-of-flight bins for this detector DET=$(DET)
+# /// This is only used if we are plotting X or Y v TOF. It is not used 
+# /// for the TOF integration, only the pixel 2-D plots
+# ///
+record(longout, "$(P)$(R)Det$(DET):TOFNumBins")
+{
+   field(DESC, "Number of TOF bins DET$(DET)")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_NUM_BINS")
+   field(VAL, "1")
+   field(DRVL, "1")
+   field(DRVH, "$(TOFSIZE)")
+   field(PINI, "YES")
+   info(autosaveFields, "VAL")
+   field(ASG, "BEAMLINE")
+}
+
+# ///
+# /// Get the number of time-of-flight bins for this detector DET=$(DET)
+# /// This is only used if we are plotting X or Y v TOF. It is not used 
+# /// for the TOF integration, only the pixel 2-D plots
+# ///
+record(longin, "$(P)$(R)Det$(DET):TOFNumBins_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_NUM_BINS")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// Information PV for the X or Y or Pixel ID / TOF plots to show
+# /// how large a bin is in milliseconds.
+# /// Bin Size in ms = (Max size / #Bins) * (Size of one bin in ms)
+# /// For example: 160000 / 160 * 0.0001 = 0.1ms 
+# ///
+record(calc, "$(P)$(R)Det$(DET):XYTOFBinSize")
+{
+   field(DESC, "2D Plot TOF Bin Size")
+   field(INPA, "$(P)$(R)Det$(DET):TOFNumBins_RBV CP MS")
+   field(INPB, "$(TOFSIZE)")
+   field(CALC, "(B/A)*0.0001")
+   field(PREC, "2")
+   field(EGU, "ms")
+}
+
+# ///
+# /// Choose the type of 2-D plot. The standard plot is integrating 
+# /// pixel ID in X/Y space. We can also do X/TOF, Y/TOF and PixelID/TOF, providing
+# /// the TOFNumBins and PixelNumSize params have been set appropriately.
+# ///
+record(mbbo, "$(P)$(R)Det$(DET):2DType")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_2D_TYPE")
+   field(ZRST, "X/Y")
+   field(ZRVL, "0")
+   field(ONST, "X/TOF")
+   field(ONVL, "1")
+   field(TWST, "Y/TOF")
+   field(TWVL, "2")
+   field(THST, "PixeID/TOF")
+   field(THVL, "3")
+   field(VAL,  "0")
+   info(autosaveFields, "VAL")
+}
+
+# ///
+# /// Readback the 2-D plot type (readback only)
+# ///
+record(mbbi, "$(P)$(R)Det$(DET):2DType_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_2D_TYPE")
+   field(ZRST, "X/Y")
+   field(ZRVL, "0")
+   field(ONST, "X/TOF")
+   field(ONVL, "1")
+   field(TWST, "Y/TOF")
+   field(TWVL, "2")
+   field(THST, "PixelID/TOF")
+   field(THVL, "3")
+   field(VAL,  "0")
+   field(SCAN, "I/O Intr")
+}
+
 #####################################################################
 # These records are read only and are used to feed back the NDArray 
 # index values for this detector. This will be required for the 
@@ -590,6 +677,12 @@ record(longin, "$(P)$(R)Det$(DET):PixelROIFilterSizeY_RBV")
 # /// from 1-D to 2-D, but I need the value here to apply the ROI filter.
 # /// This is not the ROI X size, but the detector X size.
 # ///
+# /// For 2-D plots other than X/Y then this parameter does not
+# /// match the initial ROI plugin size. This should be the number
+# /// of pixels in the X dimension on the detector. For X/TOF and Y/TOF
+# /// plots the X size of the resulting array is different from the 
+# /// detector X size.
+# ///
 record(longout, "$(P)$(R)Det$(DET):PixelSizeX")
 {
    field(DESC, "Pixel Size X")
@@ -839,31 +932,50 @@ record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterStartXSet")
    field(DOL, "$(P)$(R)Det$(DET):XY:ROI:1:MinX_RBV.VAL CP")
    field(OMSL, "closed_loop")
    field(OUTA, "$(P)$(R)Det$(DET):PixelROIFilterStartX.VAL PP")
+   field(PINI, "YES")
 }
 record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterSizeXSet")
 {
    field(DOL, "$(P)$(R)Det$(DET):XY:ROI:1:SizeX_RBV.VAL CP")
    field(OMSL, "closed_loop")
    field(OUTA, "$(P)$(R)Det$(DET):PixelROIFilterSizeX.VAL PP")
+   field(PINI, "YES")
 }
 record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterStartYSet")
 {
    field(DOL, "$(P)$(R)Det$(DET):XY:ROI:1:MinY_RBV.VAL CP")
    field(OMSL, "closed_loop")
    field(OUTA, "$(P)$(R)Det$(DET):PixelROIFilterStartY.VAL PP")
+   field(PINI, "YES")
 }
 record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterSizeYSet")
 {
    field(DOL, "$(P)$(R)Det$(DET):XY:ROI:1:SizeY_RBV.VAL CP")
    field(OMSL, "closed_loop")
    field(OUTA, "$(P)$(R)Det$(DET):PixelROIFilterSizeY.VAL PP")
+   field(PINI, "YES")
 }
 # and set the pixel X size (the size of the detector in the X direction)
-record(dfanout, "$(P)$(R)Det$(DET):PixelSizeXSet")
+# 2015/10/19 I commented this out because XY:Size1 cannot be used for the X/TOF or Y/TOF
+# type 2-D plots. I need to set this manually on the setup screen.
+#record(dfanout, "$(P)$(R)Det$(DET):PixelSizeXSet")
+#{
+#   field(DOL, "$(P)$(R)Det$(DET):XY:Size1_RBV.VAL CP")
+#   field(OMSL, "closed_loop")
+#   field(OUTA, "$(P)$(R)Det$(DET):PixelSizeX.VAL PP")
+#   field(PINI, "YES")
+#}
+
+# Not sure why but the above records seem to require an additonal process at startup
+# This is triggered in IOC startup script.
+record(dfanout, "$(P)$(R)Det$(DET):PixelROIFilterProc")
 {
-   field(DOL, "$(P)$(R)Det$(DET):XY:Size1_RBV.VAL CP")
-   field(OMSL, "closed_loop")
-   field(OUTA, "$(P)$(R)Det$(DET):PixelSizeX.VAL PP")
+   field(VAL, "1")
+   field(OUTA, "$(P)$(R)Det$(DET):PixelROIFilterStartXSet.PROC PP")
+   field(OUTB, "$(P)$(R)Det$(DET):PixelROIFilterSizeXSet.PROC PP")
+   field(OUTC, "$(P)$(R)Det$(DET):PixelROIFilterStartYSet.PROC PP")
+   field(OUTD, "$(P)$(R)Det$(DET):PixelROIFilterSizeYSet.PROC PP")
+#   field(OUTE, "$(P)$(R)Det$(DET):PixelSizeXSet.PROC PP")
 }
 
 ################################################################
@@ -878,6 +990,7 @@ record(calcout, "$(P)$(R)Det$(DET):TOFROIFilterStartSet")
    field(OOPT, "Every Time")
    field(DOPT, "Use CALC")
    field(OUT, "$(P)$(R)Det$(DET):TOFROIFilterStart.VAL PP")
+   field(PINI, "YES")
 }
 record(calcout, "$(P)$(R)Det$(DET):TOFROIFilterSizeSet")
 {
@@ -887,6 +1000,44 @@ record(calcout, "$(P)$(R)Det$(DET):TOFROIFilterSizeSet")
    field(OOPT, "Every Time")
    field(DOPT, "Use CALC")
    field(OUT, "$(P)$(R)Det$(DET):TOFROIFilterSize.VAL PP")
+   field(PINI, "YES")
 }
 
+# Not sure why but the above records seem to require an additonal process at startup
+# This is triggered in IOC startup script.
+record(dfanout, "$(P)$(R)Det$(DET):TOFROIFilterProc")
+{
+   field(VAL, "1")
+   field(OUTA, "$(P)$(R)Det$(DET):TOFROIFilterStartSet.PROC PP")
+   field(OUTB, "$(P)$(R)Det$(DET):TOFROIFilterSizeSet.PROC PP")
+}
+
+################################################################
+# Trigger some records at startup in IOC script
+
+record(dfanout, "$(P)$(R)Det$(DET):StartupProc")
+{
+   field(VAL, "1")
+   field(OUTA, "$(P)$(R)Det$(DET):PixelMapFile.PROC PP")
+   field(OUTB, "$(P)$(R)Det$(DET):PixelROIFilterProc.PROC PP")
+   field(OUTC, "$(P)$(R)Det$(DET):TOFROIFilterProc.PROC PP")
+}
+
+
+#################################################################
+# Provide a parameter to reset the array for the TOF spectrum
+# This is useful when moving an ROI around on the X/Y plot, when that
+# ROI is filtering the TOF spectrum data during an acqusition. 
+# Providing we are not using the TOF spectrum for a counting criteria, 
+# this can useful to examine Bragg reflections.
+#################################################################
+
+# ///
+# /// Reset the TOF spectrum array for detector $(DET)
+# ///
+record(bo, "$(P)$(R)Det$(DET):ResetTOFArray")
+{
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(DET),$(TIMEOUT))ADNED_DET_TOF_ARRAY_RESET")
+}
 
