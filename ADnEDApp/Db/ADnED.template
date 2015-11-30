@@ -509,5 +509,35 @@ include "ADnEDDetectorPixelPlugin.template"
 
 ##########################################################################
 
+substitute "R=$(ADNED)"
 
+# ///
+# /// Records to calculate what the overall Status PV should be
+# ///
+record(calcout, "$(P)$(R)StatusCalc")
+{
+   field(DESC, "Calc ADnED Status")
+   field(PINI, "YES")
+   field(VAL, "0")
+   field(INPA, "$(P)$(R)DetectorState_RBV CP MS")
+   field(INPB, "$(P)$(R)BadTimeStamp_RBV CP MS")
+   field(INPC, "$(P)$(R)SeqIDNumMissing_RBV CP MS")
+   field(INPD, "$(P)$(R)AllocSpaceStatus_RBV CP MS")
+   field(CALC, "(A>1)||(B!=0)||(C!=0)||(D>1)?1:0")
+   field(OOPT, "Every Time")
+   field(DOPT, "Use CALC")
+   field(OUT, "$(P)$(R)Status.VAL PP")
+}
 
+# ///
+# /// 0 = Ok (No error and we are either Idle or Acquiring).
+# /// 1 = Error (Combined Error PV is 1)
+# ///
+record(bi, "$(P)$(R)Status")
+{
+   field(DESC, "Motor Status")
+   field(ZNAM, "Ok")
+   field(ONAM, "Error")
+   field(OSV, "MAJOR")
+   info(archive, "Monitor, 00:00:01, VAL")
+}
