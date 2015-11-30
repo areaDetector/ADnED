@@ -1065,7 +1065,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   lock();
   ++m_seqCounter[channelID];  
   try {
-    if (!m_PVTimeStamp.attach(pv_struct->getStructureField(ADNED_PV_TIMESTAMP))) {
+    if (!m_PVTimeStamp.attach(pv_struct->getSubField<epics::pvData::PVStructure>(ADNED_PV_TIMESTAMP))) {
       if (eventUpdate) {
         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Failed to attach PVTimeStamp.\n", functionName);
       }
@@ -1113,7 +1113,7 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
   }
   unlock();
   
-  epics::pvData::PVDoublePtr pChargePtr = pv_struct->getDoubleField(ADNED_PV_PCHARGE);
+  epics::pvData::PVDoublePtr pChargePtr = pv_struct->getSubField<epics::pvData::PVDouble>(ADNED_PV_PCHARGE);
   if (!pChargePtr) {
     if (eventUpdate) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s No valid pCharge found.\n", functionName);
