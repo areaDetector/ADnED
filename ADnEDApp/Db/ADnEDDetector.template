@@ -14,6 +14,8 @@
 # PORT - Asyn port name
 # DET - Asyn address (used to identify a detector, 1-based)
 # TIMEOUT - Asyn timeout
+# TOFSIZE - The maximum size of the TOF spectrum (eg. 160000)
+# TOFXSIZE - The size of the waveform for the DETX TOF spectrum
 #
 #####################################################################
 
@@ -764,8 +766,20 @@ record(ai, "$(P)$(R)Det$(DET):TOF:XAxis_Start")
 record(longin, "$(P)$(R)Det$(DET):TOF:XAxis_Size")
 {
    field(PINI, "YES")
-   field(VAL, "$(TOFSIZE)")
+   field(VAL, "$(TOFXSIZE)")
+   field(HHSV, "MAJOR")
    info(autosaveFields, "VAL")	
+}
+
+record(calcout, "$(P)$(R)Det$(DET):TOF:XAxis_SizeHIHI")
+{
+   field(PINI, "YES")
+   field(INPA, "$(TOFXSIZE)")
+   field(INPB, "1")
+   field(CALC, "A+1")
+   field(OOPT, "Every Time")
+   field(DOPT, "Use CALC")
+   field(OUT, "$(P)$(R)Det$(DET):TOF:XAxis_Size.HIHI PP")
 }
 
 record(ai, "$(P)$(R)Det$(DET):TOF:XAxis_Bin")
@@ -788,7 +802,8 @@ record(ai, "$(P)$(R)Det$(DET):TOF:XAxis_End")
 # /// INPA - Start value
 # /// INPB - Size of the desired scale array (must be <=NOVA)
 # /// INPC - Bin size
-# /// NOVA - Max size of the output array
+# /// NOVA - Max size of the output array. This should match the max size of
+# ///        of the TOF waveform.
 # ///
 record(aSub, "$(P)$(R)Det$(DET):TOF:XAxis")
 {
@@ -803,7 +818,7 @@ record(aSub, "$(P)$(R)Det$(DET):TOF:XAxis")
    field(FTB, "LONG")
    field(FTC, "DOUBLE")
    field(FTVA, "DOUBLE")
-   field(NOVA, "$(TOFSIZE)")
+   field(NOVA, "$(TOFXSIZE)")
 }
 
 #####################################################################

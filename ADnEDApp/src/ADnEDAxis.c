@@ -24,7 +24,7 @@
  *    field(FTB, "LONG")
  *    field(FTC, "DOUBLE")
  *    field(FTVA, "DOUBLE")
- *    field(NOVA, "$(TOFSIZE)")
+ *    field(NOVA, "$(TOFXSIZE)") <- this is the max size of the TOF waveform for DETX
  * }
  *
  */
