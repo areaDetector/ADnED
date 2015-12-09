@@ -10,7 +10,7 @@
 # Macros:
 # P,R - base PV name
 # DET - Detector number (1-based)
-# TOFSIZE - Max size of TOF spectrum
+# NELEMENTS - Max size of TOF spectrum
 #
 #####################################################################
 

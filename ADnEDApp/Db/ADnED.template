@@ -14,7 +14,11 @@
 # PORT - Asyn port name
 # ADDR - Asyn address (set to zero)
 # TIMEOUT - Asyn timeout
-# TOFSIZE - The size of the waveforms for the TOF spectrums
+# TOFSIZE - The maximum size of the TOF spectrum (eg. 160000)
+# TOF1SIZE - The size of the waveform for the DET1 TOF spectrum
+# TOF2SIZE - The size of the waveform for the DET2 TOF spectrum
+# TOF3SIZE - The size of the waveform for the DET3 TOF spectrum
+# TOF4SIZE - The size of the waveform for the DET4 TOF spectrum
 # DET1SIZE - The size of the DET1 waveform
 # DET2SIZE - The size of the DET2 waveform
 # DET3SIZE - The size of the DET3 waveform
@@ -452,21 +456,25 @@ record(dfanout, "$(P)$(R)ResetPlugins") {
 }
 
 substitute "DET=1"
+substitute "TOFXSIZE=$(TOF1SIZE)"
 include "ADnEDDetector.template"
 
 substitute "DET=2"
+substitute "TOFXSIZE=$(TOF2SIZE)"
 include "ADnEDDetector.template"
 
 substitute "DET=3"
+substitute "TOFXSIZE=$(TOF3SIZE)"
 include "ADnEDDetector.template"
 
 substitute "DET=4"
+substitute "TOFXSIZE=$(TOF4SIZE)"
 include "ADnEDDetector.template"
 
 substitute "R=$(ADNED)"
 substitute "DET=1"
 include "ADnEDDetectorPlugin.template"
-substitute "NELEMENTS=$(TOFSIZE)"
+substitute "NELEMENTS=$(TOF1SIZE)"
 include "ADnEDDetectorTOFPlugin.template"
 substitute "NELEMENTS=$(DET1SIZE)"
 substitute "HIST_SIZE=$(DET1SIZE)"
@@ -477,7 +485,7 @@ include "ADnEDDetectorPixelPlugin.template"
 substitute "R=$(ADNED)"
 substitute "DET=2"
 include "ADnEDDetectorPlugin.template"
-substitute "NELEMENTS=$(TOFSIZE)"
+substitute "NELEMENTS=$(TOF2SIZE)"
 include "ADnEDDetectorTOFPlugin.template"
 substitute "NELEMENTS=$(DET2SIZE)"
 substitute "HIST_SIZE=$(DET2SIZE)"
@@ -488,7 +496,7 @@ include "ADnEDDetectorPixelPlugin.template"
 substitute "R=$(ADNED)"
 substitute "DET=3"
 include "ADnEDDetectorPlugin.template"
-substitute "NELEMENTS=$(TOFSIZE)"
+substitute "NELEMENTS=$(TOF3SIZE)"
 include "ADnEDDetectorTOFPlugin.template"
 substitute "NELEMENTS=$(DET3SIZE)"
 substitute "HIST_SIZE=$(DET3SIZE)"
@@ -499,7 +507,7 @@ include "ADnEDDetectorPixelPlugin.template"
 substitute "R=$(ADNED)"
 substitute "DET=4"
 include "ADnEDDetectorPlugin.template"
-substitute "NELEMENTS=$(TOFSIZE)"
+substitute "NELEMENTS=$(TOF4SIZE)"
 include "ADnEDDetectorTOFPlugin.template"
 substitute "NELEMENTS=$(DET4SIZE)"
 substitute "HIST_SIZE=$(DET4SIZE)"
@@ -509,5 +517,35 @@ include "ADnEDDetectorPixelPlugin.template"
 
 ##########################################################################
 
+substitute "R=$(ADNED)"
 
+# ///
+# /// Records to calculate what the overall Status PV should be
+# ///
+record(calcout, "$(P)$(R)StatusCalc")
+{
+   field(DESC, "Calc ADnED Status")
+   field(PINI, "YES")
+   field(VAL, "0")
+   field(INPA, "$(P)$(R)DetectorState_RBV CP MS")
+   field(INPB, "$(P)$(R)BadTimeStamp_RBV CP MS")
+   field(INPC, "$(P)$(R)SeqIDNumMissing_RBV CP MS")
+   field(INPD, "$(P)$(R)AllocSpaceStatus_RBV CP MS")
+   field(CALC, "(A>1)||(B!=0)||(C!=0)||(D>1)?1:0")
+   field(OOPT, "Every Time")
+   field(DOPT, "Use CALC")
+   field(OUT, "$(P)$(R)Status.VAL PP")
+}
 
+# ///
+# /// 0 = Ok (No error and we are either Idle or Acquiring).
+# /// 1 = Error (Combined Error PV is 1)
+# ///
+record(bi, "$(P)$(R)Status")
+{
+   field(DESC, "Motor Status")
+   field(ZNAM, "Ok")
+   field(ONAM, "Error")
+   field(OSV, "MAJOR")
+   info(archive, "Monitor, 00:00:01, VAL")
+}
