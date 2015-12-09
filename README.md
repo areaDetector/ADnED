@@ -15,9 +15,10 @@ ADnED provides the following features:
 * ROI statistics on all plots (max, min, mean, total events, event rate)
 * Filter events going into a TOF spectra based on a X/Y ROI
 * Filter events going into a X/Y plot based on TOF ROI
-* Re-binning on the TOF spectrum
+* Re-binning on the TOF spectrum. The waveform sizes can be adjusted at compile time if smaller arrays are sufficient.
 * Ability to specify TOF spectrum ROIs in user units (eg. milliseconds). Automatic handling of TOF re-binning.
 * Calculate new integrating spectrums based on the TOF and pixel ID, eg. d-space or energy transfer. 
+* Ability to clear any of the 1-D plots while an acqusition is in process. This is useful when analyzing a 2-D plot by moving a ROI around on different diffraction peaks, and looking at the effect of the resulting filtered 1-D spectra.
 
 The CS-Studio OPI files provide additional features:
 
