@@ -386,6 +386,20 @@ record(busy, "$(P)$(R)StopBusy") {
    field(VAL,  "0")
 }
 
+# ///
+# /// Stop ADnED is we are busy. This is a useful if we have
+# /// high level software that wants to stop before starting, wether
+# /// of not we are actually running. This only issues a real stop
+# /// if we are in acquire state. 
+# ///
+record(calcout, "$(P)$(R)StopIfBusy") {
+   field(INPA, "$(P)$(R)DetectorState_RBV")
+   field(CALC, "A=1")
+   field(OOPT, "When Non-zero")
+   field(DOPT, "Use CALC")
+   field(OUT, "$(P)$(R)Stop PP")
+}
+
 # /// 
 # /// Pause counting (to pause a run). Enable this to stop counting
 # /// and enable it to start where counting left off. The monitors
