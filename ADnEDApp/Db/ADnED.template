@@ -302,12 +302,16 @@ record(ai, "$(P)$(R)PChargeIntegrated_RBV")
    field(EGU, "C")
    field(FLNK, "$(P)$(R)PChargeIntegrated_pC")	
 }
-
+# ///
+# /// We autosave the EGU and CALC so we can easily change units.
+# /// The default units are pico coulombs.
+# ///
 record(calc, "$(P)$(R)PChargeIntegrated_pC")
 {
    field(INPA, "$(P)$(R)PChargeIntegrated_RBV")
    field(CALC, "A*1e12")
    field(EGU, "pC")
+   info(autosaveFields, "EGU CALC")   
 }
 
 # /// 
