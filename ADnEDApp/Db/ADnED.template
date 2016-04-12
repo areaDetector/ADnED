@@ -302,12 +302,16 @@ record(ai, "$(P)$(R)PChargeIntegrated_RBV")
    field(EGU, "C")
    field(FLNK, "$(P)$(R)PChargeIntegrated_pC")	
 }
-
+# ///
+# /// We autosave the EGU and CALC so we can easily change units.
+# /// The default units are pico coulombs.
+# ///
 record(calc, "$(P)$(R)PChargeIntegrated_pC")
 {
    field(INPA, "$(P)$(R)PChargeIntegrated_RBV")
    field(CALC, "A*1e12")
    field(EGU, "pC")
+   info(autosaveFields, "EGU CALC")   
 }
 
 # /// 
@@ -384,6 +388,20 @@ record(busy, "$(P)$(R)StopBusy") {
    field(ZNAM, "Stopped")
    field(ONAM, "Stopping")
    field(VAL,  "0")
+}
+
+# ///
+# /// Stop ADnED is we are busy. This is a useful if we have
+# /// high level software that wants to stop before starting, wether
+# /// of not we are actually running. This only issues a real stop
+# /// if we are in acquire state. 
+# ///
+record(calcout, "$(P)$(R)StopIfBusy") {
+   field(INPA, "$(P)$(R)DetectorState_RBV")
+   field(CALC, "A=1")
+   field(OOPT, "When Non-zero")
+   field(DOPT, "Use CALC")
+   field(OUT, "$(P)$(R)Stop PP")
 }
 
 # /// 

@@ -26,6 +26,7 @@
 #include "string.h"
 #include "errno.h"
 #include <stdexcept>
+#include "unistd.h"
 
 #include "ADnEDFile.h"
 
