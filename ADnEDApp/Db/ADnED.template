@@ -491,7 +491,7 @@ substitute "R=$(ADNED)"
 # ///
 # /// Records to calculate what the overall Status PV should be
 # ///
-record(calcout, "$(P)$(R)StatusCalc")
+record(calc, "$(P)$(R)StatusCalc")
 {
    field(DESC, "Calc ADnED Status")
    field(PINI, "YES")
@@ -501,9 +501,6 @@ record(calcout, "$(P)$(R)StatusCalc")
    field(INPC, "$(P)$(R)SeqIDNumMissing_RBV CP MS")
    field(INPD, "$(P)$(R)AllocSpaceStatus_RBV CP MS")
    field(CALC, "(A>1)||(B!=0)||(C!=0)||(D>1)?1:0")
-   field(OOPT, "Every Time")
-   field(DOPT, "Use CALC")
-   field(OUT, "$(P)$(R)Status.VAL PP")
 }
 
 # ///
@@ -513,6 +510,7 @@ record(calcout, "$(P)$(R)StatusCalc")
 record(bi, "$(P)$(R)Status")
 {
    field(DESC, "Motor Status")
+   field(INP, "$(P)$(R)SatusCalc.VAL CP MS")
    field(ZNAM, "Ok")
    field(ONAM, "Error")
    field(OSV, "MAJOR")
