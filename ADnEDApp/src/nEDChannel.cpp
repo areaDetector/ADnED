@@ -22,6 +22,7 @@
 namespace nEDChannel {
 
   using std::cout;
+  using std::cerr;
   using std::endl;
   using std::string;
 
@@ -115,7 +116,14 @@ namespace nEDChannel {
     shared_ptr<MonitorElement> update;
     while ((update = monitor->poll())) {
       p_nED->eventHandler(update->pvStructurePtr, m_channelID);
-      monitor->release(update);
+      try {
+        monitor->release(update);
+      } catch (std::exception &e) {
+        cerr << "nEDMonitorRequester::monitorEvent. " << endl;
+        cerr << "   m_channelID: " << m_channelID << endl; 
+        cerr << "   Exception caught from monitor->release(update): " << endl;
+        cerr << e.what() << endl;
+      }
     }
   }
   
