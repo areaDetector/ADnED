@@ -42,9 +42,11 @@ void ADnEDPixelROI::processCallbacks(NDArray *pArray)
     int dataType = 0;
     int dim = 0;
     int itemp = 0;
+    int status = ND_SUCCESS;
     NDDimension_t dims[ADNED_PIXELROI_MAX_DIMS];
     NDDimension_t *pDim = NULL;
-    NDArray *pOutput = NULL; 
+    NDArray *pOutput = NULL;
+    static const char *functionName = "ADnEDPixelROI::processCallbacks";
 
     memset(dims, 0, sizeof(NDDimension_t) * ADNED_PIXELROI_MAX_DIMS);
 
@@ -68,13 +70,24 @@ void ADnEDPixelROI::processCallbacks(NDArray *pArray)
     }
 
     /* Make sure dimensions are valid, fix them if they are not */
+    /* Make sure each new X/Y size is not bigger than the Dim0 size.*/
     for (dim=0; dim<3; dim++) {
       pDim = &dims[dim];
       pDim->offset  = MAX(pDim->offset,  0);
       pDim->offset  = MIN(pDim->offset,  pArray->dims[0].size-1);
       pDim->size    = MAX(pDim->size,    1);
-      pDim->size    = MIN(pDim->size,    pArray->dims[0].size - pDim->offset);
+      pDim->size    = MIN(pDim->size,    dims[0].size);
       pDim->binning = MAX(pDim->binning, 1);
+    }
+
+    /* Make sure end result of X*Y is not bigger than pArray->dims[0].size 
+       (the total size of the original NDArray for all detectors. In this 
+       case something is wrong so we clamp to 1.*/
+    if ((dims[1].size * dims[2].size) >= pArray->dims[0].size) {
+      dims[1].size = 1;
+      dims[2].size = 1;
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		"%s ERROR: 2-D sizes are too large for original NDArray size.\n", functionName);
     }
 
     /* Update the parameters that may have have been fixed */
@@ -112,10 +125,23 @@ void ADnEDPixelROI::processCallbacks(NDArray *pArray)
     new_dims[0].offset = dims[0].offset;
     new_dims[0].binning = 1;
     new_dims[1].binning = 1;
- 
-    this->pNDArrayPool->convert(pArray, &this->pArrays[0], (NDDataType_t)dataType, new_dims); 
+
+    status = this->pNDArrayPool->convert(pArray, &this->pArrays[0], (NDDataType_t)dataType, new_dims); 
+    if (status != ND_SUCCESS) {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		"%s ERROR: cannot convert from 1-D to 2-D.\n", functionName);
+      this->lock();
+      return;
+    }
     pOutput = this->pArrays[0];
- 
+
+    if (pOutput == NULL) {
+      asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
+		"%s ERROR: pOutput == NULL.\n", functionName);
+      this->lock();
+      return;
+    }
+
    //Now we have extraced the 1-D ROI, set the 2-D dims
     pOutput->ndims = 2;
     pOutput->dims[0].size = dims[1].size;
@@ -133,7 +159,7 @@ void ADnEDPixelROI::processCallbacks(NDArray *pArray)
     setIntegerParam(NDArraySizeZ, 0);
     if (pOutput->ndims > 0) setIntegerParam(NDArraySizeX, (int)this->pArrays[0]->dims[0].size);
     if (pOutput->ndims > 1) setIntegerParam(NDArraySizeY, (int)this->pArrays[0]->dims[1].size);
-   
+
     /* Get the attributes for this driver */
     this->getAttributes(this->pArrays[0]->pAttributeList);
     /* Call any clients who have registered for NDArray callbacks */
