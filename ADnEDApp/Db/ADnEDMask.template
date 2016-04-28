@@ -1,0 +1,36 @@
+
+#####################################################################
+# Template file for the NDPluginMask plugin. Only one of these should
+# be instantiated per Asyn port.
+#  
+# Macros:
+# P,R - base PV names
+# O - second part of base PV name for top level template (ADMask.template)
+# PORT - asyn port
+# ADDR - asyn address (increment for each mask)
+# TIMEOUT - asyn timeout (eg. 1)
+
+include "NDPluginBase.template"
+
+# ///
+# /// The maximum size in X. This is determined by the size
+# /// of the incoming NDArray. 
+# ///
+record(longin, "$(P)$(R)MaxSizeX_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MASK_MAX_SIZE_X")
+   field(SCAN, "I/O Intr")
+}
+
+# ///
+# /// The maximum size in Y. This is determined by the size
+# /// of the incoming NDArray. 
+# ///
+record(longin, "$(P)$(R)MaxSizeY_RBV")
+{
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MASK_MAX_SIZE_Y")
+   field(SCAN, "I/O Intr")
+}
+
