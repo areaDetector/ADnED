@@ -21,6 +21,8 @@ DB += ADnEDDetectorROIPluginASG.template
 DB += ADnEDDetectorTOFROIScale.template
 DB += ADnEDDetectorROIRate.template
 DB += ADnEDDetectorTOFTransform.template
+DB += ADnEDMask.template
+DB += ADnEDMaskN.template
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add
