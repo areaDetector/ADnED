@@ -18,7 +18,7 @@ record(stringout, "$(P)$(R)Name")
     field(PINI, "YES")
     field(DTYP, "asynOctetWrite")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MASK_NAME")
-    field(VAL,  "$(NAME)")
+    field(VAL,  " ")
     info(autosaveFields, "VAL")
 }
 
