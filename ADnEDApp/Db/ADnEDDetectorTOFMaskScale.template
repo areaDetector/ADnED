@@ -1,0 +1,61 @@
+
+#####################################################################
+#
+# areaDetector nED client template file. This should be included by the
+# ADnEDDetector.template file, for each TOF Mask being used. 
+# It defines new high level mask records that present different units.
+#
+# Matt Pearson
+# April 16
+#
+# Macros:
+# P,R - base PV name
+# DET - Asyn address (used to identify a detector, 1-based)
+# MASK - MASK number
+# SIZE1 - PV for the size of the TOF plot in science units (eg 16ms)
+# SIZE2 - PV for the size of the TOF array after binning (eg. 160000 bins)
+# SIZE3 - PV for the start of the TOF plot in science units (eg. 2ms, if we plot from 2 to 16)
+#
+#####################################################################
+
+record(ai, "$(P)$(R)Det$(DET):TOF:Mask:$(MASK):Min")
+{
+   field(PINI, "YES")
+   field(VAL, "0")
+   field(PREC, "2")
+   field(FLNK, "$(P)$(R)Det$(DET):TOF:Mask:$(MASK):CalcMin")
+   info(autosaveFields, "VAL")
+}
+
+record(ai, "$(P)$(R)Det$(DET):TOF:Mask:$(MASK):Size")
+{
+   field(PINI, "YES")
+   field(VAL, "0")
+   field(PREC, "2")
+   field(FLNK, "$(P)$(R)Det$(DET):TOF:Mask:$(MASK):CalcSize")
+   info(autosaveFields, "VAL")
+}
+
+record(calcout, "$(P)$(R)Det$(DET):TOF:Mask:$(MASK):CalcMin")
+{
+   field(INPA, "$(P)$(R)Det$(DET):TOF:Mask:$(MASK):Min CP")
+   field(INPB, "$(SIZE1) CP")
+   field(INPC, "$(SIZE2) CP")
+   field(INPD, "$(SIZE3) CP")
+   field(CALC, "(((A-D)/B)*C)")
+   field(OUT, "$(P)$(R)Det$(DET):TOF:Mask:$(MASK):PosX PP")
+}
+
+record(calcout, "$(P)$(R)Det$(DET):TOF:Mask:$(MASK):CalcSize")
+{
+   field(INPA, "$(P)$(R)Det$(DET):TOF:Mask:$(MASK):Size CP")
+   field(INPB, "$(SIZE1) CP")
+   field(INPC, "$(SIZE2) CP")
+   field(CALC, "(A/B)*C")
+   field(OUT, "$(P)$(R)Det$(DET):TOF:Mask:$(MASK):SizeX PP")
+}
+
+
+
+
+

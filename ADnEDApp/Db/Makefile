@@ -19,6 +19,7 @@ DB += ADnEDDetectorPixelPlugin.template
 DB += ADnEDPixelROI.template
 DB += ADnEDDetectorROIPluginASG.template
 DB += ADnEDDetectorTOFROIScale.template
+DB += ADnEDDetectorTOFMaskScale.template
 DB += ADnEDDetectorROIRate.template
 DB += ADnEDDetectorTOFTransform.template
 DB += ADnEDMask.template
