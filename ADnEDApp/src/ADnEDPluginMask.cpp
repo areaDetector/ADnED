@@ -24,6 +24,9 @@
 #define MAX(A,B) (A)>(B)?(A):(B)
 #define MIN(A,B) (A)<(B)?(A):(B)
 
+const epicsUInt32 NDPluginMask::s_MASK_TYPE_REJECT = 0;
+const epicsUInt32 NDPluginMask::s_MASK_TYPE_PASS = 1;
+
 template <typename epicsType>
 void NDPluginMask::doMaskT(NDArray *pArray, NDMask_t *pMask)
 {
@@ -32,6 +35,7 @@ void NDPluginMask::doMaskT(NDArray *pArray, NDMask_t *pMask)
   size_t ymin = 0;
   size_t ymax = 0;
   size_t mask_val = 0; 
+  size_t mask_type = 0;
   size_t ix = 0;
   size_t iy = 0;
   epicsType *pRow = NULL;
@@ -39,10 +43,10 @@ void NDPluginMask::doMaskT(NDArray *pArray, NDMask_t *pMask)
   if (pMask != NULL) {
 
     asynPrint(pasynUserSelf, ASYN_TRACEIO_DRIVER,
-              "NDPluginMask::doMaskT, Xpos=%ld, Ypos=%ld, Xsize=%ld, Ysize=%ld, MaskVal=%ld\n",
+              "NDPluginMask::doMaskT, Xpos=%ld, Ypos=%ld, Xsize=%ld, Ysize=%ld, MaskVal=%ld, MaskType=%ld\n",
               static_cast<long>(pMask->PosX), static_cast<long>(pMask->PosY), 
               static_cast<long>(pMask->SizeX), static_cast<long>(pMask->SizeY), 
-              static_cast<long>(pMask->MaskVal));
+              static_cast<long>(pMask->MaskVal), static_cast<long>(pMask->MaskType));
     
     xmin = pMask->PosX;
     xmin = MAX(xmin, 0);
@@ -53,22 +57,48 @@ void NDPluginMask::doMaskT(NDArray *pArray, NDMask_t *pMask)
     ymax = pMask->PosY + pMask->SizeY;
     ymax = MIN(ymax, this->arrayInfo.ySize);
     mask_val = pMask->MaskVal;
+    mask_type = pMask->MaskType;
   }
-  
+
   if (pArray != NULL) {
+    
     if (pArray->ndims == 1) {
-      for (ix = xmin; ix <= xmax; ++ix) {
-        (static_cast<epicsType *>(pArray->pData))[ix*this->arrayInfo.xStride] = static_cast<epicsType>(mask_val);
-      }
-    } else if (pArray->ndims == 2) {
-      for (iy = ymin; iy <= ymax; ++iy) {
-        pRow = static_cast<epicsType *>(pArray->pData) + iy*arrayInfo.yStride;
-        for ( ix = xmin; ix <= xmax; ++ix) {
-          pRow[ix*this->arrayInfo.xStride] = static_cast<epicsType>(mask_val);
+      
+      if (mask_type == s_MASK_TYPE_REJECT) {
+        for (ix = xmin; ix <= xmax; ++ix) {
+          (static_cast<epicsType *>(pArray->pData))[ix*this->arrayInfo.xStride] = static_cast<epicsType>(mask_val);
+        }
+      } else if (mask_type == s_MASK_TYPE_PASS) {
+        for (ix = 0; ix < xArrayMax; ++ix) {
+          if ((ix<xmin)||(ix>xmax)) {
+            (static_cast<epicsType *>(pArray->pData))[ix*this->arrayInfo.xStride] = static_cast<epicsType>(mask_val);
+          }
         }
       }
+      
+    } else if (pArray->ndims == 2) {
+      
+      if (mask_type == s_MASK_TYPE_REJECT) {
+        for (iy = ymin; iy <= ymax; ++iy) {
+          pRow = static_cast<epicsType *>(pArray->pData) + iy*arrayInfo.yStride;
+          for ( ix = xmin; ix <= xmax; ++ix) {
+            pRow[ix*this->arrayInfo.xStride] = static_cast<epicsType>(mask_val);
+          }
+        }
+      } else if (mask_type == s_MASK_TYPE_PASS) {
+        for (iy = 0; iy < yArrayMax; ++iy) {
+          pRow = static_cast<epicsType *>(pArray->pData) + iy*arrayInfo.yStride;
+          for (ix = 0; ix < xArrayMax; ++ix) {
+            if ((ix<xmin)||(ix>xmax)) {
+              pRow[ix*this->arrayInfo.xStride] = static_cast<epicsType>(mask_val);
+            }
+          }
+        }
+      }
+      
     }
-  }
+    
+  } //(pArray != NULL)
   
 }
 
@@ -163,6 +193,8 @@ void NDPluginMask::processCallbacks(NDArray *pArray)
   pOutput->getInfo(&this->arrayInfo);
   setIntegerParam(NDPluginMaskMaxSizeX, (int)arrayInfo.xSize);
   setIntegerParam(NDPluginMaskMaxSizeY, (int)arrayInfo.ySize);
+  xArrayMax = (int)arrayInfo.xSize;
+  yArrayMax = (int)arrayInfo.ySize;
   
   /* Loop over the masks in this driver */
   for (mask = 0; mask < this->maxMasks; ++mask) {
@@ -180,15 +212,20 @@ void NDPluginMask::processCallbacks(NDArray *pArray)
     /* Need to fetch all of these parameters while we still have the mutex */
     getIntegerParam(mask, NDPluginMaskPosX,  &itemp); pMask->PosX = itemp;
     pMask->PosX = MAX(pMask->PosX, 0);
-    pMask->PosX = MIN(pMask->PosX, this->arrayInfo.xSize-1);
+    pMask->PosX = MIN(pMask->PosX, xArrayMax-1);
     getIntegerParam(mask, NDPluginMaskSizeX,      &itemp); pMask->SizeX = itemp;
+    pMask->SizeX = MAX(pMask->SizeX, 0);
+    pMask->SizeX = MIN(pMask->SizeX, xArrayMax-(pMask->PosX));
     if (pArray->ndims > 1) {
       getIntegerParam(mask, NDPluginMaskPosY,  &itemp); pMask->PosY = itemp;
       pMask->PosY = MAX(pMask->PosY, 0);
-      pMask->PosY = MIN(pMask->PosY, this->arrayInfo.ySize-1);
+      pMask->PosY = MIN(pMask->PosY, yArrayMax-1);
       getIntegerParam(mask, NDPluginMaskSizeY,      &itemp); pMask->SizeY = itemp;
+      pMask->SizeY = MAX(pMask->SizeY, 0);
+      pMask->SizeY = MIN(pMask->SizeY, yArrayMax-(pMask->PosY));
     }
     getIntegerParam(mask, NDPluginMaskVal,        &itemp); pMask->MaskVal = itemp;
+    getIntegerParam(mask, NDPluginMaskType,       &itemp); pMask->MaskType = itemp;
 
     /* Update any changed parameters */
     setIntegerParam(mask, NDPluginMaskPosX, static_cast<int>(pMask->PosX));
@@ -264,6 +301,10 @@ NDPluginMask::NDPluginMask(const char *portName, int queueSize, int blockingCall
     createParam(NDPluginMaskSizeXString,         asynParamInt32, &NDPluginMaskSizeX);
     createParam(NDPluginMaskSizeYString,         asynParamInt32, &NDPluginMaskSizeY);
     createParam(NDPluginMaskValString,           asynParamInt32, &NDPluginMaskVal);
+    createParam(NDPluginMaskTypeString,          asynParamInt32, &NDPluginMaskType);
+
+    xArrayMax = 0;
+    yArrayMax = 0;
 
     /* Set the plugin type string */
     setStringParam(NDPluginDriverPluginType, "NDPluginMask");

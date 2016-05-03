@@ -16,6 +16,7 @@ typedef struct NDMask {
   size_t SizeX;
   size_t SizeY;
   size_t MaskVal;
+  size_t MaskType;
 } NDMask_t;
 
 #define NDPluginMaskFirstString       "MASK_FIRST"               
@@ -28,6 +29,7 @@ typedef struct NDMask {
 #define NDPluginMaskSizeXString       "MASK_SIZE_X"      /* X size of mask */
 #define NDPluginMaskSizeYString       "MASK_SIZE_Y"      /* Y size of mask */
 #define NDPluginMaskValString         "MASK_VAL"         /* The mask value */
+#define NDPluginMaskTypeString        "MASK_TYPE"        /* The mask type (Pass, Reject, etc.) */
 #define NDPluginMaskLastString        "MASK_LAST"               
 
 class epicsShareClass NDPluginMask : public NDPluginDriver {
@@ -54,14 +56,21 @@ protected:
     int NDPluginMaskSizeX;
     int NDPluginMaskSizeY;
     int NDPluginMaskVal;
+    int NDPluginMaskType;
     int NDPluginMaskLast;
     #define LAST_NDPLUGIN_MASK_PARAM NDPluginMaskLast
                                 
 private:
+
+    static const epicsUInt32 s_MASK_TYPE_REJECT;
+    static const epicsUInt32 s_MASK_TYPE_PASS;
+
     int maxMasks;
     NDArrayInfo arrayInfo;
     NDMask_t *pMasks;   /* Array of NDMask structures (indexed by Asyn address) */
     NDMask_t *pMask;
+    epicsUInt32 xArrayMax;
+    epicsUInt32 yArrayMax;
 };
 #define NUM_NDPLUGIN_MASK_PARAMS ((int)(&LAST_NDPLUGIN_MASK_PARAM - &FIRST_NDPLUGIN_MASK_PARAM + 1))
     
