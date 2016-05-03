@@ -18,6 +18,7 @@ caput -c BL99:Det:N1:Det1:PixelSizeX 32
 
 caput -c BL99:Det:N1:Det1:TOF:EnableCallbacks 1
 caput -c BL99:Det:N1:Det1:TOF:Array:EnableCallbacks 1
+caput -c BL99:Det:N1:Det1:TOF:Mask:EnableCallbacks 1
 
 caput -c BL99:Det:N1:Det1:TOF:ROI:EnableCallbacks 1
 caput -c BL99:Det:N1:Det1:TOF:ROI:1:Use 1
@@ -62,6 +63,7 @@ caput -c BL99:Det:N1:Det2:PixelSizeX 32
 
 caput -c BL99:Det:N1:Det2:TOF:EnableCallbacks 1
 caput -c BL99:Det:N1:Det2:TOF:Array:EnableCallbacks 1
+caput -c BL99:Det:N1:Det2:TOF:Mask:EnableCallbacks 1
 
 caput -c BL99:Det:N1:Det2:TOF:ROI:EnableCallbacks 1
 caput -c BL99:Det:N1:Det2:TOF:ROI:1:Use 1
@@ -99,6 +101,7 @@ caput -c BL99:Det:N1:Det3:PixelSizeX 32
 
 caput -c BL99:Det:N1:Det3:TOF:EnableCallbacks 0
 caput -c BL99:Det:N1:Det3:TOF:Array:EnableCallbacks 0
+caput -c BL99:Det:N1:Det3:TOF:Mask:EnableCallbacks 1
 
 caput -c BL99:Det:N1:Det3:TOF:ROI:EnableCallbacks 0
 caput -c BL99:Det:N1:Det3:TOF:ROI:1:Use 0
@@ -136,6 +139,7 @@ caput -c BL99:Det:N1:Det4:PixelSizeX 32
 
 caput -c BL99:Det:N1:Det4:TOF:EnableCallbacks 0
 caput -c BL99:Det:N1:Det4:TOF:Array:EnableCallbacks 0
+caput -c BL99:Det:N1:Det4:TOF:Mask:EnableCallbacks 1
 
 caput -c BL99:Det:N1:Det4:TOF:ROI:EnableCallbacks 0
 caput -c BL99:Det:N1:Det4:TOF:ROI:1:Use 0
