@@ -28,6 +28,7 @@ caput -c BL99:Det:N1:Det1:XY:Min1 0
 caput -c BL99:Det:N1:Det1:XY:Min2 0
 caput -c BL99:Det:N1:Det1:XY:Size1 32
 caput -c BL99:Det:N1:Det1:XY:Size2 32
+caput -c BL99:Det:N1:Det1:XY:Mask:EnableCallbacks 1
 caput -c BL99:Det:N1:Det1:XY:Array:EnableCallbacks 1
 
 caput -c BL99:Det:N1:Det1:XY:ROI:EnableCallbacks 1
@@ -73,6 +74,7 @@ caput -c BL99:Det:N1:Det2:XY:Min1 0
 caput -c BL99:Det:N1:Det2:XY:Min2 0
 caput -c BL99:Det:N1:Det2:XY:Size1 32
 caput -c BL99:Det:N1:Det2:XY:Size2 32
+caput -c BL99:Det:N1:Det2:XY:Mask:EnableCallbacks 1
 caput -c BL99:Det:N1:Det2:XY:Array:EnableCallbacks 1
 
 caput -c BL99:Det:N1:Det2:XY:ROI:EnableCallbacks 1
@@ -111,6 +113,7 @@ caput -c BL99:Det:N1:Det3:XY:Min1 0
 caput -c BL99:Det:N1:Det3:XY:Min2 0
 caput -c BL99:Det:N1:Det3:XY:Size1 160
 caput -c BL99:Det:N1:Det3:XY:Size2 32
+caput -c BL99:Det:N1:Det3:XY:Mask:EnableCallbacks 1
 caput -c BL99:Det:N1:Det3:XY:Array:EnableCallbacks 1
 
 caput -c BL99:Det:N1:Det3:XY:ROI:EnableCallbacks 1
@@ -149,6 +152,7 @@ caput -c BL99:Det:N1:Det4:XY:Min1 0
 caput -c BL99:Det:N1:Det4:XY:Min2 0
 caput -c BL99:Det:N1:Det4:XY:Size1 160
 caput -c BL99:Det:N1:Det4:XY:Size2 1024
+caput -c BL99:Det:N1:Det4:XY:Mask:EnableCallbacks 1
 caput -c BL99:Det:N1:Det4:XY:Array:EnableCallbacks 1
 
 caput -c BL99:Det:N1:Det4:XY:ROI:EnableCallbacks 1
