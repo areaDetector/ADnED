@@ -67,7 +67,7 @@ include "NDStdArrays.template"
 # Normal TOF ROIs amd Stats
 substitute "R=$(ADNED)Det$(DET):TOF:ROI:"
 substitute "PORT=$(ADNED_PORT).DET$(DET).TOF.ROI"
-substitute "NDARRAY_PORT=$(ADNED_PORT).DET$(DET).MASK"
+substitute "NDARRAY_PORT=$(ADNED_PORT).DET$(DET).TOF.MASK"
 include "NDROIStat.template"
 substitute "R=$(ADNED)Det$(DET):TOF:ROI:0:"
 substitute "ADDR=0"
