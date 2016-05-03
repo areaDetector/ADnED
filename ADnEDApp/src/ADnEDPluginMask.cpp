@@ -47,15 +47,15 @@ void NDPluginMask::doMaskT(NDArray *pArray, NDMask_t *pMask)
               static_cast<long>(pMask->PosX), static_cast<long>(pMask->PosY), 
               static_cast<long>(pMask->SizeX), static_cast<long>(pMask->SizeY), 
               static_cast<long>(pMask->MaskVal), static_cast<long>(pMask->MaskType));
-    
+   
     xmin = pMask->PosX;
     xmin = MAX(xmin, 0);
     xmax = pMask->PosX + pMask->SizeX;
-    xmax = MIN(xmax, this->arrayInfo.xSize);
+    xmax = MIN(xmax, xArrayMax);
     ymin = pMask->PosY;
     ymin = MAX(ymin, 0);
     ymax = pMask->PosY + pMask->SizeY;
-    ymax = MIN(ymax, this->arrayInfo.ySize);
+    ymax = MIN(ymax, yArrayMax);
     mask_val = pMask->MaskVal;
     mask_type = pMask->MaskType;
   }
@@ -65,23 +65,23 @@ void NDPluginMask::doMaskT(NDArray *pArray, NDMask_t *pMask)
     if (pArray->ndims == 1) {
       
       if (mask_type == s_MASK_TYPE_REJECT) {
-        for (ix = xmin; ix <= xmax; ++ix) {
+        for (ix = xmin; ix < xmax; ++ix) {
           (static_cast<epicsType *>(pArray->pData))[ix*this->arrayInfo.xStride] = static_cast<epicsType>(mask_val);
         }
       } else if (mask_type == s_MASK_TYPE_PASS) {
         for (ix = 0; ix < xArrayMax; ++ix) {
-          if ((ix<xmin)||(ix>xmax)) {
+          if ((ix<xmin)||(ix>=xmax)) {
             (static_cast<epicsType *>(pArray->pData))[ix*this->arrayInfo.xStride] = static_cast<epicsType>(mask_val);
           }
         }
       }
       
     } else if (pArray->ndims == 2) {
-      
+
       if (mask_type == s_MASK_TYPE_REJECT) {
-        for (iy = ymin; iy <= ymax; ++iy) {
+        for (iy = ymin; iy < ymax; ++iy) {
           pRow = static_cast<epicsType *>(pArray->pData) + iy*arrayInfo.yStride;
-          for ( ix = xmin; ix <= xmax; ++ix) {
+          for ( ix = xmin; ix < xmax; ++ix) {
             pRow[ix*this->arrayInfo.xStride] = static_cast<epicsType>(mask_val);
           }
         }
@@ -89,7 +89,7 @@ void NDPluginMask::doMaskT(NDArray *pArray, NDMask_t *pMask)
         for (iy = 0; iy < yArrayMax; ++iy) {
           pRow = static_cast<epicsType *>(pArray->pData) + iy*arrayInfo.yStride;
           for (ix = 0; ix < xArrayMax; ++ix) {
-            if ((ix<xmin)||(ix>xmax)) {
+            if ( ((ix<xmin)||(ix>=xmax)) || ((iy<ymin)||(iy>=ymax)) ) {
               pRow[ix*this->arrayInfo.xStride] = static_cast<epicsType>(mask_val);
             }
           }
