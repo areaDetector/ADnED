@@ -19,6 +19,7 @@ ADnED provides the following features:
 * Ability to specify TOF spectrum ROIs in user units (eg. milliseconds). Automatic handling of TOF re-binning.
 * Calculate new integrating spectrums based on the TOF and pixel ID, eg. d-space or energy transfer. 
 * Ability to clear any of the 1-D plots while an acqusition is in process. This is useful when analyzing a 2-D plot by moving a ROI around on different diffraction peaks, and looking at the effect of the resulting filtered 1-D spectra.
+* Using a custom plugin called ADnEDMask (or NDPluginMask) the user has the ability to mask out part of the 2-D pixel plot of the 1-D spectrums. The masks can be set up to filter events out or exclude all other events not inside the mask. This is particulary useful for 1-D plots that have large unwanted peaks due to prompt pulse data.
 
 The CS-Studio OPI files provide additional features:
 
