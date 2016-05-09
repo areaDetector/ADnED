@@ -175,6 +175,7 @@ class ADnED : public ADDriver {
   //Put private dynamic here
   epicsUInt32 m_acquiring; 
   epicsUInt32 m_seqCounter[ADNED_MAX_CHANNELS];
+  epicsUInt32 m_seqID[ADNED_MAX_CHANNELS];
   epicsUInt32 m_lastSeqID[ADNED_MAX_CHANNELS];
   epicsUInt32 m_pulseCounter;
   epicsFloat64 m_pChargeInt;

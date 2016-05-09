@@ -867,7 +867,7 @@ record(calcout, "$(P)$(R)Det$(DET):TOF:XAxis_Auto_Proc2")
 
 
 #####################################################################
-# Provide records to convert high level ROI start and size to bins
+# Provide records to convert high level ROI and Mask start and size to bins
 
 substitute "SIZE1=$(P)$(R)Det$(DET):TOF:XAxis_End"
 substitute "SIZE2=$(P)$(R)Det$(DET):TOF:XAxis_Size"
@@ -896,6 +896,32 @@ include "ADnEDDetectorTOFROIScale.template"
 
 substitute "ROI=7"
 include "ADnEDDetectorTOFROIScale.template"
+
+# Now do the Mask high level records
+
+substitute "MASK=0"
+include "ADnEDDetectorTOFMaskScale.template"
+
+substitute "MASK=1"
+include "ADnEDDetectorTOFMaskScale.template"
+
+substitute "MASK=2"
+include "ADnEDDetectorTOFMaskScale.template"
+
+substitute "MASK=3"
+include "ADnEDDetectorTOFMaskScale.template"
+
+substitute "MASK=4"
+include "ADnEDDetectorTOFMaskScale.template"
+
+substitute "MASK=5"
+include "ADnEDDetectorTOFMaskScale.template"
+
+substitute "MASK=6"
+include "ADnEDDetectorTOFMaskScale.template"
+
+substitute "MASK=7"
+include "ADnEDDetectorTOFMaskScale.template"
 
 
 #####################################################################

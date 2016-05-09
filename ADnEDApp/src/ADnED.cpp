@@ -185,6 +185,7 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   m_acquiring = 0;
   for (int chan=0; chan<s_ADNED_MAX_CHANNELS; ++chan) {
     m_seqCounter[chan] = 0;
+    m_seqID[chan] = 0;
     m_lastSeqID[chan] = -1; //Init to -1 to catch packet trains stuck at zero
   }
   m_pulseCounter = 0;
@@ -276,9 +277,6 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
   paramStatus = ((setIntegerParam(ADnEDEventDebugParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDPulseCounterParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDEventRateParam, 0) == asynSuccess) && paramStatus);
-  paramStatus = ((setIntegerParam(ADnEDSeqIDMissingParam, 0) == asynSuccess) && paramStatus);
-  paramStatus = ((setIntegerParam(ADnEDSeqIDNumMissingParam, 0) == asynSuccess) && paramStatus);
-  paramStatus = ((setIntegerParam(ADnEDBadTimeStampParam, 0) == asynSuccess) && paramStatus);
   paramStatus = ((setDoubleParam(ADnEDPChargeParam, 0.0) == asynSuccess) && paramStatus);
   paramStatus = ((setDoubleParam(ADnEDPChargeIntParam, 0.0) == asynSuccess) && paramStatus);
   paramStatus = ((setIntegerParam(ADnEDNumDetParam, 0) == asynSuccess) && paramStatus);
@@ -291,6 +289,9 @@ ADnED::ADnED(const char *portName, int maxBuffers, size_t maxMemory, int debug)
     paramStatus = ((setIntegerParam(det, ADnEDSeqCounterParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setIntegerParam(det, ADnEDSeqIDParam, 0) == asynSuccess) && paramStatus);
     paramStatus = ((setStringParam(det, ADnEDPVNameParam, " ") == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDSeqIDMissingParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDSeqIDNumMissingParam, 0) == asynSuccess) && paramStatus);
+    paramStatus = ((setIntegerParam(det, ADnEDBadTimeStampParam, 0) == asynSuccess) && paramStatus);
 
     //Detector params (1-based) - we just don't use the addr=0 params.
     paramStatus = ((setIntegerParam(det, ADnEDDetPixelNumStartParam, 0) == asynSuccess) && paramStatus);
@@ -981,12 +982,12 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 {
   int eventDebug = 0;
   bool eventUpdate = false;
-  epicsUInt32 seqID = 0;
   bool newPulse = false;
   epicsFloat64 updatePeriod = 0.0;
   int numMissingPackets = 0;
   double timeDiffSecs = 0.0;
   epicsUInt32 eventRate = 0;
+  int numChanOrDet = 0;
   const char* functionName = "ADnED::eventHandler";
 
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Event Handler. Channel ID %d\n", functionName, channelID);
@@ -1083,25 +1084,25 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
       if (eventUpdate) {
         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s Backwards timeStamp detected on channel %d.\n", functionName, channelID);
       }
-      setIntegerParam(ADnEDBadTimeStampParam, 1);
+      setIntegerParam(channelID, ADnEDBadTimeStampParam, 1);
       unlock();
       return;
     }
     m_TimeStampLast[channelID].put(m_TimeStamp[channelID].getSecondsPastEpoch(), m_TimeStamp[channelID].getNanoseconds());
     
-    seqID = static_cast<epicsUInt32>(m_TimeStamp[channelID].getUserTag());
+    m_seqID[channelID] = static_cast<epicsUInt32>(m_TimeStamp[channelID].getUserTag());
     //Detect missing packets
     if (static_cast<epicsInt32>(m_lastSeqID[channelID]) != -1) {
-      if (seqID != m_lastSeqID[channelID]+1) {
-        setIntegerParam(ADnEDSeqIDMissingParam, m_lastSeqID[channelID]+1);
-        getIntegerParam(ADnEDSeqIDNumMissingParam, &numMissingPackets);
-        setIntegerParam(ADnEDSeqIDNumMissingParam, numMissingPackets+(seqID-m_lastSeqID[channelID]+1));
+      if (m_seqID[channelID] != m_lastSeqID[channelID]+1) {
+        setIntegerParam(channelID, ADnEDSeqIDMissingParam, m_lastSeqID[channelID]+1);
+        getIntegerParam(channelID, ADnEDSeqIDNumMissingParam, &numMissingPackets);
+        setIntegerParam(channelID, ADnEDSeqIDNumMissingParam, numMissingPackets+(m_seqID[channelID]-m_lastSeqID[channelID]+1));
         if (eventUpdate) {
           asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, "%s: Missing seq ID numbers on channel %d.\n", functionName, channelID);
         }
       }
     }
-    m_lastSeqID[channelID] = seqID;
+    m_lastSeqID[channelID] = m_seqID[channelID];
   } catch (std::exception &e)  {
     if (eventUpdate) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
@@ -1267,13 +1268,16 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
 
     }
 
-    //Update params at slower rate
+    //Update params at slower rate.
+    //There is only one timer shared between channel threads. So any of them could reset
+    //the timer and be responsible for posting the param updates. This is why we post 
+    //the updates for all the channels and detectors each time.
     if (eventUpdate) {
-      //Channel params. NOTE: these can be updated sporadically for channels which don't
-      //always reset the update timer. Should I update all channels here? That would mean
-      //having an array for the seqID as well.
-      setIntegerParam(channelID, ADnEDSeqCounterParam, m_seqCounter[channelID]);
-      setIntegerParam(channelID, ADnEDSeqIDParam, seqID);
+      //Channel params
+      for (int chan=0; chan<numChan; ++chan) {
+	setIntegerParam(chan, ADnEDSeqCounterParam, m_seqCounter[chan]);
+	setIntegerParam(chan, ADnEDSeqIDParam, m_seqID[chan]);
+      }
       //Other params
       setIntegerParam(ADnEDPulseCounterParam, m_pulseCounter);
       eventRate = static_cast<epicsUInt32>(floor(m_eventsSinceLastUpdate/timeDiffSecs));
@@ -1288,7 +1292,8 @@ void ADnED::eventHandler(shared_ptr<epics::pvData::PVStructure> const &pv_struct
       setDoubleParam(ADnEDPChargeParam, pChargePtr->get());
       setDoubleParam(ADnEDPChargeIntParam, m_pChargeInt);
       //Callbacks for channel and det related parameters (so start at 0 rather than 1)
-      for (int det=0; det<=numDet; det++) {
+      numChanOrDet = std::max(numChan, numDet);
+      for (int det=0; det<=numChanOrDet; det++) {
         callParamCallbacks(det);
       }
       callParamCallbacks();
@@ -1429,9 +1434,6 @@ asynStatus ADnED::clearParams(void)
   status = ((setIntegerParam(ADnEDPulseCounterParam, 0) == asynSuccess) && status);
   status = ((setDoubleParam(ADnEDPChargeParam, 0.0) == asynSuccess) && status);
   status = ((setDoubleParam(ADnEDPChargeIntParam, 0.0) == asynSuccess) && status);
-  status = ((setIntegerParam(ADnEDSeqIDMissingParam, 0) == asynSuccess) && status);
-  status = ((setIntegerParam(ADnEDSeqIDNumMissingParam, 0) == asynSuccess) && status);
-  status = ((setIntegerParam(ADnEDBadTimeStampParam, 0) == asynSuccess) && status);
 
   m_pChargeInt = 0.0;
   m_pulseCounter = 0;
@@ -1443,7 +1445,11 @@ asynStatus ADnED::clearParams(void)
   for (int chan=0; chan<s_ADNED_MAX_CHANNELS; ++chan) {
     status = ((setIntegerParam(chan, ADnEDSeqCounterParam, 0) == asynSuccess) && status);
     status = ((setIntegerParam(chan, ADnEDSeqIDParam, 0) == asynSuccess) && status);
+    status = ((setIntegerParam(chan, ADnEDSeqIDMissingParam, 0) == asynSuccess) && status);
+    status = ((setIntegerParam(chan, ADnEDSeqIDNumMissingParam, 0) == asynSuccess) && status);
+    status = ((setIntegerParam(chan, ADnEDBadTimeStampParam, 0) == asynSuccess) && status);
     m_seqCounter[chan] = 0;
+    m_seqID[chan] = 0;
     m_lastSeqID[chan] = -1;  
     m_TimeStamp[chan].put(0,0);
     m_TimeStampLast[chan].put(0,0);

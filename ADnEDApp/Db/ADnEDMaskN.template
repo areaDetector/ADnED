@@ -1,0 +1,220 @@
+###################################################################
+# Instantiate this template for each mask used in a 
+# NDPluginMask plugin driver.
+#
+# Macros:
+# P,R - base PV names
+# O - second part of base PV name for top level template (ADMask.template)
+# PORT - asyn port
+# ADDR - asyn address (increment for each mask)
+# TIMEOUT - asyn timeout (eg. 1)
+# XPOS (optional) - link for X position
+# YPOS (optional) - link for Y position
+# XSIZE (optional) - link for X size
+# YSIZE (optional) - link for Y size
+
+record(stringout, "$(P)$(R)Name")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynOctetWrite")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MASK_NAME")
+    field(VAL,  " ")
+    info(autosaveFields, "VAL")
+}
+
+record(stringin, "$(P)$(R)Name_RBV")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MASK_NAME")
+    field(SCAN, "I/O Intr")
+}
+
+record(bo, "$(P)$(R)Use")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MASK_USE")
+    field(VAL,  "0")
+    field(ZNAM, "No")
+    field(ONAM, "Yes")
+    info(autosaveFields, "VAL")
+}
+
+record(bi, "$(P)$(R)Use_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MASK_USE")
+    field(ZNAM, "No")
+    field(ONAM, "Yes")
+    field(ZSV,  "NO_ALARM")
+    field(OSV,  "MINOR")
+    field(SCAN, "I/O Intr")
+}
+
+record(longout, "$(P)$(R)PosXLink")
+{
+    field(DOL,  "$(XPOS="") CP MS")
+    field(OMSL, "closed_loop")
+    field(OUT, "$(P)$(R)PosX PP")
+    info(autosaveFields, "DOL")
+}
+
+record(longout, "$(P)$(R)PosX")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MASK_POS_X")
+    field(VAL,  "0")
+    info(autosaveFields, "VAL")
+}
+
+record(longin, "$(P)$(R)PosX_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MASK_POS_X")
+    field(SCAN, "I/O Intr")
+}
+
+record(longout, "$(P)$(R)PosYLink")
+{
+    field(DOL,  "$(YPOS="") CP MS")
+    field(OMSL, "closed_loop")
+    field(OUT, "$(P)$(R)PosY PP")
+    info(autosaveFields, "DOL")
+}
+
+record(longout, "$(P)$(R)PosY")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MASK_POS_Y")
+    field(VAL,  "0")
+    info(autosaveFields, "VAL")
+}
+
+record(longin, "$(P)$(R)PosY_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MASK_POS_Y")
+    field(SCAN, "I/O Intr")
+}
+
+record(longout, "$(P)$(R)SizeXLink")
+{
+    field(DOL,  "$(XSIZE="") CP MS")
+    field(OMSL, "closed_loop")
+    field(OUT, "$(P)$(R)SizeX PP")
+    info(autosaveFields, "DOL")
+}
+
+record(longout, "$(P)$(R)SizeX")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MASK_SIZE_X")
+    field(VAL,  "1")
+    info(autosaveFields, "VAL")
+}
+
+record(longin, "$(P)$(R)SizeX_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MASK_SIZE_X")
+    field(SCAN, "I/O Intr")
+}
+
+record(longout, "$(P)$(R)SizeYLink")
+{
+    field(DOL,  "$(YSIZE="") CP MS")
+    field(OMSL, "closed_loop")
+    field(OUT, "$(P)$(R)SizeY PP")
+    info(autosaveFields, "DOL")
+}
+
+record(longout, "$(P)$(R)SizeY")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MASK_SIZE_Y")
+    field(VAL,  "1")
+    info(autosaveFields, "VAL")
+}
+
+record(longin, "$(P)$(R)SizeY_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MASK_SIZE_Y")
+    field(SCAN, "I/O Intr")
+}
+
+record(longout, "$(P)$(R)Value")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MASK_VAL")
+    field(VAL,  "0")
+    info(autosaveFields, "VAL")
+}
+
+record(longin, "$(P)$(R)Value_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MASK_VAL")
+    field(SCAN, "I/O Intr")
+}
+
+record(mbbo, "$(P)$(R)Type")
+{
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MASK_TYPE")
+    field(ZRVL, "0")
+    field(ONVL, "1")
+    field(ZRST, "Reject")
+    field(ONST, "Pass")
+    info(autosaveFields, "VAL")
+}
+
+record(mbbi, "$(P)$(R)Type_RBV")
+{
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MASK_TYPE")
+    field(SCAN, "I/O Intr")
+    field(ZRVL, "0")
+    field(ONVL, "1")
+    field(ZRST, "Reject")
+    field(ONST, "Pass")
+}
+
+###################################################################
+#  These records set the HOPR and LOPR values for the position    
+#  and size to the maximum for the input array                    
+
+record(longin, "$(P)$(R)MaxSizeX")
+{
+    field(INP,  "$(P)$(O)MaxSizeX_RBV CP")
+    field(FLNK, "$(P)$(R)SetXHOPR.PROC PP")
+}
+
+record(dfanout, "$(P)$(R)SetXHOPR")
+{
+    field(DOL,  "$(P)$(R)MaxSizeX NPP")
+    field(OMSL, "closed_loop")
+    field(OUTA, "$(P)$(R)PosX.HOPR NPP")
+    field(OUTB, "$(P)$(R)SizeX.HOPR NPP")
+}
+
+record(longin, "$(P)$(R)MaxSizeY")
+{
+    field(INP,  "$(P)$(O)MaxSizeY_RBV CP")
+    field(FLNK, "$(P)$(R)SetYHOPR.PROC PP")
+}
+
+record(dfanout, "$(P)$(R)SetYHOPR")
+{
+    field(DOL,  "$(P)$(R)MaxSizeY NPP")
+    field(OMSL, "closed_loop")
+    field(OUTA, "$(P)$(R)PosY.HOPR NPP")
+    field(OUTB, "$(P)$(R)SizeY.HOPR NPP")
+}
+

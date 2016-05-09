@@ -78,3 +78,53 @@ record(calc, "$(P)$(R)SeqID$(CHAN)Rate_RBV")
 }
 
 
+# ///
+# /// This will be non-zero if any missing V4 packets are detected on channel $(CHAN). 
+# /// This record will be updated with the latest missing sequence ID.
+# ///
+record(longin, "$(P)$(R)SeqID$(CHAN)Missing_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(CHAN),$(TIMEOUT))ADNED_SEQ_ID_MISSING")
+   field(SCAN, "I/O Intr")
+   field(LOLO, "-1")
+   field(HIHI, "1")
+   field(LLSV, "MAJOR")
+   field(HHSV, "MAJOR")
+   info(archive, "Monitor, 00:00:01, VAL")
+}
+
+# ///
+# /// This is the number of missing V4 packets on channel $(CHAN), if any have been detected.
+# ///
+record(longin, "$(P)$(R)SeqID$(CHAN)NumMissing_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(CHAN),$(TIMEOUT))ADNED_SEQ_ID_NUM_MISSING")
+   field(SCAN, "I/O Intr")
+   field(LOLO, "-1")
+   field(HIHI, "1")
+   field(LLSV, "MAJOR")
+   field(HHSV, "MAJOR")
+   info(archive, "Monitor, 00:00:01, VAL")
+}
+
+# ///
+# /// This is a flag to indicate I detected an out of order packet (with backwards timestamp) 
+# /// on channel $(CHAN).
+# ///
+record(bi, "$(P)$(R)BadTimeStamp$(CHAN)_RBV")
+{
+   field(PINI, "YES")
+   field(DTYP, "asynInt32")
+   field(INP,  "@asyn($(PORT),$(CHAN),$(TIMEOUT))ADNED_BAD_TIMESTAMP")
+   field(SCAN, "I/O Intr")
+   field(ZNAM, "Ok")
+   field(ONAM, "Error")
+   field(ZSV, "NO_ALARM")
+   field(OSV, "MAJOR")
+   info(archive, "Monitor, 00:00:01, VAL")
+}
+

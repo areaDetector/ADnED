@@ -21,6 +21,7 @@ ADnEDSupport_SRCS += nEDChannel.cpp
 ADnEDSupport_SRCS += ADnEDPixelROI.cpp
 ADnEDSupport_SRCS += ADnEDFile.cpp
 ADnEDSupport_SRCS += ADnEDAxis.c
+ADnEDSupport_SRCS += ADnEDPluginMask.cpp
 
 ADnEDTransform_SRCS += ADnEDTransformBase.cpp
 ADnEDTransform_SRCS += ADnEDTransform.cpp
