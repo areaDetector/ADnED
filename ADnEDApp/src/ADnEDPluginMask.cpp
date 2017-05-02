@@ -165,7 +165,7 @@ void NDPluginMask::processCallbacks(NDArray *pArray)
   static const char* functionName = "NDPluginMask::processCallbacks";
   
   /* Call the base class method */
-  NDPluginDriver::processCallbacks(pArray);
+  NDPluginDriver::beginProcessCallbacks(pArray);
 
   /* This plugin only works with 1-D or 2-D arrays */
   if ((pArray->ndims < 1) || (pArray->ndims > 2)) {
@@ -282,10 +282,10 @@ NDPluginMask::NDPluginMask(const char *portName, int queueSize, int blockingCall
                          int priority, int stackSize)
     /* Invoke the base class constructor */
     : NDPluginDriver(portName, queueSize, blockingCallbacks,
-                   NDArrayPort, NDArrayAddr, maxMasks, NUM_NDPLUGIN_MASK_PARAMS, maxBuffers, maxMemory,
+                   NDArrayPort, NDArrayAddr, maxMasks, maxBuffers, maxMemory,
                    asynGenericPointerMask,
                    asynGenericPointerMask,
-                   ASYN_MULTIDEVICE, 1, priority, stackSize)
+                   ASYN_MULTIDEVICE, 1, priority, stackSize, 1)
 {
     static const char *functionName = "NDPluginMask";
 

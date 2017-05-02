@@ -57,10 +57,8 @@ protected:
     int ADnEDPixelROIDim2MaxSize;
     int ADnEDPixelROIDataType;
     int ADnEDPixelROILast;
-    #define LAST_ADNED_PIXELROI_PARAM ADnEDPixelROILast
                                 
 private:
 };
-#define NUM_ADNED_PIXELROI_PARAMS ((int)(&LAST_ADNED_PIXELROI_PARAM - &FIRST_ADNED_PIXELROI_PARAM + 1))
     
 #endif //ADNED_PIXEL_ROI_H
