@@ -163,10 +163,7 @@ void ADnEDPixelROI::processCallbacks(NDArray *pArray)
     /* Get the attributes for this driver */
     this->getAttributes(this->pArrays[0]->pAttributeList);
     /* Call any clients who have registered for NDArray callbacks */
-    this->unlock();
     doCallbacksGenericPointer(this->pArrays[0], NDArrayData, 0);
-    /* We must enter the loop and exit with the mutex locked */
-    this->lock();
     callParamCallbacks();
 
 }

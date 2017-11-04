@@ -251,9 +251,7 @@ void NDPluginMask::processCallbacks(NDArray *pArray)
   /* Get the attributes for this driver */
   this->getAttributes(this->pArrays[0]->pAttributeList);
   /* Call any clients who have registered for NDArray callbacks */
-  this->unlock();
   doCallbacksGenericPointer(this->pArrays[0], NDArrayData, 0);
-  this->lock();
   callParamCallbacks();
 }
 
