@@ -1727,28 +1727,31 @@ void ADnED::frameTask(void)
  
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Started Frame Thread.\n", functionName);
 
+  lock();
   while (1) {
 
     //Wait for a stop event, with a short timeout, to catch any that were done during last read.
-    eventStatus = epicsEventWaitWithTimeout(m_stopFrame, 0.01);          
+    unlock();
+    eventStatus = epicsEventWaitWithTimeout(m_stopFrame, 0.01);
+    lock();          
     if (eventStatus == epicsEventWaitOK) {
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Stop Frame Event Before Start Frame Event.\n", functionName);
     }
     
     callParamCallbacks();
 
-    eventStatus = epicsEventWait(m_startFrame);          
+    unlock();
+    eventStatus = epicsEventWait(m_startFrame);
+    lock();      
     if (eventStatus == epicsEventWaitOK) {
       cout << "Got start frame" << endl;
       asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Start Frame Event.\n", functionName);
       acquire = true;
       arrayCounter = 0;
-      lock();
       setIntegerParam(NDArrayCounter, arrayCounter);
       //setIntegerParam(ADnEDFrameStatus, ADStatusAcquire);
       //setStringParam(ADnEDFrameStatusMessage, "Acquiring Frames");
       callParamCallbacks();
-      unlock();
     }
 
     while (acquire) {
@@ -1758,7 +1761,9 @@ void ADnED::frameTask(void)
       timeout = updatePeriod / 1000.0;
       
       //Wait for a stop event
+      unlock();
       eventStatus = epicsEventWaitWithTimeout(m_stopFrame, timeout);
+      lock();
       if (eventStatus == epicsEventWaitOK) {
         cout << "Got Stop Frame" << endl;
         asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s Got Stop Frame Event.\n", functionName);
@@ -1780,17 +1785,14 @@ void ADnED::frameTask(void)
             pNDArray->pAttributeList->add("TIMESTAMP", "Host Timestamp", NDAttrFloat64, &(pNDArray->timeStamp));
             lock();
             memcpy(pNDArray->pData, p_Data, m_bufferMaxSize * sizeof(epicsUInt32));
-            unlock();
             asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, "%s: Calling NDArray callback\n", functionName);
             doCallbacksGenericPointer(pNDArray, NDArrayData, 0);
           }
 
-          lock();
           //Free the NDArray 
           pNDArray->release();
           setIntegerParam(NDArrayCounter, arrayCounter);          
           callParamCallbacks();
-          unlock();
         }
 
       }
