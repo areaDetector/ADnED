@@ -1,4 +1,6 @@
 # ADnED
+This repository is no longer active and was archived on June 13, 2025.
+
 EPICS areaDetector driver for V4 neutron event data
 
 The primary purpose of ADnED is to provide live data display for experimental control and visualization.
